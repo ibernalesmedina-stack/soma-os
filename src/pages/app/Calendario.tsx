@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { addBloqueo, deleteBloqueo, isClienteNuevo, listBloqueos, listReservas } from "@/lib/storage";
+import { useBloqueos, useReservas } from "@/lib/hooks";
+import { addBloqueo, deleteBloqueo } from "@/lib/storage";
+import type { Bloqueo, Reserva } from "@/lib/types";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -27,10 +29,8 @@ export default function Calendario() {
   const { user, update } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
-  const [version, setVersion] = useState(0);
-
-  const reservas = useMemo(() => (user ? listReservas(user.id) : []), [user, version]);
-  const bloqueos = useMemo(() => (user ? listBloqueos(user.id) : []), [user, version]);
+  const { data: reservas, refetch: refetchReservas } = useReservas();
+  const { data: bloqueos, refetch: refetchBloqueos } = useBloqueos();
 
   if (!user || !cfg) return null;
 
@@ -82,7 +82,7 @@ export default function Calendario() {
                 <CalIcon className="h-4 w-4 mr-1.5" /> Conectar Google Calendar
               </Button>
             )}
-            <BloqueoDialog onSave={(b) => { addBloqueo({ ...b, user_id: user.id }); setVersion((v) => v + 1); toast({ title: "Horario bloqueado" }); }} />
+            <BloqueoDialog onSave={async (b) => { await addBloqueo({ ...b, user_id: user.id }); refetchBloqueos(); toast({ title: "Horario bloqueado" }); }} />
           </div>
         }
       />
@@ -124,7 +124,7 @@ export default function Calendario() {
 
             {/* Filas por hora */}
             {HOURS.map((h) => (
-              <Row key={h} hour={h} days={days} weekReservas={weekReservas} weekBloqueos={weekBloqueos} userId={user.id} clientLabelNuevo={`${cfg.clientLabel} nuevo`} clientLabelAntiguo={`${cfg.clientLabel} antiguo`} onDeleteBloqueo={(id) => { deleteBloqueo(id); setVersion((v) => v + 1); }} />
+              <Row key={h} hour={h} days={days} weekReservas={weekReservas} weekBloqueos={weekBloqueos} allReservas={reservas} clientLabelNuevo={`${cfg.clientLabel} nuevo`} clientLabelAntiguo={`${cfg.clientLabel} antiguo`} onDeleteBloqueo={async (id) => { await deleteBloqueo(id); refetchBloqueos(); }} />
             ))}
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function Calendario() {
                     {new Date(b.start).toLocaleString("es-CL", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })} — {new Date(b.end).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => { deleteBloqueo(b.id); setVersion((v) => v + 1); }}>Eliminar</Button>
+                <Button variant="ghost" size="sm" onClick={async () => { await deleteBloqueo(b.id); refetchBloqueos(); }}>Eliminar</Button>
               </li>
             ))}
           </ul>
@@ -153,11 +153,18 @@ export default function Calendario() {
   );
 }
 
-function Row({ hour, days, weekReservas, weekBloqueos, userId, clientLabelNuevo, clientLabelAntiguo, onDeleteBloqueo }: {
+function isNuevoLocal(allReservas: Reserva[], clientKey: string): boolean {
+  const clientReservas = allReservas.filter(r => slugify(r.clientName) === clientKey);
+  if (clientReservas.length === 0) return true;
+  const completedOrPast = clientReservas.filter(r => r.status === "completada" || new Date(r.date) < new Date());
+  return completedOrPast.length <= 1;
+}
+
+function Row({ hour, days, weekReservas, weekBloqueos, allReservas, clientLabelNuevo, clientLabelAntiguo, onDeleteBloqueo }: {
   hour: number; days: Date[];
-  weekReservas: ReturnType<typeof listReservas>;
-  weekBloqueos: ReturnType<typeof listBloqueos>;
-  userId: string;
+  weekReservas: Reserva[];
+  weekBloqueos: Bloqueo[];
+  allReservas: Reserva[];
   clientLabelNuevo: string; clientLabelAntiguo: string;
   onDeleteBloqueo: (id: string) => void;
 }) {
@@ -192,7 +199,7 @@ function Row({ hour, days, weekReservas, weekBloqueos, userId, clientLabelNuevo,
               </button>
             ))}
             {reservasSlot.map((r) => {
-              const nuevo = isClienteNuevo(userId, slugify(r.clientName));
+              const nuevo = isNuevoLocal(allReservas, slugify(r.clientName));
               const esControl = !!r.esControl;
               const tone = esControl
                 ? "bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/40"

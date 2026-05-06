@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { deleteServicio, listServicios, uid, upsertServicio } from "@/lib/storage";
+import { useServicios } from "@/lib/hooks";
+import { deleteServicio, uid, upsertServicio } from "@/lib/storage";
 import type { Servicio } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -14,16 +15,13 @@ import { Clock, Pencil, Plus, Trash2 } from "lucide-react";
 
 export default function Servicios() {
   const { user } = useAuth();
-  const [items, setItems] = useState<Servicio[]>([]);
+  const { data: items, refetch } = useServicios();
   const [editing, setEditing] = useState<Servicio | null>(null);
   const [open, setOpen] = useState(false);
 
-  const refresh = () => user && setItems(listServicios(user.id));
-  useEffect(() => { refresh(); }, [user]);
-
   const onNew = () => { setEditing(null); setOpen(true); };
   const onEdit = (s: Servicio) => { setEditing(s); setOpen(true); };
-  const onDelete = (id: string) => { deleteServicio(id); refresh(); };
+  const onDelete = async (id: string) => { await deleteServicio(id); refetch(); };
 
   return (
     <>
@@ -70,15 +68,11 @@ export default function Servicios() {
         <DialogContent>
           <ServicioForm
             initial={editing}
-            onSave={(data) => {
+            onSave={async (data) => {
               if (!user) return;
-              upsertServicio({
-                id: editing?.id ?? uid(),
-                user_id: user.id,
-                ...data,
-              });
+              await upsertServicio({ id: editing?.id ?? uid(), user_id: user.id, ...data });
               setOpen(false);
-              refresh();
+              refetch();
             }}
           />
         </DialogContent>

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import {
   addNota, addProgreso, deleteNota, deleteProgreso, getOrCreateFicha,
   listFichas, listNotas, listPagos, listProgreso, listRegistros, listReservas, updateFicha,
 } from "@/lib/storage";
+import type { Reserva } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AtencionBadge } from "@/components/AtencionBadge";
 import { formatCLP, formatDate, formatDateTime, slugify } from "@/lib/format";
-import type { ClienteFicha, ProgresoEntry, SesionNota } from "@/lib/types";
+import type { ClienteFicha, Pago, ProgresoEntry, Registro, SesionNota } from "@/lib/types";
 import { ArrowLeft, Plus, Save, Trash2, CalendarPlus, FileText, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
@@ -26,23 +27,38 @@ export default function ClienteDetalle() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const reservas = useMemo(() => user ? listReservas(user.id).filter(r => slugify(r.clientName) === clientKey) : [], [user, clientKey]);
-  const pagos = useMemo(() => user ? listPagos(user.id).filter(p => slugify(p.clientName) === clientKey) : [], [user, clientKey]);
-  const registros = useMemo(() => user ? listRegistros(user.id).filter(r => r.client_id === clientKey) : [], [user, clientKey]);
-
-  const clientName = reservas[0]?.clientName ?? pagos[0]?.clientName ?? listFichas(user?.id ?? "").find(f => f.clientKey === clientKey)?.clientName;
-
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [pagos, setPagos] = useState<Pago[]>([]);
+  const [registros, setRegistros] = useState<Registro[]>([]);
+  const [clientName, setClientName] = useState<string | undefined>();
   const [ficha, setFicha] = useState<ClienteFicha | null>(null);
   const [notas, setNotas] = useState<SesionNota[]>([]);
   const [progreso, setProgreso] = useState<ProgresoEntry[]>([]);
 
   useEffect(() => {
-    if (!user || !clientName) return;
-    const f = getOrCreateFicha(user.id, clientName);
-    setFicha(f);
-    setNotas(listNotas(user.id).filter(n => n.clientKey === clientKey).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    setProgreso(listProgreso(user.id).filter(p => p.clientKey === clientKey).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()));
-  }, [user, clientName, clientKey]);
+    if (!user) return;
+    (async () => {
+      const [allReservas, allPagos, allRegistros, allFichas] = await Promise.all([
+        listReservas(user.id), listPagos(user.id), listRegistros(user.id), listFichas(user.id),
+      ]);
+      const clientReservas = allReservas.filter(r => slugify(r.clientName) === clientKey);
+      const clientPagos = allPagos.filter(p => slugify(p.clientName) === clientKey);
+      const clientRegistros = allRegistros.filter(r => r.client_id === clientKey);
+      const name = clientReservas[0]?.clientName ?? clientPagos[0]?.clientName ?? allFichas.find(f => f.clientKey === clientKey)?.clientName;
+      setReservas(clientReservas);
+      setPagos(clientPagos);
+      setRegistros(clientRegistros);
+      setClientName(name);
+      if (name) {
+        const f = await getOrCreateFicha(user.id, name);
+        setFicha(f);
+        const allNotas = await listNotas(user.id);
+        setNotas(allNotas.filter(n => n.clientKey === clientKey).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        const allProgreso = await listProgreso(user.id);
+        setProgreso(allProgreso.filter(p => p.clientKey === clientKey).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()));
+      }
+    })();
+  }, [user, clientKey]);
 
   if (!user) return null;
   if (!clientName || !ficha) {
@@ -59,9 +75,9 @@ export default function ClienteDetalle() {
   const initials = clientName.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
 
   const onChange = (k: keyof ClienteFicha, v: string) => setFicha((f) => f ? { ...f, [k]: v } : f);
-  const onSave = () => {
+  const onSave = async () => {
     if (!ficha) return;
-    updateFicha(ficha.id, ficha);
+    await updateFicha(ficha.id, ficha);
     toast({ title: "Ficha guardada" });
   };
 
@@ -163,8 +179,8 @@ function MetricCard({ label, value, hint }: { label: string; value: string; hint
 function NotasTab({ notas, setNotas, userId, clientKey, privado = false }: { notas: SesionNota[]; setNotas: (n: SesionNota[]) => void; userId: string; clientKey: string; privado?: boolean; }) {
   return (
     <Section title={privado ? "Notas privadas" : "Notas"} action={
-      <NotaDialog onSave={(n) => {
-        const created = addNota({ ...n, user_id: userId, clientKey });
+      <NotaDialog onSave={async (n) => {
+        const created = await addNota({ ...n, user_id: userId, clientKey });
         setNotas([created, ...notas]);
         toast({ title: "Nota agregada" });
       }} />
@@ -179,7 +195,7 @@ function NotasTab({ notas, setNotas, userId, clientKey, privado = false }: { not
                   <div className="text-xs mono text-muted-foreground">{formatDate(n.date)}</div>
                   <div className="text-sm font-medium mt-0.5">{n.title}</div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { deleteNota(n.id); setNotas(notas.filter(x => x.id !== n.id)); }}>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => { await deleteNota(n.id); setNotas(notas.filter(x => x.id !== n.id)); }}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -192,7 +208,7 @@ function NotasTab({ notas, setNotas, userId, clientKey, privado = false }: { not
   );
 }
 
-function HistorialTab({ reservas }: { reservas: ReturnType<typeof listReservas> }) {
+function HistorialTab({ reservas }: { reservas: Reserva[] }) {
   return (
     <div className="surface-card overflow-hidden">
       {reservas.length === 0 ? <EmptyState /> : (
@@ -262,8 +278,8 @@ function NutricionistaView({ ficha, onChange, progreso, setProgreso, notas, setN
 
       <TabsContent value="progreso" className="mt-4 space-y-4">
         <Section title="Evolución" action={
-          <ProgresoDialog onSave={(p) => {
-            const created = addProgreso({ ...p, user_id: userId, clientKey });
+          <ProgresoDialog onSave={async (p) => {
+            const created = await addProgreso({ ...p, user_id: userId, clientKey });
             setProgreso([...progreso, created].sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()));
             toast({ title: "Medición guardada" });
           }} />
@@ -305,7 +321,7 @@ function NutricionistaView({ ficha, onChange, progreso, setProgreso, notas, setN
                     <td className="px-4 py-3">{p.porcGrasa ?? "—"}</td>
                     <td className="px-4 py-3">{p.porcMuscular ?? "—"}</td>
                     <td className="px-4 py-3 text-muted-foreground text-xs">{p.notas ?? "—"}</td>
-                    <td className="px-4 py-3"><Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { deleteProgreso(p.id); setProgreso(progreso.filter((x: ProgresoEntry) => x.id !== p.id)); }}><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                    <td className="px-4 py-3"><Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => { await deleteProgreso(p.id); setProgreso(progreso.filter((x: ProgresoEntry) => x.id !== p.id)); }}><Trash2 className="h-3.5 w-3.5" /></Button></td>
                   </tr>
                 ))}
               </tbody>

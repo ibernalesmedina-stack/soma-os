@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { addRegistro, deleteRegistro, listRegistros, listReservas } from "@/lib/storage";
+import { useRegistros, useReservas } from "@/lib/hooks";
+import { addRegistro, deleteRegistro } from "@/lib/storage";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -17,16 +18,14 @@ export default function Registros() {
   const { user } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [q, setQ] = useState("");
-  const [version, setVersion] = useState(0);
 
-  const registros = useMemo(() => {
-    if (!user) return [];
-    return listRegistros(user.id)
-      .filter((r) => r.tipo === cfg?.registroTipo)
-      .sort((a, b) => +new Date(b.fecha) - +new Date(a.fecha));
-  }, [user, cfg, version]);
+  const { data: allRegistros, refetch } = useRegistros();
+  const { data: reservas } = useReservas();
 
-  const reservas = useMemo(() => (user ? listReservas(user.id) : []), [user]);
+  const registros = useMemo(() =>
+    allRegistros.filter((r) => r.tipo === cfg?.registroTipo).sort((a, b) => +new Date(b.fecha) - +new Date(a.fecha)),
+    [allRegistros, cfg],
+  );
   const clients = useMemo(() => {
     const map = new Map<string, string>();
     reservas.forEach((r) => map.set(slugify(r.clientName), r.clientName));
@@ -47,9 +46,9 @@ export default function Registros() {
         actions={
           <NuevoRegistroDialog
             clients={clients}
-            onSave={(data) => {
-              addRegistro({ ...data, user_id: user.id, tipo: cfg.registroTipo });
-              setVersion((v) => v + 1);
+            onSave={async (data) => {
+              await addRegistro({ ...data, user_id: user.id, tipo: cfg.registroTipo });
+              refetch();
               toast({ title: `${cfg.registrosLabelSingular} agregado` });
             }}
           />
@@ -88,7 +87,7 @@ export default function Registros() {
                   </div>
                   {r.notas && <p className="text-xs text-muted-foreground mt-2 whitespace-pre-wrap">{r.notas}</p>}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { deleteRegistro(r.id); setVersion((v) => v + 1); }}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={async () => { await deleteRegistro(r.id); refetch(); }}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </li>

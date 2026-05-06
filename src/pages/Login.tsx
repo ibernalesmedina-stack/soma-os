@@ -14,9 +14,13 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   if (user) return <Navigate to="/app" replace />;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const err = login(email, password);
+    setSubmitting(true);
+    const err = await login(email, password);
+    setSubmitting(false);
     if (err) return setError(err);
     navigate("/app");
   };
@@ -32,8 +36,8 @@ export default function Login() {
         <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
-      <Button type="submit" className="w-full">
-        Empezar ahora <ArrowRight className="ml-1.5 h-4 w-4" />
+      <Button type="submit" className="w-full" disabled={submitting}>
+        {submitting ? "Entrando…" : <>Empezar ahora <ArrowRight className="ml-1.5 h-4 w-4" /></>}
       </Button>
       <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/app")}>
         Ver demo

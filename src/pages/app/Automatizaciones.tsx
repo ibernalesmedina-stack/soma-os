@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { listAutomations, toggleAutomation } from "@/lib/storage";
-import type { Automation } from "@/lib/types";
+import { useAutomations } from "@/lib/hooks";
+import { toggleAutomation } from "@/lib/storage";
 import { PageHeader } from "@/components/PageHeader";
 import { Switch } from "@/components/ui/switch";
 import { PLAN_FEATURES } from "@/lib/plans";
@@ -10,13 +9,12 @@ import { Mail, MessageCircle } from "lucide-react";
 
 export default function Automatizaciones() {
   const { user } = useAuth();
-  const [items, setItems] = useState<Automation[]>([]);
-  useEffect(() => { if (user) setItems(listAutomations(user.id)); }, [user]);
+  const { data: items, refetch } = useAutomations();
   if (user && !PLAN_FEATURES[user.plan].automations) return <PlanLocked plan="Pro" feature="Automatizaciones" />;
 
-  const onToggle = (id: string) => {
-    toggleAutomation(id);
-    if (user) setItems(listAutomations(user.id));
+  const onToggle = async (id: string) => {
+    await toggleAutomation(id);
+    refetch();
   };
 
   return (

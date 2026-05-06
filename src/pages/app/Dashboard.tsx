@@ -1,16 +1,15 @@
-import { useMemo } from "react";
 import { ArrowUpRight, Calendar, CreditCard, Plus, TrendingUp, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
-import { listPagos, listReservas } from "@/lib/storage";
+import { usePagos, useReservas } from "@/lib/hooks";
 import { formatCLP, formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const reservas = useMemo(() => (user ? listReservas(user.id) : []), [user]);
-  const pagos = useMemo(() => (user ? listPagos(user.id) : []), [user]);
+  const { data: reservas } = useReservas();
+  const { data: pagos } = usePagos();
 
   const ingresos = pagos.filter((p) => p.status === "pagado").reduce((a, b) => a + b.amount, 0);
   const upcoming = reservas.filter((r) => new Date(r.date) >= new Date() && r.status !== "cancelada")

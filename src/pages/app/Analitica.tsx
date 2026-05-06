@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { listPagos, listReservas } from "@/lib/storage";
+import { usePagos, useReservas } from "@/lib/hooks";
+import type { Pago, Reserva } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";
 import { PLAN_FEATURES } from "@/lib/plans";
 import { PlanLocked } from "@/components/PlanLocked";
@@ -19,8 +20,8 @@ export default function Analitica() {
   const [year, setYear] = useState<number>(now.getFullYear());
   const [month, setMonth] = useState<number>(now.getMonth());
 
-  const reservas = useMemo(() => (user ? listReservas(user.id) : []), [user]);
-  const pagos = useMemo(() => (user ? listPagos(user.id) : []), [user]);
+  const { data: reservas } = useReservas();
+  const { data: pagos } = usePagos();
 
   if (user && !PLAN_FEATURES[user.plan].analytics) return <PlanLocked plan="Premium" feature="Analítica" />;
 
@@ -157,8 +158,8 @@ function buildSeries(
   period: Period,
   year: number,
   month: number,
-  reservas: ReturnType<typeof listReservas>,
-  pagos: ReturnType<typeof listPagos>,
+  reservas: Reserva[],
+  pagos: Pago[],
 ): Bucket[] {
   // Pre-compute first reservation date per client (to classify nuevo/antiguo)
   const firstByClient = new Map<string, number>();

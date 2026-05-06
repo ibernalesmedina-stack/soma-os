@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
-import { importFichasCSV, listFichas, listPagos, listReservas } from "@/lib/storage";
+import { useFichas, usePagos, useReservas } from "@/lib/hooks";
+import { importFichasCSV } from "@/lib/storage";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
@@ -24,24 +25,20 @@ export default function Clientes() {
   const { user } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [q, setQ] = useState("");
-  const [version, setVersion] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const { data: reservas } = useReservas();
+  const { data: pagos } = usePagos();
+  const { data: fichas, refetch: refetchFichas } = useFichas();
+
   const clientes = useMemo<ClienteRow[]>(() => {
-    void version;
-    if (!user) return [];
-    const reservas = listReservas(user.id);
-    const pagos = listPagos(user.id);
     const map = new Map<string, ClienteRow>();
     const now = Date.now();
     for (const r of reservas) {
       const key = slugify(r.clientName);
       const row = map.get(key) ?? {
-        clientKey: key,
-        clientName: r.clientName,
-        totalSesiones: 0,
-        totalPagado: 0,
-        estados: { confirmadas: 0, pendientes: 0, completadas: 0 },
+        clientKey: key, clientName: r.clientName, totalSesiones: 0,
+        totalPagado: 0, estados: { confirmadas: 0, pendientes: 0, completadas: 0 },
       };
       row.totalSesiones += 1;
       const t = new Date(r.date).getTime();
@@ -61,13 +58,11 @@ export default function Clientes() {
       if (row && p.status === "pagado") row.totalPagado += p.amount;
     }
     return Array.from(map.values()).sort((a, b) => a.clientName.localeCompare(b.clientName));
-  }, [user, version]);
+  }, [reservas, pagos]);
 
   const filtered = clientes.filter((c) => !q || c.clientName.toLowerCase().includes(q.toLowerCase()));
 
   const exportCSV = () => {
-    if (!user) return;
-    const fichas = listFichas(user.id);
     const fichaByKey = new Map(fichas.map((f) => [f.clientKey, f]));
     const headers = ["clientName", "email", "phone", "birthDate", "address", "totalSesiones", "ultimaVisita", "proximaCita", "totalPagado", "notasGenerales"];
     const rows = clientes.map((c) => {
@@ -75,7 +70,7 @@ export default function Clientes() {
       return [c.clientName, f?.email ?? "", f?.phone ?? "", f?.birthDate ?? "", f?.address ?? "", c.totalSesiones, c.ultimaVisita ?? "", c.proximaCita ?? "", c.totalPagado, (f?.notasGenerales ?? "").replace(/\n/g, " ")];
     });
     const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = `${cfg?.clientLabelPlural.toLowerCase() ?? "clientes"}-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -85,7 +80,7 @@ export default function Clientes() {
   const importCSV = async (file: File) => {
     if (!user) return;
     const text = await file.text();
-    const lines = text.replace(/^\ufeff/, "").split(/\r?\n/).filter((l) => l.trim());
+    const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
     if (lines.length < 2) { toast({ title: "Archivo vacío" }); return; }
     const parseLine = (l: string) => {
       const out: string[] = []; let cur = ""; let inQ = false;
@@ -104,9 +99,9 @@ export default function Clientes() {
       headers.forEach((h, i) => { obj[h] = vals[i] ?? ""; });
       return obj;
     });
-    const { added, updated } = importFichasCSV(user.id, rows);
+    const { added, updated } = await importFichasCSV(user.id, rows);
     toast({ title: "Importación completa", description: `${added} nuevos, ${updated} actualizados` });
-    setVersion((v) => v + 1);
+    refetchFichas();
   };
 
   return (

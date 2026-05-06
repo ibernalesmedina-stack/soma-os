@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/lib/auth-context";
-import { listReservas } from "@/lib/storage";
+import { useReservas } from "@/lib/hooks";
+import type { Reserva } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Reservas() {
-  const { user } = useAuth();
-  const all = useMemo(() => (user ? listReservas(user.id) : []), [user]);
+  const { data: all } = useReservas();
   const [view, setView] = useState<"list" | "calendar">("list");
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -111,7 +110,7 @@ function ToggleBtn({ active, onClick, children }: { active: boolean; onClick: ()
   );
 }
 
-function CalendarView({ reservas }: { reservas: ReturnType<typeof listReservas> }) {
+function CalendarView({ reservas }: { reservas: Reserva[] }) {
   const today = new Date();
   const days = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date(today);

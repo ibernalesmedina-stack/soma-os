@@ -1,14 +1,11 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/lib/auth-context";
-import { listPagos } from "@/lib/storage";
+import { usePagos } from "@/lib/hooks";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatCLP, formatDateTime, slugify } from "@/lib/format";
 
 export default function Pagos() {
-  const { user } = useAuth();
-  const pagos = useMemo(() => (user ? listPagos(user.id) : []), [user]);
+  const { data: pagos } = usePagos();
   const total = pagos.filter((p) => p.status === "pagado").reduce((a, b) => a + b.amount, 0);
   const pendiente = pagos.filter((p) => p.status === "pendiente").reduce((a, b) => a + b.amount, 0);
 

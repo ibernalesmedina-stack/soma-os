@@ -41,15 +41,18 @@ export default function Signup() {
     return true;
   };
 
-  const handleNext = () => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleNext = async () => {
     setError(null);
     if (step < totalSteps) { setStep(step + 1); return; }
-    // Final
-    const err = register({
+    setSubmitting(true);
+    const err = await register({
       email: form.email, password: form.password, name: form.name,
       businessName: form.businessName, phone: form.phone, plan, tipoNegocio,
       submodulos: tipoNegocio === "cosmetologa" ? submodulos : undefined,
     });
+    setSubmitting(false);
     if (err) return setError(err);
     navigate("/app");
   };
@@ -151,8 +154,8 @@ export default function Signup() {
             <Button type="button" variant="ghost" size="sm" onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1}>
               <ArrowLeft className="h-3.5 w-3.5 mr-1" />Volver
             </Button>
-            <Button type="submit" disabled={!canNext()}>
-              {step < totalSteps ? <>Continuar <ArrowRight className="h-4 w-4 ml-1.5" /></> : "Crear cuenta"}
+            <Button type="submit" disabled={!canNext() || submitting}>
+              {submitting ? "Creando…" : step < totalSteps ? <>Continuar <ArrowRight className="h-4 w-4 ml-1.5" /></> : "Crear cuenta"}
             </Button>
           </div>
         </form>
