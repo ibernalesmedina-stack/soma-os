@@ -18,26 +18,35 @@ interface Ctx {
 
 const AuthCtx = createContext<Ctx | null>(null);
 
-// Fetch profile using an explicit access token to avoid timing issues
 async function fetchUser(id: string, email: string, accessToken?: string): Promise<User | null> {
-  const client = accessToken
-    ? supabase.auth.setSession({ access_token: accessToken, refresh_token: "" }).then(() => supabase)
-    : Promise.resolve(supabase);
+  // Set session explicitly so RLS auth.uid() resolves correctly
+  if (accessToken) {
+    await supabase.auth.setSession({ access_token: accessToken, refresh_token: "" });
+  }
 
-  const { data, error } = await (await client)
+  const { data, error } = await supabase
     .from("perfiles")
     .select("*")
     .eq("id", id)
     .single();
 
   if (error || !data) {
-    // Profile might not exist yet — create a minimal one
+    console.warn("fetchUser: perfil no encontrado, intentando upsert:", error?.message);
+    // Try to create/fetch a minimal profile
     const { data: created } = await supabase
       .from("perfiles")
       .upsert({ id, role: "user" }, { onConflict: "id" })
       .select()
       .single();
-    return created ? toUser(created, email) : null;
+    if (created) return toUser(created, email);
+
+    // Fallback: return a minimal in-memory user so the app doesn't block
+    console.warn("fetchUser: usando perfil en memoria (schema.sql puede no haberse ejecutado)");
+    return {
+      id, email, name: "", businessName: "", phone: "", role: "user",
+      plan: "basic", tipoNegocio: "psicologa", active: true,
+      createdAt: new Date().toISOString(),
+    };
   }
   return toUser(data, email);
 }
@@ -87,24 +96,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     businessName: string; phone: string; plan: User["plan"];
     tipoNegocio: User["tipoNegocio"]; submodulos?: SubmoduloCosmetologa[];
   }): Promise<string | null> => {
-    const { data: authData, error } = await supabase.auth.signUp({ email: data.email, password: data.password });
+    // 1. Create auth user
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+    });
     if (error) return error.message;
     if (!authData.user) return "No se pudo crear la cuenta";
 
+    // 2. Get a valid session — signUp may not return one if email confirm is on
+    let session = authData.session;
+    if (!session) {
+      // Attempt immediate sign-in (works when email confirmation is disabled)
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (signInError) return "Cuenta creada. Confirma tu email para continuar.";
+      session = signInData.session;
+    }
+
     const userId = authData.user.id;
-    const { error: profileError } = await supabase.from("perfiles").upsert({
-      id: userId, name: data.name, business_name: data.businessName,
-      phone: data.phone, plan: data.plan, tipo_negocio: data.tipoNegocio,
-      submodulos: data.submodulos ?? [], role: "user",
-    });
-    if (profileError) return profileError.message;
+    const token = session?.access_token;
 
-    await seedForUser(userId);
+    // 3. Upsert profile (trigger may have already created the row)
+    const { error: profileError } = await supabase.from("perfiles").upsert(
+      {
+        id: userId,
+        name: data.name,
+        business_name: data.businessName,
+        phone: data.phone,
+        plan: data.plan,
+        tipo_negocio: data.tipoNegocio,
+        submodulos: data.submodulos ?? [],
+        role: "user",
+      },
+      { onConflict: "id" },
+    );
+    if (profileError) {
+      console.error("Error creando perfil:", profileError);
+      // Don't block registration — profile may have been created by trigger
+    }
 
-    if (authData.session) {
-      const u = await fetchUser(userId, data.email, authData.session.access_token);
+    // 4. Seed demo data (non-blocking — tables may not exist yet)
+    try {
+      await seedForUser(userId);
+    } catch (e) {
+      console.warn("Seed skipped (tables may not exist yet):", e);
+    }
+
+    // 5. Set user state with fresh token
+    if (session) {
+      const u = await fetchUser(userId, data.email, token);
       setUser(u);
     }
+
     return null;
   };
 
