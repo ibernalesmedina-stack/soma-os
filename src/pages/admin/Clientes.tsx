@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Eye, Pencil, Trash2, ArrowRightLeft } from "lucide-react";
-import { getUsers, updateUserById, saveUsers } from "@/lib/storage";
+import { updateUserById } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 import { estadoPagoClienta } from "@/lib/admin-store";
 import { formatDate } from "@/lib/format";
 import { toast } from "@/hooks/use-toast";
@@ -16,13 +17,12 @@ import { Label } from "@/components/ui/label";
 const PLANES_ADMIN: Plan[] = ["basic", "clinic"];
 
 export default function AdminClientes() {
-  const [v, setV] = useState(0);
   const [q, setQ] = useState("");
   const [planFilter, setPlanFilter] = useState<"all" | Plan>("all");
   const [pagoFilter, setPagoFilter] = useState<"all" | "pagado" | "pendiente">("all");
   const navigate = useNavigate();
-
-  const users = useMemo(() => getUsers().filter(u => u.role !== "admin"), [v]);
+  const { data: allUsers, loading, refetch } = useAdminUsers();
+  const users = allUsers.filter(u => u.role !== "admin");
   const filtered = users.filter(u => {
     const matchQ = `${u.businessName} ${u.email} ${u.name}`.toLowerCase().includes(q.toLowerCase());
     const matchPlan = planFilter === "all" || u.plan === planFilter;
@@ -31,17 +31,17 @@ export default function AdminClientes() {
     return matchQ && matchPlan && matchPago;
   });
 
-  const handleDelete = (u: User) => {
+  const handleDelete = async (u: User) => {
     if (!confirm(`¿Eliminar ${u.businessName}? Esta acción no se puede deshacer.`)) return;
-    saveUsers(getUsers().filter(x => x.id !== u.id));
-    setV(v + 1);
-    toast({ title: "Cliente eliminado" });
+    await updateUserById(u.id, { active: false });
+    refetch();
+    toast({ title: "Cliente desactivado" });
   };
 
-  const handleChangePlan = (u: User) => {
+  const handleChangePlan = async (u: User) => {
     const next: Plan = u.plan === "clinic" ? "basic" : "clinic";
-    updateUserById(u.id, { plan: next });
-    setV(v + 1);
+    await updateUserById(u.id, { plan: next });
+    refetch();
     toast({ title: `Plan cambiado a ${PLAN_LABEL[next]}` });
   };
 
@@ -50,7 +50,7 @@ export default function AdminClientes() {
       <PageHeader
         title="Gestión de clientes"
         description="Todos los clientes de la plataforma."
-        actions={<NuevoClienteDialog onCreated={() => setV(v + 1)} />}
+        actions={<NuevoClienteDialog onCreated={refetch} />}
       />
 
       <div className="surface-card overflow-hidden">
@@ -129,25 +129,15 @@ function NuevoClienteDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", businessName: "", name: "", phone: "", plan: "basic" as Plan });
 
-  const create = () => {
+  const create = async () => {
     if (!form.email.includes("@") || !form.businessName.trim()) return toast({ title: "Datos incompletos" });
-    const users = getUsers();
-    if (users.some(u => u.email.toLowerCase() === form.email.toLowerCase())) return toast({ title: "Email ya registrado" });
-    const newUser: User = {
-      id: Math.random().toString(36).slice(2, 10),
-      email: form.email,
-      name: form.name || form.businessName,
-      businessName: form.businessName,
-      phone: form.phone,
-      role: "user",
-      plan: form.plan,
-      tipoNegocio: "psicologa" as TipoNegocio,
-      active: true,
-      paymentMethods: { webpay: true, transferencia: true },
-      createdAt: new Date().toISOString(),
-    };
-    (newUser as User & { _pw?: string })._pw = "soma123";
-    saveUsers([...users, newUser]);
+    const { supabase } = await import("@/lib/supabase");
+    const { data, error } = await supabase.auth.admin.createUser({ email: form.email, password: "soma123", email_confirm: true }).catch(() => ({ data: null, error: { message: "No disponible sin service role key" } }));
+    if (error || !data?.user) {
+      toast({ title: "Crear usuario manualmente en Supabase Dashboard", description: error?.message });
+      return;
+    }
+    await supabase.from("perfiles").upsert({ id: data.user.id, name: form.name || form.businessName, business_name: form.businessName, phone: form.phone, plan: form.plan, role: "user", tipo_negocio: "psicologa" });
     toast({ title: "Cliente creado", description: "Contraseña temporal: soma123" });
     setOpen(false);
     setForm({ email: "", businessName: "", name: "", phone: "", plan: "basic" });

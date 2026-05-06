@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { listFacturas, addFactura, updateFactura, deleteFactura, getSettings } from "@/lib/admin-store";
-import { getUsers } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 import { formatCLP, formatDate } from "@/lib/format";
 import { Plus, Printer, Trash2, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -119,7 +119,8 @@ export default function AdminFacturacion() {
 
 function NuevaFacturaDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
-  const users = useMemo(() => getUsers().filter(u => u.role !== "admin"), [open]);
+  const { data: allUsers } = useAdminUsers();
+  const users = allUsers.filter(u => u.role !== "admin");
   const [form, setForm] = useState({ clientUserId: "", amount: "", description: "" });
 
   const create = () => {

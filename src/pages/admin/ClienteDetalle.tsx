@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
-import { getUsers, updateUserById, impersonate } from "@/lib/storage";
+import { updateUserById } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 import { allPagos } from "@/lib/admin";
 import { listFacturas, listNotasInternas, addNotaInterna, deleteNotaInterna } from "@/lib/admin-store";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
@@ -22,8 +23,10 @@ export default function AdminClienteDetalle() {
   const [nota, setNota] = useState("");
   const [edit, setEdit] = useState(false);
 
-  const user = useMemo(() => getUsers().find(u => u.id === id), [id, v]);
+  const { data: allUsers } = useAdminUsers();
+  const user = allUsers.find(u => u.id === id);
   const [form, setForm] = useState({ name: user?.name || "", email: user?.email || "", phone: user?.phone || "", businessName: user?.businessName || "" });
+  useEffect(() => { if (user) setForm({ name: user.name, email: user.email, phone: user.phone || "", businessName: user.businessName }); }, [user?.id]);
 
   if (!user) return <div className="text-center py-16"><p className="text-sm">Cliente no encontrado</p><Link to="/admin/clientes" className="text-primary text-xs">Volver</Link></div>;
 

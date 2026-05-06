@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth-context";
 import {
   listAutomations, listBloqueos, listFichas, listNotas,
-  listPagos, listProgreso, listRegistros, listReservas, listServicios,
+  listPagos, listProgreso, listRegistros, listReservas, listServicios, getUsers,
 } from "./storage";
-import type { Automation, Bloqueo, ClienteFicha, Pago, ProgresoEntry, Registro, Reserva, Servicio, SesionNota } from "./types";
+import type { Automation, Bloqueo, ClienteFicha, Pago, ProgresoEntry, Registro, Reserva, Servicio, SesionNota, User } from "./types";
 
 function useData<T>(fetcher: (userId: string) => Promise<T[]>) {
   const { user } = useAuth();
@@ -25,6 +25,19 @@ function useData<T>(fetcher: (userId: string) => Promise<T[]>) {
 }
 
 export const useReservas = () => useData<Reserva>(listReservas);
+
+export function useAdminUsers() {
+  const [data, setData] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const load = useCallback(async () => {
+    setLoading(true);
+    const result = await getUsers();
+    setData(result);
+    setLoading(false);
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  return { data, loading, refetch: load };
+}
 export const usePagos = () => useData<Pago>(listPagos);
 export const useServicios = () => useData<Servicio>(listServicios);
 export const useFichas = () => useData<ClienteFicha>(listFichas);

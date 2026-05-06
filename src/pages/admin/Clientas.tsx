@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { getUsers, updateUserById, impersonate, saveUsers } from "@/lib/storage";
+import { updateUserById } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 import { metricsForUser } from "@/lib/admin";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { formatCLP, formatDate } from "@/lib/format";
@@ -52,22 +53,21 @@ const downloadInformeClienta = (u: User) => {
 const TIPOS: TipoNegocio[] = ["nutricionista", "cosmetologa", "odontologa", "psicologa"];
 
 export default function AdminClientas() {
-  const [v, setV] = useState(0);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
-
-  const users = useMemo(() => getUsers().filter(u => u.role !== "admin"), [v]);
+  const { data: allUsers, refetch } = useAdminUsers();
+  const users = allUsers.filter(u => u.role !== "admin");
   const filtered = users.filter(u => `${u.businessName} ${u.email} ${u.name}`.toLowerCase().includes(q.toLowerCase()));
 
   const handleImpersonate = (u: User) => {
-    impersonate(u.id);
+    localStorage.setItem("soma.impersonate", u.id);
     toast({ title: `Sesión como ${u.businessName}` });
     window.location.href = "/app";
   };
 
-  const handleToggleActive = (u: User) => {
-    updateUserById(u.id, { active: u.active === false });
-    setV(v + 1);
+  const handleToggleActive = async (u: User) => {
+    await updateUserById(u.id, { active: u.active === false });
+    refetch();
     toast({ title: u.active === false ? "Activada" : "Desactivada" });
   };
 
@@ -151,28 +151,10 @@ function NuevaClientaDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", businessName: "", name: "", phone: "", tipoNegocio: "psicologa" as TipoNegocio });
 
-  const create = () => {
+  const create = async () => {
     if (!form.email.includes("@") || !form.businessName.trim()) return toast({ title: "Datos incompletos" });
-    const users = getUsers();
-    if (users.some(u => u.email.toLowerCase() === form.email.toLowerCase())) return toast({ title: "Email ya registrado" });
-    const newUser: User = {
-      id: Math.random().toString(36).slice(2, 10),
-      email: form.email,
-      name: form.name || form.businessName,
-      businessName: form.businessName,
-      phone: form.phone,
-      role: "user",
-      plan: "pro",
-      tipoNegocio: form.tipoNegocio,
-      active: true,
-      paymentMethods: { webpay: true, transferencia: true },
-      createdAt: new Date().toISOString(),
-    };
-    (newUser as User & { _pw?: string })._pw = "soma123";
-    saveUsers([...users, newUser]);
-    toast({ title: "Clienta creada", description: `Contraseña temporal: soma123` });
+    toast({ title: "Crear clienta desde Supabase Dashboard", description: "Authentication → Users → Invite user" });
     setOpen(false);
-    setForm({ email: "", businessName: "", name: "", phone: "", tipoNegocio: "psicologa" });
     onCreated();
   };
 

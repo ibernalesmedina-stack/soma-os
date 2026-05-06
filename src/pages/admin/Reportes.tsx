@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { getUsers } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 import { FREQUENCY_LABEL, ReportFormat, ReportFrequency, ScheduledReport, deleteReport, generateReportCSV, listReports, markSent, upsertReport } from "@/lib/reports";
 import { formatDateTime } from "@/lib/format";
 import { Calendar, Download, Plus, Send, Trash2 } from "lucide-react";
@@ -16,7 +16,8 @@ const FREQS: ReportFrequency[] = ["mensual_28", "trimestral", "anual_28dic"];
 export default function AdminReportes() {
   const [v, setV] = useState(0);
   const reports = useMemo(() => listReports(), [v]);
-  const users = useMemo(() => getUsers().filter(u => u.role !== "admin"), []);
+  const { data: allUsers } = useAdminUsers();
+  const users = allUsers.filter(u => u.role !== "admin");
   const userById = (id: string) => users.find(u => u.id === id);
 
   const enviarAhora = (r: ScheduledReport) => {

@@ -1,21 +1,22 @@
 import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { globalMetrics } from "@/lib/admin";
-import { getUsers } from "@/lib/storage";
-import { allPagos } from "@/lib/admin";
 import { ingresosUltimos12Meses, tasaRetencion } from "@/lib/admin-store";
 import { formatCLP, formatDate } from "@/lib/format";
 import { DollarSign, TrendingUp, UserCheck, Users, Percent } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PLAN_LABEL } from "@/lib/plans";
+import { useAdminUsers } from "@/lib/hooks";
 
 export default function AdminOverview() {
-  const m = globalMetrics();
-  const users = getUsers().filter(u => u.role !== "admin");
-  const pagos = allPagos();
-  const series = ingresosUltimos12Meses(pagos);
+  const { data: allUsers, loading } = useAdminUsers();
+  const users = allUsers.filter(u => u.role !== "admin");
+  const m = globalMetrics(allUsers);
+  const series = ingresosUltimos12Meses([]);
   const retencion = tasaRetencion(users);
   const ultimos = [...users].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
+
+  if (loading) return <div className="p-8 text-sm text-muted-foreground">Cargando…</div>;
 
   return (
     <>

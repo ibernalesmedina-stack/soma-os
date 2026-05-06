@@ -1,15 +1,16 @@
 import { PageHeader } from "@/components/PageHeader";
-import { allReservas, globalMetrics, recentActivity } from "@/lib/admin";
+import { globalMetrics, recentActivity } from "@/lib/admin";
 import { formatDateTime } from "@/lib/format";
 import { Activity, Calendar, MessageCircle, UserCheck, AlertTriangle } from "lucide-react";
-import { getUsers } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 
 export default function AdminActividad() {
-  const m = globalMetrics();
-  const events = recentActivity(20);
-  // Mock: mensajes enviados ≈ reservas confirmadas; errores = pagos fallidos
-  const mensajes = allReservas().filter(r => r.status === "confirmada").length;
-  const usuariosConWhatsapp = getUsers().filter(u => u.whatsappNumber).length;
+  const { data: allUsers, loading } = useAdminUsers();
+  const m = globalMetrics(allUsers);
+  const events = recentActivity(allUsers, 20);
+  const mensajes = 0;
+  const usuariosConWhatsapp = allUsers.filter(u => u.whatsappNumber).length;
+  if (loading) return <div className="p-8 text-sm text-muted-foreground">Cargando…</div>;
 
   return (
     <>

@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
-import { getUsers, updateUserById, impersonate } from "@/lib/storage";
+import { updateUserById } from "@/lib/storage";
+import { useAdminUsers } from "@/lib/hooks";
 import { metricsForUser, allReservas, allPagos } from "@/lib/admin";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { formatCLP, formatDateTime } from "@/lib/format";
@@ -18,7 +19,8 @@ export default function AdminClientaDetalle() {
   const [v, setV] = useState(0);
   const navigate = useNavigate();
 
-  const user = useMemo(() => getUsers().find(u => u.id === id), [id, v]);
+  const { data: allUsers } = useAdminUsers();
+  const user = allUsers.find(u => u.id === id);
   if (!user) return <div className="text-center py-16"><p className="text-sm">Clienta no encontrada</p><Link to="/admin/clientas" className="text-primary text-xs">Volver</Link></div>;
   const m = metricsForUser(user.id);
   const cfg = BUSINESS_CONFIG[user.tipoNegocio];
