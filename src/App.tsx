@@ -27,6 +27,7 @@ import AdminConfiguracion from "./pages/admin/Configuracion";
 import AdminFinanzas from "./pages/admin/Finanzas";
 import AdminActividad from "./pages/admin/Actividad";
 import AdminReportes from "./pages/admin/Reportes";
+import Sitio from "./pages/Sitio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="actividad" element={<AdminActividad />} />
               <Route path="reportes" element={<AdminReportes />} />
             </Route>
+            <Route path="/s/:userId" element={<Sitio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

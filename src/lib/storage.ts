@@ -96,6 +96,7 @@ export const toUser = (perfil: any, email: string): User => ({
   submodulos: perfil.submodulos, paymentMethods: perfil.payment_methods,
   whatsappNumber: perfil.whatsapp_number,
   googleCalendarConnected: perfil.google_calendar_connected,
+  domain: perfil.domain,
   active: perfil.active, createdAt: perfil.created_at,
 });
 
@@ -366,6 +367,7 @@ export const updateUserById = async (id: string, patch: Partial<User>) => {
     submodulos: patch.submodulos, payment_methods: patch.paymentMethods,
     whatsapp_number: patch.whatsappNumber,
     google_calendar_connected: patch.googleCalendarConnected,
+    domain: patch.domain,
     active: patch.active,
   }).eq("id", id);
 };

@@ -22,6 +22,7 @@ export interface User {
   googleCalendarConnected?: boolean;
   paymentMethods?: PaymentMethods;
   whatsappNumber?: string;
+  domain?: string;
   active?: boolean;
   createdAt: string;
 }

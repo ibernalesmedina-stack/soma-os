@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { CalendarCheck2, MessageCircle, CreditCard, ShieldCheck } from "lucide-react";
+import { CalendarCheck2, MessageCircle, CreditCard, ShieldCheck, Globe, Copy, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,6 +15,7 @@ export default function Configuracion() {
   const [businessName, setBusinessName] = useState(user?.businessName ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [whatsappNumber, setWhatsappNumber] = useState(user?.whatsappNumber ?? "");
+  const [domain, setDomain] = useState(user?.domain ?? "");
 
   if (!user) return null;
   const pm = user.paymentMethods ?? { webpay: true, transferencia: true };
@@ -98,6 +99,63 @@ export default function Configuracion() {
           {user.whatsappNumber && (
             <p className="text-[11px] text-muted-foreground mono mt-2">Número activo: {user.whatsappNumber}</p>
           )}
+        </section>
+
+        <section className="surface-card p-6">
+          <h3 className="font-semibold flex items-center gap-2"><Globe className="h-4 w-4" />Sitio público</h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Tu página de servicios pública. Compártela con tus clientes — se actualiza automáticamente cuando editas tus servicios.
+          </p>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Dominio personalizado</Label>
+              <div className="flex gap-2">
+                <Input
+                  className="flex-1"
+                  placeholder="tu-negocio.com"
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                />
+                <Button
+                  onClick={async () => {
+                    await update({ domain: domain.trim() });
+                    toast({ title: "Dominio guardado" });
+                  }}
+                >
+                  Guardar
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">Opcional — para cuando configures un dominio propio.</p>
+            </div>
+
+            <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tu sitio de servicios</div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-xs bg-background border rounded px-2 py-1.5 truncate">
+                  {window.location.origin}/s/{user.id}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/s/${user.id}`);
+                    toast({ title: "Link copiado" });
+                  }}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" asChild>
+                  <a href={`/s/${user.id}`} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Los servicios que actives en <Link to="/app/servicios" className="text-primary hover:underline">Servicios</Link> aparecen aquí en tiempo real.
+              </p>
+            </div>
+          </div>
         </section>
 
         <section className="surface-card p-6">
