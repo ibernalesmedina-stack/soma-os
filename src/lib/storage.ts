@@ -356,6 +356,9 @@ export const getUsers = async (): Promise<User[]> => {
   return perfiles.map((p) => toUser(p, emailMap.get(p.id) ?? ""));
 };
 
+// Legacy compat — admin pages call this synchronously; no-op until admin is migrated to async
+export const saveUsers = (_users: User[]) => {};
+
 export const updateUserById = async (id: string, patch: Partial<User>) => {
   await supabase.from("perfiles").update({
     name: patch.name, business_name: patch.businessName, phone: patch.phone,
