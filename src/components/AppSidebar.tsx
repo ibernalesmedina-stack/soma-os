@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { BarChart3, CalendarDays, ClipboardList, CreditCard, LayoutDashboard, Settings, Shield, Sparkles, Users, Wrench } from "lucide-react";
+import { BarChart3, CalendarDays, ClipboardList, CreditCard, LayoutDashboard, Settings, Sparkles, Users, Wrench } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -61,23 +61,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {user?.role === "admin" && (
-          <SidebarGroup>
-            {!collapsed && <SidebarGroupLabel>Admin</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Panel admin">
-                    <NavLink to="/admin" className="flex items-center gap-3 rounded-md text-sm">
-                      <Shield className="h-4 w-4 shrink-0" />
-                      {!collapsed && <span>Panel admin</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
     </Sidebar>
   );

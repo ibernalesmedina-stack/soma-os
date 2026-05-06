@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { CalendarCheck2, MessageCircle, CreditCard, ShieldCheck, Globe, Copy, ExternalLink, Eye, EyeOff, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { CalendarCheck2, MessageCircle, CreditCard, Globe, Copy, ExternalLink, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom"; // used in sitio publico section
 import { toast } from "@/hooks/use-toast";
 import { getIntegration, upsertIntegration } from "@/lib/storage";
 import type { ClientIntegration } from "@/lib/types";
@@ -195,32 +195,6 @@ export default function Configuracion() {
             <p className="text-[11px] text-muted-foreground">
               Los servicios activos en <Link to="/app/servicios" className="text-primary hover:underline">Servicios</Link> aparecen aquí automáticamente.
             </p>
-          </div>
-        </section>
-
-        {/* Modo demo */}
-        <section className="surface-card p-6">
-          <h3 className="font-semibold flex items-center gap-2"><ShieldCheck className="h-4 w-4" />Modo demo</h3>
-          <p className="text-xs text-muted-foreground mb-4">Acceso al panel de administración para la demo.</p>
-          <div className="flex items-center justify-between p-4 rounded-lg border">
-            <div>
-              <div className="text-sm font-medium">Rol actual: <span className="mono">{user.role}</span></div>
-              <div className="text-xs text-muted-foreground">Conviértete en admin para ver el panel /admin.</div>
-            </div>
-            <div className="flex gap-2">
-              {user.role !== "admin" ? (
-                <Button onClick={() => { update({ role: "admin" }); toast({ title: "Ahora eres admin" }); }}>
-                  Hacerme admin
-                </Button>
-              ) : (
-                <Button variant="outline" onClick={() => { update({ role: "user" }); toast({ title: "Rol restablecido" }); }}>
-                  Quitar admin
-                </Button>
-              )}
-              {user.role === "admin" && (
-                <Button asChild><Link to="/admin">Ir al panel admin</Link></Button>
-              )}
-            </div>
           </div>
         </section>
 
