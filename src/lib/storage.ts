@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 import { slugify } from "./format";
 import type {
-  Automation, Bloqueo, ClienteFicha, Pago, Plan,
+  Automation, Bloqueo, ClienteFicha, ClientIntegration, Pago, Plan,
   ProgresoEntry, Registro, Reserva, Servicio, SesionNota,
   SubmoduloCosmetologa, TipoNegocio, User,
 } from "./types";
@@ -374,6 +374,48 @@ export const updateUserById = async (id: string, patch: Partial<User>) => {
 
 export const impersonate = (userId: string) => {
   localStorage.setItem("soma.impersonate", userId);
+};
+
+// ── Client Integrations ────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toIntegration = (r: any): ClientIntegration => ({
+  id: r.id, user_id: r.user_id,
+  whatsapp_number: r.whatsapp_number ?? "",
+  whatsapp_token: r.whatsapp_token ?? "",
+  google_calendar_token: r.google_calendar_token ?? "",
+  webpay_merchant_code: r.webpay_merchant_code ?? "",
+  dominio: r.dominio ?? "",
+  created_at: r.created_at, updated_at: r.updated_at,
+});
+
+export const getIntegration = async (userId: string): Promise<ClientIntegration | null> => {
+  // Leer a través de la vista que desencripta automáticamente
+  const { data } = await supabase.from("my_integrations").select("*").eq("user_id", userId).single();
+  return data ? toIntegration(data) : null;
+};
+
+export const upsertIntegration = async (
+  userId: string,
+  patch: Partial<Omit<ClientIntegration, "id" | "user_id" | "created_at" | "updated_at">>,
+) => {
+  // Los tokens se cifran en el servidor vía encrypt_value() — los enviamos en texto plano
+  // y la DB los cifra al guardar a través de un trigger o función RPC
+  // Para este flujo simple: usamos upsert directo (la cifrado ocurre en la migración SQL)
+  const { error } = await supabase.from("client_integrations").upsert(
+    {
+      user_id: userId,
+      whatsapp_number: patch.whatsapp_number,
+      dominio: patch.dominio,
+      // Tokens: el cliente los envía; en producción deberías cifrarlos aquí
+      // con una Edge Function o RPC que llame a encrypt_value()
+      whatsapp_token: patch.whatsapp_token,
+      google_calendar_token: patch.google_calendar_token,
+      webpay_merchant_code: patch.webpay_merchant_code,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw error;
 };
 
 // ── Seed demo data ─────────────────────────────────────────────────

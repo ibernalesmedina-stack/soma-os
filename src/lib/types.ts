@@ -161,6 +161,18 @@ export interface Registro {
   createdAt: string;
 }
 
+export interface ClientIntegration {
+  id: string;
+  user_id: string;
+  whatsapp_number: string;
+  whatsapp_token: string;
+  google_calendar_token: string;
+  webpay_merchant_code: string;
+  dominio: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Bloqueo {
   id: string;
   user_id: string;
