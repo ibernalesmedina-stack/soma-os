@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,29 +7,38 @@ import { Label } from "@/components/ui/label";
 import { ShieldCheck, Lock } from "lucide-react";
 
 export default function AdminLogin() {
-  const { user, login, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, loading: authLoading, login, logout } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
+  // Already authenticated as admin → go straight to dashboard
   if (user?.role === "admin") return <Navigate to="/admin" replace />;
+
+  // Authenticated but not admin → show access denied
+  if (!authLoading && user && user.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-[#0d0d14] flex items-center justify-center p-6">
+        <div className="text-center space-y-4 max-w-sm">
+          <h1 className="text-xl font-semibold text-white">Sin acceso de administrador</h1>
+          <p className="text-sm text-white/40">La cuenta <span className="text-white/60">{user.email}</span> no tiene permisos admin.</p>
+          <Button variant="outline" className="border-white/10 text-white/70 hover:text-white hover:bg-white/5"
+            onClick={() => logout()}>Cerrar sesión</Button>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-
+    setSubmitting(true);
     const err = await login(email, password);
-    if (err) { setError(err); setLoading(false); return; }
-
-    // login() updates user state asynchronously via onAuthStateChange,
-    // so we re-read from the auth context after a brief tick
-    // The AdminLayout will handle the role check redirect if needed.
-    // We optimistically navigate; AdminLayout redirects back if not admin.
-    navigate("/admin", { replace: true });
-    setLoading(false);
+    if (err) { setError(err); setSubmitting(false); return; }
+    // Don't navigate manually — onAuthStateChange will update user,
+    // triggering the `if (user?.role === "admin") return <Navigate>` above.
+    // Keep submitting=true while waiting for auth state to resolve.
   };
 
   return (
@@ -117,10 +126,10 @@ export default function AdminLogin() {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={submitting}
               className="w-full bg-[#5B3EFF] hover:bg-[#4D35E0] text-white"
             >
-              {loading ? "Verificando…" : "Entrar al panel"}
+              {submitting ? "Entrando…" : "Entrar al panel"}
             </Button>
           </form>
 

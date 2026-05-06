@@ -18,7 +18,11 @@ export function AdminLayout() {
   const { user, loading, logout } = useAuth();
   const { pathname } = useLocation();
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="min-h-screen bg-[#0d0d14] flex items-center justify-center">
+      <div className="h-6 w-6 rounded-full border-2 border-[#5B3EFF] border-t-transparent animate-spin" />
+    </div>
+  );
   if (!user) return <Navigate to="/admin/login" replace />;
 
   // Autenticado pero sin rol admin — mostrar pantalla de error en lugar de redirigir silenciosamente
