@@ -19,6 +19,7 @@ import Automatizaciones from "./pages/app/Automatizaciones";
 import Analitica from "./pages/app/Analitica";
 import Configuracion from "./pages/app/Configuracion";
 import { AdminLayout } from "@/components/AdminLayout";
+import AdminLogin from "./pages/admin/Login";
 import AdminOverview from "./pages/admin/Overview";
 import AdminClientes from "./pages/admin/Clientes";
 import AdminClienteDetalle from "./pages/admin/ClienteDetalle";
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="analitica" element={<Analitica />} />
               <Route path="configuracion" element={<Configuracion />} />
             </Route>
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminOverview />} />
               <Route path="clientes" element={<AdminClientes />} />
