@@ -68,6 +68,16 @@ function reservaToGoogleEvent(reserva: Record<string, string | number>) {
   };
 }
 
+async function createCalendarEvent(accessToken: string, event: object): Promise<string | null> {
+  const res = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify(event),
+  });
+  const data = await res.json();
+  return data.id || null;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).end();
 
@@ -91,7 +101,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: "Could not refresh Google token" });
   }
 
-  // 3. Get reservas from Supabase
+  let synced = 0;
+  const errors: string[] = [];
+
+  // 3. Sync bloqueos (blocked time slots)
+  if (!reservaId) {
+    const bloqueoRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/bloqueos?user_id=eq.${userId}&end_at=gte.${new Date().toISOString()}&select=*`,
+      { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } },
+    );
+    const bloqueos = await bloqueoRes.json();
+
+    for (const b of bloqueos) {
+      try {
+        const event = {
+          summary: `🔒 ${b.motivo || "Horario bloqueado"}`,
+          description: "Bloqueado desde SomaOS",
+          start: { dateTime: b.start_at, timeZone: "America/Santiago" },
+          end:   { dateTime: b.end_at,   timeZone: "America/Santiago" },
+          status: "tentative",
+          extendedProperties: { private: { somaos_bloqueo: b.id, somaos_sync: "true" } },
+        };
+        await createCalendarEvent(accessToken, event);
+        synced++;
+      } catch (e) {
+        errors.push(`Bloqueo ${b.id}: ${e}`);
+      }
+    }
+  }
+
+  // 4. Get reservas from Supabase
   const filter = reservaId
     ? `id=eq.${reservaId}&user_id=eq.${userId}`
     : `user_id=eq.${userId}&status=in.(confirmada,pendiente)`;
@@ -100,9 +139,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
   });
   const reservas = await resRes.json();
-
-  let synced = 0;
-  const errors: string[] = [];
 
   for (const reserva of reservas) {
     // Only sync future reservas (or the specific one)
