@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
-import { getIntegration, saveClientEmail } from "@/lib/storage";
+import { getIntegration, saveClientEmail, saveWebPayConfig } from "@/lib/storage";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2 } from "lucide-react";
+import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Configuracion() {
@@ -18,11 +18,17 @@ export default function Configuracion() {
   const [notifEmail, setNotifEmail] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
+  const [wpCode, setWpCode] = useState("");
+  const [wpKey, setWpKey] = useState("");
+  const [wpSaved, setWpSaved] = useState(false);
+  const [wpSaving, setWpSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     getIntegration(user.id).then((i) => {
       if (i?.resend_email) { setNotifEmail(i.resend_email); setEmailSaved(true); }
+      if (i?.webpay_merchant_code) { setWpCode(i.webpay_merchant_code); setWpSaved(true); }
+      if (i?.webpay_api_key) setWpKey(i.webpay_api_key);
     });
   }, [user]);
 
@@ -111,6 +117,63 @@ export default function Configuracion() {
               <CheckCircle2 className="h-3 w-3" /> Activo — los emails de tus clientes llegan desde {notifEmail}
             </p>
           )}
+        </section>
+
+        {/* WebPay */}
+        <section className="surface-card p-6">
+          <h3 className="font-semibold flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" /> WebPay
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">
+            Ingresa tus credenciales de Transbank. Los pagos de tus clientes van directo a tu cuenta.
+          </p>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Código de comercio</Label>
+              <Input
+                value={wpCode}
+                onChange={(e) => { setWpCode(e.target.value); setWpSaved(false); }}
+                placeholder="597055555532"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Clave secreta (API Key)</Label>
+              <Input
+                type="password"
+                value={wpKey}
+                onChange={(e) => { setWpKey(e.target.value); setWpSaved(false); }}
+                placeholder="Tu clave de Transbank"
+              />
+            </div>
+            <div className="flex items-center justify-between pt-1">
+              {wpSaved ? (
+                <p className="text-xs text-emerald-600 flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Activo — pagos van a tu cuenta Transbank
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Obtén tus credenciales en el portal de Transbank.
+                </p>
+              )}
+              <Button
+                disabled={wpSaving || !wpCode.trim() || !wpKey.trim()}
+                onClick={async () => {
+                  setWpSaving(true);
+                  try {
+                    await saveWebPayConfig(user.id, wpCode.trim(), wpKey.trim());
+                    setWpSaved(true);
+                    toast({ title: "WebPay configurado ✓", description: "Los pagos de tus clientes van directo a tu cuenta." });
+                  } catch {
+                    toast({ title: "Error al guardar", variant: "destructive" });
+                  } finally {
+                    setWpSaving(false);
+                  }
+                }}
+              >
+                {wpSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+              </Button>
+            </div>
+          </div>
         </section>
 
         {/* Medios de pago */}

@@ -180,6 +180,7 @@ export interface ClientIntegration {
   calendar_status: "synced" | "disconnected";
   // WebPay
   webpay_merchant_code: string;
+  webpay_api_key: string;
   webpay_status: "active" | "inactive";
   // Transferencia bancaria
   transfer_banco: string;

@@ -386,7 +386,7 @@ const toIntegration = (r: any): ClientIntegration => ({
   whatsapp_number: r.whatsapp_number ?? "", whatsapp_token: r.whatsapp_token ?? "", whatsapp_status: r.whatsapp_status ?? "disconnected",
   google_calendar_token: r.google_access_token ?? r.google_calendar_token ?? "",
   calendar_status: r.calendar_status ?? (r.google_access_token || r.google_calendar_token ? "synced" : "disconnected"),
-  webpay_merchant_code: r.webpay_merchant_code ?? "", webpay_status: r.webpay_status ?? "inactive",
+  webpay_merchant_code: r.webpay_merchant_code ?? "", webpay_api_key: r.webpay_api_key ?? "", webpay_status: r.webpay_status ?? "inactive",
   transfer_banco: r.transfer_banco ?? "", transfer_cuenta: r.transfer_cuenta ?? "", transfer_rut: r.transfer_rut ?? "", transfer_status: r.transfer_status ?? "unverified",
   created_at: r.created_at, updated_at: r.updated_at,
 });
@@ -413,6 +413,19 @@ export const upsertIntegration = async (
       whatsapp_token: patch.whatsapp_token,
       google_calendar_token: patch.google_calendar_token,
       webpay_merchant_code: patch.webpay_merchant_code,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw error;
+};
+
+export const saveWebPayConfig = async (userId: string, merchantCode: string, apiKey: string) => {
+  const { error } = await supabase.from("client_integrations").upsert(
+    {
+      user_id: userId,
+      webpay_merchant_code: merchantCode,
+      webpay_api_key: apiKey,
+      webpay_status: "active",
     },
     { onConflict: "user_id" },
   );
