@@ -96,7 +96,11 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
           <ProductMockup />
         </div>
 
-        <div className="relative z-10 text-xs text-white/55">© SomaOS · Operations Platform</div>
+        <div className="relative z-10 flex items-center gap-3 text-xs text-white/55">
+          <span>© SomaOS · Operations Platform</span>
+          <a href="/privacidad" className="hover:text-white/80 underline">Privacidad</a>
+          <a href="/terminos" className="hover:text-white/80 underline">Términos</a>
+        </div>
       </div>
 
       {/* RIGHT — Form */}

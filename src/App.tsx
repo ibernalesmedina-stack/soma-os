@@ -30,6 +30,8 @@ import AdminActividad from "./pages/admin/Actividad";
 import AdminReportes from "./pages/admin/Reportes";
 import AdminIntegraciones from "./pages/admin/Integraciones";
 import Sitio from "./pages/Sitio";
+import Privacidad from "./pages/Privacidad";
+import Terminos from "./pages/Terminos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +75,8 @@ const App = () => (
               <Route path="integraciones" element={<AdminIntegraciones />} />
             </Route>
             <Route path="/s/:userId" element={<Sitio />} />
+            <Route path="/privacidad" element={<Privacidad />} />
+            <Route path="/terminos" element={<Terminos />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
