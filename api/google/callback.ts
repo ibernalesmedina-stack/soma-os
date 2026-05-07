@@ -19,7 +19,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.redirect(`${APP_URL}/app/calendario?google=error&reason=missing_params`);
   }
 
-  console.log("[callback] code prefix:", code.substring(0, 10), "userId:", userId);
+  console.log("[callback] code length:", code.length, "prefix:", code.substring(0, 15), "type:", typeof code);
+  console.log("[callback] raw query:", JSON.stringify(req.query));
 
   // 1. Exchange auth code for tokens
   const redirectUri = `${APP_URL}/api/google/callback`;
