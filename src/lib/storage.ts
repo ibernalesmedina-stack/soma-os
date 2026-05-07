@@ -384,15 +384,15 @@ const toIntegration = (r: any): ClientIntegration => ({
   dominio: r.dominio ?? "", domain_status: r.domain_status ?? "pending",
   resend_api_key: r.resend_api_key ?? "", resend_email: r.resend_email ?? "", resend_status: r.resend_status ?? "disconnected",
   whatsapp_number: r.whatsapp_number ?? "", whatsapp_token: r.whatsapp_token ?? "", whatsapp_status: r.whatsapp_status ?? "disconnected",
-  google_calendar_token: r.google_calendar_token ?? "", calendar_status: r.calendar_status ?? "disconnected",
+  google_calendar_token: r.google_access_token ?? r.google_calendar_token ?? "",
+  calendar_status: r.calendar_status ?? (r.google_access_token || r.google_calendar_token ? "synced" : "disconnected"),
   webpay_merchant_code: r.webpay_merchant_code ?? "", webpay_status: r.webpay_status ?? "inactive",
   transfer_banco: r.transfer_banco ?? "", transfer_cuenta: r.transfer_cuenta ?? "", transfer_rut: r.transfer_rut ?? "", transfer_status: r.transfer_status ?? "unverified",
   created_at: r.created_at, updated_at: r.updated_at,
 });
 
 export const getIntegration = async (userId: string): Promise<ClientIntegration | null> => {
-  // Leer a través de la vista que desencripta automáticamente
-  const { data } = await supabase.from("my_integrations").select("*").eq("user_id", userId).single();
+  const { data } = await supabase.from("client_integrations").select("*").eq("user_id", userId).single();
   return data ? toIntegration(data) : null;
 };
 

@@ -91,8 +91,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const integrations = await intRes.json();
   const integration = integrations[0];
 
-  if (!integration?.google_access_token) {
+  // Support both column names (google_access_token from new schema, google_calendar_token from base schema)
+  const storedToken = integration?.google_access_token || integration?.google_calendar_token;
+  if (!storedToken) {
     return res.status(200).json({ skipped: "No Google Calendar connected" });
+  }
+  if (!integration.google_access_token) {
+    integration.google_access_token = storedToken;
   }
 
   // 2. Get valid access token

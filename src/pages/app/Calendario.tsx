@@ -40,7 +40,7 @@ export default function Calendario() {
   const checkGoogleStatus = useCallback(async () => {
     if (!user) return;
     const integration = await getIntegration(user.id);
-    setIsGoogleConnected(integration?.calendar_status === "synced" && !!integration?.google_access_token);
+    setIsGoogleConnected(integration?.calendar_status === "synced" && !!integration?.google_calendar_token);
   }, [user]);
 
   useEffect(() => { checkGoogleStatus(); }, [checkGoogleStatus]);
