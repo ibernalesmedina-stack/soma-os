@@ -87,7 +87,7 @@ const EMPTY: Omit<ClientIntegration, "id" | "user_id" | "created_at" | "updated_
   resend_api_key: "", resend_email: "", resend_status: "disconnected",
   whatsapp_number: "", whatsapp_token: "", whatsapp_status: "disconnected",
   google_calendar_token: "", calendar_status: "disconnected",
-  webpay_merchant_code: "", webpay_status: "inactive",
+  webpay_merchant_code: "", webpay_api_key: "", webpay_status: "inactive",
   transfer_banco: "", transfer_cuenta: "", transfer_rut: "", transfer_status: "unverified",
 };
 
@@ -116,7 +116,7 @@ export default function AdminIntegraciones() {
       resend_api_key: d.resend_api_key, resend_email: d.resend_email, resend_status: d.resend_status,
       whatsapp_number: d.whatsapp_number, whatsapp_token: d.whatsapp_token, whatsapp_status: d.whatsapp_status,
       google_calendar_token: d.google_calendar_token, calendar_status: d.calendar_status,
-      webpay_merchant_code: d.webpay_merchant_code, webpay_status: d.webpay_status,
+      webpay_merchant_code: d.webpay_merchant_code, webpay_api_key: d.webpay_api_key ?? "", webpay_status: d.webpay_status,
       transfer_banco: d.transfer_banco, transfer_cuenta: d.transfer_cuenta,
       transfer_rut: d.transfer_rut, transfer_status: d.transfer_status,
     } : EMPTY);
@@ -291,9 +291,14 @@ export default function AdminIntegraciones() {
 
             {/* WebPay */}
             <Card icon={CreditCard} iconColor="text-purple-500" iconBg="bg-purple-500/10" title="WebPay (Transbank)" status={integration.webpay_status}>
-              <F label="Código de comercio">
-                <SecretInput placeholder="597055555532" value={integration.webpay_merchant_code} onChange={v => set("webpay_merchant_code", v)} />
-              </F>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <F label="Código de comercio">
+                  <SecretInput placeholder="597055555532" value={integration.webpay_merchant_code} onChange={v => set("webpay_merchant_code", v)} />
+                </F>
+                <F label="Clave secreta (API Key)">
+                  <SecretInput placeholder="579B532A…" value={integration.webpay_api_key} onChange={v => set("webpay_api_key", v)} />
+                </F>
+              </div>
             </Card>
 
             {/* Transferencia bancaria */}

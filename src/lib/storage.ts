@@ -400,19 +400,32 @@ export const upsertIntegration = async (
   userId: string,
   patch: Partial<Omit<ClientIntegration, "id" | "user_id" | "created_at" | "updated_at">>,
 ) => {
-  // Los tokens se cifran en el servidor vía encrypt_value() — los enviamos en texto plano
-  // y la DB los cifra al guardar a través de un trigger o función RPC
-  // Para este flujo simple: usamos upsert directo (la cifrado ocurre en la migración SQL)
   const { error } = await supabase.from("client_integrations").upsert(
     {
       user_id: userId,
-      whatsapp_number: patch.whatsapp_number,
-      dominio: patch.dominio,
-      // Tokens: el cliente los envía; en producción deberías cifrarlos aquí
-      // con una Edge Function o RPC que llame a encrypt_value()
-      whatsapp_token: patch.whatsapp_token,
-      google_calendar_token: patch.google_calendar_token,
-      webpay_merchant_code: patch.webpay_merchant_code,
+      // Domain
+      ...(patch.dominio              !== undefined && { dominio:              patch.dominio }),
+      ...(patch.domain_status        !== undefined && { domain_status:        patch.domain_status }),
+      // Resend / Email
+      ...(patch.resend_api_key       !== undefined && { resend_api_key:       patch.resend_api_key }),
+      ...(patch.resend_email         !== undefined && { resend_email:         patch.resend_email }),
+      ...(patch.resend_status        !== undefined && { resend_status:        patch.resend_status }),
+      // WhatsApp
+      ...(patch.whatsapp_number      !== undefined && { whatsapp_number:      patch.whatsapp_number }),
+      ...(patch.whatsapp_token       !== undefined && { whatsapp_token:       patch.whatsapp_token }),
+      ...(patch.whatsapp_status      !== undefined && { whatsapp_status:      patch.whatsapp_status }),
+      // Google Calendar
+      ...(patch.google_calendar_token !== undefined && { google_calendar_token: patch.google_calendar_token }),
+      ...(patch.calendar_status       !== undefined && { calendar_status:       patch.calendar_status }),
+      // WebPay
+      ...(patch.webpay_merchant_code !== undefined && { webpay_merchant_code: patch.webpay_merchant_code }),
+      ...(patch.webpay_api_key       !== undefined && { webpay_api_key:       patch.webpay_api_key }),
+      ...(patch.webpay_status        !== undefined && { webpay_status:        patch.webpay_status }),
+      // Transferencia
+      ...(patch.transfer_banco       !== undefined && { transfer_banco:       patch.transfer_banco }),
+      ...(patch.transfer_cuenta      !== undefined && { transfer_cuenta:      patch.transfer_cuenta }),
+      ...(patch.transfer_rut         !== undefined && { transfer_rut:         patch.transfer_rut }),
+      ...(patch.transfer_status      !== undefined && { transfer_status:      patch.transfer_status }),
     },
     { onConflict: "user_id" },
   );
