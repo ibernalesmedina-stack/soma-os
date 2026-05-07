@@ -137,7 +137,19 @@ export default function Calendario() {
                 <CalIcon className="h-4 w-4 mr-1.5" /> Conectar Google Calendar
               </Button>
             )}
-            <BloqueoDialog onSave={async (b) => { await addBloqueo({ ...b, user_id: user.id }); refetchBloqueos(); toast({ title: "Horario bloqueado" }); }} />
+            <BloqueoDialog onSave={async (b) => {
+              await addBloqueo({ ...b, user_id: user.id });
+              refetchBloqueos();
+              toast({ title: "Horario bloqueado" });
+              // Sync to Google Calendar if connected
+              if (isGoogleConnected) {
+                fetch("/api/google/sync", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId: user.id }),
+                }).catch(() => {});
+              }
+            }} />
           </div>
         }
       />
