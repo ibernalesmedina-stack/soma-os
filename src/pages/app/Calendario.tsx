@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useBloqueos, useReservas } from "@/lib/hooks";
+import { getIntegration } from "@/lib/storage";
 import { addBloqueo, deleteBloqueo } from "@/lib/storage";
 import type { Bloqueo, Reserva } from "@/lib/types";
 import { BUSINESS_CONFIG } from "@/lib/business";
@@ -31,19 +32,29 @@ export default function Calendario() {
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
   const [syncing, setSyncing] = useState(false);
+  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [searchParams] = useSearchParams();
   const { data: reservas, refetch: refetchReservas } = useReservas();
   const { data: bloqueos, refetch: refetchBloqueos } = useBloqueos();
 
+  const checkGoogleStatus = useCallback(async () => {
+    if (!user) return;
+    const integration = await getIntegration(user.id);
+    setIsGoogleConnected(integration?.calendar_status === "synced" && !!integration?.google_access_token);
+  }, [user]);
+
+  useEffect(() => { checkGoogleStatus(); }, [checkGoogleStatus]);
+
   // Detect OAuth redirect result
   useEffect(() => {
     const google = searchParams.get("google");
-    if (google === "connected") toast({ title: "Google Calendar conectado ✓", description: "Tus reservas se sincronizan automáticamente." });
+    if (google === "connected") {
+      toast({ title: "Google Calendar conectado ✓", description: "Tus reservas se sincronizan automáticamente." });
+      checkGoogleStatus();
+    }
     if (google === "denied") toast({ title: "Acceso denegado", description: "No autorizaste el acceso a Google Calendar.", variant: "destructive" });
     if (google === "error") toast({ title: "Error de conexión", description: "Revisa tu configuración de Google.", variant: "destructive" });
-  }, []);
-
-  const isGoogleConnected = !!user?.googleCalendarConnected;
+  }, [searchParams]);
 
   const connectGoogle = () => {
     if (!user) return;
@@ -57,6 +68,7 @@ export default function Calendario() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: user.id }),
     });
+    setIsGoogleConnected(false);
     toast({ title: "Google Calendar desconectado" });
   };
 
