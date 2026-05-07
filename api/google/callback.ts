@@ -7,14 +7,19 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 const APP_URL = process.env.APP_URL || "https://somaos-react.vercel.app";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { code, state: userId, error } = req.query;
+  // Vercel req.query values can be string | string[] — normalize to string
+  const code = Array.isArray(req.query.code) ? req.query.code[0] : req.query.code;
+  const userId = Array.isArray(req.query.state) ? req.query.state[0] : req.query.state;
+  const error = Array.isArray(req.query.error) ? req.query.error[0] : req.query.error;
 
   if (error) {
     return res.redirect(`${APP_URL}/app/calendario?google=denied`);
   }
-  if (!code || !userId || typeof code !== "string" || typeof userId !== "string") {
-    return res.redirect(`${APP_URL}/app/calendario?google=error`);
+  if (!code || !userId) {
+    return res.redirect(`${APP_URL}/app/calendario?google=error&reason=missing_params`);
   }
+
+  console.log("[callback] code prefix:", code.substring(0, 10), "userId:", userId);
 
   // 1. Exchange auth code for tokens
   const redirectUri = `${APP_URL}/api/google/callback`;
