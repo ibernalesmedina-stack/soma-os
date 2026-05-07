@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useBloqueos, useReservas } from "@/lib/hooks";
 import { addBloqueo, deleteBloqueo } from "@/lib/storage";
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Lock, Plus, Calendar as CalIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Plus, Calendar as CalIcon, CheckCircle2, AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { slugify } from "@/lib/format";
@@ -26,11 +27,52 @@ function startOfWeek(d: Date) {
 }
 
 export default function Calendario() {
-  const { user, update } = useAuth();
+  const { user } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
+  const [syncing, setSyncing] = useState(false);
+  const [searchParams] = useSearchParams();
   const { data: reservas, refetch: refetchReservas } = useReservas();
   const { data: bloqueos, refetch: refetchBloqueos } = useBloqueos();
+
+  // Detect OAuth redirect result
+  useEffect(() => {
+    const google = searchParams.get("google");
+    if (google === "connected") toast({ title: "Google Calendar conectado ✓", description: "Tus reservas se sincronizan automáticamente." });
+    if (google === "denied") toast({ title: "Acceso denegado", description: "No autorizaste el acceso a Google Calendar.", variant: "destructive" });
+    if (google === "error") toast({ title: "Error de conexión", description: "Revisa tu configuración de Google.", variant: "destructive" });
+  }, []);
+
+  const isGoogleConnected = !!user?.googleCalendarConnected;
+
+  const connectGoogle = () => {
+    if (!user) return;
+    window.location.href = `/api/google/auth?userId=${user.id}`;
+  };
+
+  const disconnectGoogle = async () => {
+    if (!user) return;
+    await fetch("/api/google/disconnect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id }),
+    });
+    toast({ title: "Google Calendar desconectado" });
+  };
+
+  const syncNow = async () => {
+    if (!user) return;
+    setSyncing(true);
+    const res = await fetch("/api/google/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id }),
+    });
+    const data = await res.json();
+    setSyncing(false);
+    if (data.skipped) return toast({ title: "Google Calendar no conectado" });
+    toast({ title: `${data.synced} reservas sincronizadas ✓` });
+  };
 
   if (!user || !cfg) return null;
 
@@ -57,14 +99,6 @@ export default function Calendario() {
     return `${a.toLocaleDateString("es-CL", { day: "numeric", month: "short" })} – ${last.toLocaleDateString("es-CL", { day: "numeric", month: "short", year: "numeric" })}`;
   };
 
-  const connectGoogle = () => {
-    update({ googleCalendarConnected: true });
-    toast({ title: "Google Calendar conectado", description: "Las reservas se sincronizarán automáticamente." });
-  };
-  const disconnectGoogle = () => {
-    update({ googleCalendarConnected: false });
-    toast({ title: "Desconectado de Google Calendar" });
-  };
 
   return (
     <>
@@ -73,12 +107,18 @@ export default function Calendario() {
         description={`Vista semanal con sincronización a Google Calendar.`}
         actions={
           <div className="flex gap-2">
-            {user.googleCalendarConnected ? (
-              <Button variant="outline" onClick={disconnectGoogle}>
-                <CheckCircle2 className="h-4 w-4 mr-1.5 text-success" /> Google Calendar
-              </Button>
+            {isGoogleConnected ? (
+              <>
+                <Button variant="outline" size="sm" onClick={syncNow} disabled={syncing}>
+                  {syncing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1.5" />}
+                  Sincronizar
+                </Button>
+                <Button variant="outline" size="sm" onClick={disconnectGoogle}>
+                  <CheckCircle2 className="h-4 w-4 mr-1.5 text-success" /> Google Calendar
+                </Button>
+              </>
             ) : (
-              <Button variant="outline" onClick={connectGoogle}>
+              <Button variant="outline" size="sm" onClick={connectGoogle}>
                 <CalIcon className="h-4 w-4 mr-1.5" /> Conectar Google Calendar
               </Button>
             )}
