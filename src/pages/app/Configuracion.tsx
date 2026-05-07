@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
+import { getIntegration, saveClientEmail } from "@/lib/storage";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Globe, Copy, ExternalLink, CreditCard, Plug } from "lucide-react";
+import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Configuracion() {
@@ -14,6 +15,16 @@ export default function Configuracion() {
   const [name, setName] = useState(user?.name ?? "");
   const [businessName, setBusinessName] = useState(user?.businessName ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
+  const [notifEmail, setNotifEmail] = useState("");
+  const [emailSaved, setEmailSaved] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    getIntegration(user.id).then((i) => {
+      if (i?.resend_email) { setNotifEmail(i.resend_email); setEmailSaved(true); }
+    });
+  }, [user]);
 
   if (!user) return null;
   const pm = user.paymentMethods ?? { webpay: true, transferencia: true };
@@ -54,21 +65,52 @@ export default function Configuracion() {
           </div>
         </section>
 
-        {/* Integraciones — link a página dedicada */}
+        {/* Email de notificaciones */}
         <section className="surface-card p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold flex items-center gap-2">
-                <Plug className="h-4 w-4" /> Integraciones
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                WhatsApp, Google Calendar, WebPay, Email y dominio personalizado.
-              </p>
+          <h3 className="font-semibold flex items-center gap-2">
+            <Mail className="h-4 w-4" /> Email de notificaciones
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">
+            Los recordatorios y confirmaciones a tus clientes se envían desde este email.
+          </p>
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 space-y-1.5">
+              <Label>Tu email de negocio</Label>
+              <div className="relative">
+                <Input
+                  type="email"
+                  value={notifEmail}
+                  onChange={(e) => { setNotifEmail(e.target.value); setEmailSaved(false); }}
+                  placeholder="hola@tunegocio.com"
+                />
+                {emailSaved && (
+                  <CheckCircle2 className="absolute right-2.5 top-2.5 h-4 w-4 text-emerald-500" />
+                )}
+              </div>
             </div>
-            <Button asChild variant="outline">
-              <Link to="/app/integraciones">Configurar →</Link>
+            <Button
+              disabled={emailSaving || !notifEmail.includes("@")}
+              onClick={async () => {
+                setEmailSaving(true);
+                try {
+                  await saveClientEmail(user.id, notifEmail.trim());
+                  setEmailSaved(true);
+                  toast({ title: "Email guardado ✓", description: "Tus notificaciones usarán este email." });
+                } catch {
+                  toast({ title: "Error al guardar", variant: "destructive" });
+                } finally {
+                  setEmailSaving(false);
+                }
+              }}
+            >
+              {emailSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
             </Button>
           </div>
+          {emailSaved && (
+            <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" /> Activo — los emails de tus clientes llegan desde {notifEmail}
+            </p>
+          )}
         </section>
 
         {/* Medios de pago */}

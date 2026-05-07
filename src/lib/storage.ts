@@ -419,6 +419,14 @@ export const upsertIntegration = async (
   if (error) throw error;
 };
 
+export const saveClientEmail = async (userId: string, email: string) => {
+  const { error } = await supabase.from("client_integrations").upsert(
+    { user_id: userId, resend_email: email, resend_status: "connected" },
+    { onConflict: "user_id" },
+  );
+  if (error) throw error;
+};
+
 // ── Seed demo data ─────────────────────────────────────────────────
 export const seedForUser = async (userId: string) => {
   const services = [
