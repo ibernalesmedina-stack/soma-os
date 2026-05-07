@@ -381,11 +381,12 @@ export const impersonate = (userId: string) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toIntegration = (r: any): ClientIntegration => ({
   id: r.id, user_id: r.user_id,
-  whatsapp_number: r.whatsapp_number ?? "",
-  whatsapp_token: r.whatsapp_token ?? "",
-  google_calendar_token: r.google_calendar_token ?? "",
-  webpay_merchant_code: r.webpay_merchant_code ?? "",
-  dominio: r.dominio ?? "",
+  dominio: r.dominio ?? "", domain_status: r.domain_status ?? "pending",
+  resend_api_key: r.resend_api_key ?? "", resend_email: r.resend_email ?? "", resend_status: r.resend_status ?? "disconnected",
+  whatsapp_number: r.whatsapp_number ?? "", whatsapp_token: r.whatsapp_token ?? "", whatsapp_status: r.whatsapp_status ?? "disconnected",
+  google_calendar_token: r.google_calendar_token ?? "", calendar_status: r.calendar_status ?? "disconnected",
+  webpay_merchant_code: r.webpay_merchant_code ?? "", webpay_status: r.webpay_status ?? "inactive",
+  transfer_banco: r.transfer_banco ?? "", transfer_cuenta: r.transfer_cuenta ?? "", transfer_rut: r.transfer_rut ?? "", transfer_status: r.transfer_status ?? "unverified",
   created_at: r.created_at, updated_at: r.updated_at,
 });
 

@@ -164,11 +164,28 @@ export interface Registro {
 export interface ClientIntegration {
   id: string;
   user_id: string;
+  // Domain
+  dominio: string;
+  domain_status: "pending" | "connected" | "error";
+  // Email (Resend)
+  resend_api_key: string;
+  resend_email: string;
+  resend_status: "connected" | "disconnected";
+  // WhatsApp
   whatsapp_number: string;
   whatsapp_token: string;
+  whatsapp_status: "connected" | "disconnected";
+  // Google Calendar
   google_calendar_token: string;
+  calendar_status: "synced" | "disconnected";
+  // WebPay
   webpay_merchant_code: string;
-  dominio: string;
+  webpay_status: "active" | "inactive";
+  // Transferencia bancaria
+  transfer_banco: string;
+  transfer_cuenta: string;
+  transfer_rut: string;
+  transfer_status: "verified" | "unverified";
   created_at: string;
   updated_at: string;
 }
