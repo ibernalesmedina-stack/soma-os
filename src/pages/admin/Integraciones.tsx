@@ -291,14 +291,10 @@ export default function AdminIntegraciones() {
 
             {/* WebPay */}
             <Card icon={CreditCard} iconColor="text-purple-500" iconBg="bg-purple-500/10" title="WebPay (Transbank)" status={integration.webpay_status}>
-              <div className="grid sm:grid-cols-2 gap-3">
-                <F label="Código de comercio">
-                  <SecretInput placeholder="597055555532" value={integration.webpay_merchant_code} onChange={v => set("webpay_merchant_code", v)} />
-                </F>
-                <F label="Clave secreta (API Key)">
-                  <SecretInput placeholder="579B532A…" value={integration.webpay_api_key} onChange={v => set("webpay_api_key", v)} />
-                </F>
-              </div>
+              <F label="Código de comercio">
+                <SecretInput placeholder="597055555532" value={integration.webpay_merchant_code} onChange={v => set("webpay_merchant_code", v)} />
+              </F>
+              <p className="text-xs text-muted-foreground">Solo el código de comercio — SomaOS procesa con sus credenciales Transbank.</p>
             </Card>
 
             {/* Transferencia bancaria */}

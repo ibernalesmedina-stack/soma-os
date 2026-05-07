@@ -10,8 +10,9 @@ const TBK_BASE_INT  = "https://webpay3gint.transbank.cl";
 const TBK_PATH = "/rswebpaytransaction/api/webpay/v1.2/transactions";
 
 // Transbank integration test credentials (shared)
-const TBK_TEST_COMMERCE = "597055555532";
-const TBK_TEST_API_KEY  = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C";
+// SomaOS master Transbank API key — stored in Vercel env vars
+const TBK_MASTER_API_KEY = process.env.TRANSBANK_API_KEY || "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C";
+const TBK_TEST_COMMERCE  = "597055555532";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).end();
@@ -27,17 +28,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Missing userId, pagoId or amount" });
   }
 
-  // 1. Load client's WebPay credentials
+  // 1. Load client's commerce code only
   const intRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/client_integrations?user_id=eq.${userId}&select=webpay_merchant_code,webpay_api_key,webpay_status`,
+    `${SUPABASE_URL}/rest/v1/client_integrations?user_id=eq.${userId}&select=webpay_merchant_code`,
     { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } },
   );
   const integrations = await intRes.json();
   const integration = integrations[0];
 
   const commerceCode = integration?.webpay_merchant_code || TBK_TEST_COMMERCE;
-  const apiKey       = integration?.webpay_api_key       || TBK_TEST_API_KEY;
-  const isProduction = !!(integration?.webpay_merchant_code && integration?.webpay_api_key);
+  const apiKey       = TBK_MASTER_API_KEY;
+  const isProduction = !!integration?.webpay_merchant_code;
   const tbkBase      = isProduction ? TBK_BASE_PROD : TBK_BASE_INT;
 
   // 2. Create transaction

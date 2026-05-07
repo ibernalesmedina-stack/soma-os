@@ -7,8 +7,8 @@ const TBK_BASE_PROD = "https://webpay3g.transbank.cl";
 const TBK_BASE_INT  = "https://webpay3gint.transbank.cl";
 const TBK_PATH = "/rswebpaytransaction/api/webpay/v1.2/transactions";
 
-const TBK_TEST_COMMERCE = "597055555532";
-const TBK_TEST_API_KEY  = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C";
+const TBK_MASTER_API_KEY = process.env.TRANSBANK_API_KEY || "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C";
+const TBK_TEST_COMMERCE  = "597055555532";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).end();
@@ -41,8 +41,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const integration  = integrations[0];
 
   const commerceCode = integration?.webpay_merchant_code || TBK_TEST_COMMERCE;
-  const apiKey       = integration?.webpay_api_key       || TBK_TEST_API_KEY;
-  const isProduction = !!(integration?.webpay_merchant_code && integration?.webpay_api_key);
+  const apiKey       = TBK_MASTER_API_KEY;
+  const isProduction = !!integration?.webpay_merchant_code;
   const tbkBase      = isProduction ? TBK_BASE_PROD : TBK_BASE_INT;
 
   // 3. Confirm transaction with Transbank

@@ -19,7 +19,6 @@ export default function Configuracion() {
   const [emailSaved, setEmailSaved] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
   const [wpCode, setWpCode] = useState("");
-  const [wpKey, setWpKey] = useState("");
   const [wpSaved, setWpSaved] = useState(false);
   const [wpSaving, setWpSaving] = useState(false);
 
@@ -28,7 +27,6 @@ export default function Configuracion() {
     getIntegration(user.id).then((i) => {
       if (i?.resend_email) { setNotifEmail(i.resend_email); setEmailSaved(true); }
       if (i?.webpay_merchant_code) { setWpCode(i.webpay_merchant_code); setWpSaved(true); }
-      if (i?.webpay_api_key) setWpKey(i.webpay_api_key);
     });
   }, [user]);
 
@@ -127,53 +125,46 @@ export default function Configuracion() {
           <p className="text-xs text-muted-foreground mt-1 mb-4">
             Ingresa tus credenciales de Transbank. Los pagos de tus clientes van directo a tu cuenta.
           </p>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label>Código de comercio</Label>
-              <Input
-                value={wpCode}
-                onChange={(e) => { setWpCode(e.target.value); setWpSaved(false); }}
-                placeholder="597055555532"
-              />
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 space-y-1.5">
+              <Label>Código de comercio Transbank</Label>
+              <div className="relative">
+                <Input
+                  value={wpCode}
+                  onChange={(e) => { setWpCode(e.target.value); setWpSaved(false); }}
+                  placeholder="597055555532"
+                  className="font-mono"
+                />
+                {wpSaved && <CheckCircle2 className="absolute right-2.5 top-2.5 h-4 w-4 text-emerald-500" />}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Clave secreta (API Key)</Label>
-              <Input
-                type="password"
-                value={wpKey}
-                onChange={(e) => { setWpKey(e.target.value); setWpSaved(false); }}
-                placeholder="Tu clave de Transbank"
-              />
-            </div>
-            <div className="flex items-center justify-between pt-1">
-              {wpSaved ? (
-                <p className="text-xs text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" /> Activo — pagos van a tu cuenta Transbank
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Obtén tus credenciales en el portal de Transbank.
-                </p>
-              )}
-              <Button
-                disabled={wpSaving || !wpCode.trim() || !wpKey.trim()}
-                onClick={async () => {
-                  setWpSaving(true);
-                  try {
-                    await saveWebPayConfig(user.id, wpCode.trim(), wpKey.trim());
-                    setWpSaved(true);
-                    toast({ title: "WebPay configurado ✓", description: "Los pagos de tus clientes van directo a tu cuenta." });
-                  } catch {
-                    toast({ title: "Error al guardar", variant: "destructive" });
-                  } finally {
-                    setWpSaving(false);
-                  }
-                }}
-              >
-                {wpSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
-              </Button>
-            </div>
+            <Button
+              disabled={wpSaving || !wpCode.trim()}
+              onClick={async () => {
+                setWpSaving(true);
+                try {
+                  await saveWebPayConfig(user.id, wpCode.trim(), "");
+                  setWpSaved(true);
+                  toast({ title: "WebPay activado ✓", description: "Los pagos de tus clientes van directo a tu cuenta Transbank." });
+                } catch {
+                  toast({ title: "Error al guardar", variant: "destructive" });
+                } finally {
+                  setWpSaving(false);
+                }
+              }}
+            >
+              {wpSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+            </Button>
           </div>
+          {wpSaved ? (
+            <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" /> Activo — los pagos van directo a tu cuenta Transbank
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-2">
+              Lo encuentras en el portal de Transbank → Mi cuenta → Código de comercio.
+            </p>
+          )}
         </section>
 
         {/* Medios de pago */}
