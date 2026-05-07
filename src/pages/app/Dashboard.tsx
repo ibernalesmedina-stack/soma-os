@@ -1,10 +1,65 @@
-import { ArrowUpRight, Calendar, CreditCard, Plus, TrendingUp, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowUpRight, Calendar, CreditCard, Plus, TrendingUp, Users, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { usePagos, useReservas } from "@/lib/hooks";
+import { getIntegration } from "@/lib/storage";
 import { formatCLP, formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+
+function GoogleCalendarBanner({ userId }: { userId: string }) {
+  const [status, setStatus] = useState<"loading" | "disconnected" | "connected">("loading");
+  const [dismissed, setDismissed] = useState(() =>
+    localStorage.getItem("soma.gcal.banner.dismissed") === "1"
+  );
+
+  useEffect(() => {
+    getIntegration(userId).then((d) => {
+      setStatus(d?.calendar_status === "synced" ? "connected" : "disconnected");
+    });
+  }, [userId]);
+
+  if (status !== "disconnected" || dismissed) return null;
+
+  return (
+    <div className="relative rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/[0.03] to-transparent p-4 flex items-center gap-4 mb-6">
+      {/* Icon */}
+      <div className="size-10 rounded-xl bg-white border shadow-sm flex items-center justify-center shrink-0">
+        <svg viewBox="0 0 24 24" className="h-5 w-5" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.5 3h-3V1.5H15V3H9V1.5H7.5V3H4.5A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm0 16.5h-15V9h15v10.5zM7.5 4.5V6H9V4.5h6V6h1.5V4.5h3V7.5h-15V4.5h3z" fill="#4285F4"/>
+          <path d="M12 10.5a3 3 0 100 6 3 3 0 000-6z" fill="#34A853"/>
+        </svg>
+      </div>
+
+      {/* Text */}
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold">Conecta tu Google Calendar</div>
+        <div className="text-xs text-muted-foreground mt-0.5">
+          Tus reservas aparecerán automáticamente en tu calendario y se sincronizan en tiempo real.
+        </div>
+      </div>
+
+      {/* Action */}
+      <Button
+        size="sm"
+        className="shrink-0"
+        onClick={() => { window.location.href = `/api/google/auth?userId=${userId}`; }}
+      >
+        <Calendar className="h-3.5 w-3.5 mr-1.5" />
+        Conectar ahora
+      </Button>
+
+      {/* Dismiss */}
+      <button
+        onClick={() => { setDismissed(true); localStorage.setItem("soma.gcal.banner.dismissed", "1"); }}
+        className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -18,6 +73,7 @@ export default function Dashboard() {
 
   return (
     <>
+      {user && <GoogleCalendarBanner userId={user.id} />}
       <div className="flex items-end justify-between mb-6">
         <div>
           <p className="text-xs uppercase tracking-wider text-muted-foreground mono">Resumen</p>
