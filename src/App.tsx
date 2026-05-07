@@ -31,6 +31,7 @@ import AdminFinanzas from "./pages/admin/Finanzas";
 import AdminActividad from "./pages/admin/Actividad";
 import AdminReportes from "./pages/admin/Reportes";
 import AdminIntegraciones from "./pages/admin/Integraciones";
+import AdminSitioEditor from "./pages/admin/SitioEditor";
 import Sitio from "./pages/Sitio";
 import Privacidad from "./pages/Privacidad";
 import Terminos from "./pages/Terminos";
@@ -77,6 +78,7 @@ const App = () => (
               <Route path="actividad" element={<AdminActividad />} />
               <Route path="reportes" element={<AdminReportes />} />
               <Route path="integraciones" element={<AdminIntegraciones />} />
+              <Route path="sitios" element={<AdminSitioEditor />} />
             </Route>
             <Route path="/s/:userId" element={<Sitio />} />
             <Route path="/privacidad" element={<Privacidad />} />

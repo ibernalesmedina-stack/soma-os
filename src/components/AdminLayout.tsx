@@ -1,6 +1,6 @@
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, Users, DollarSign, Activity, ArrowLeft, FileBarChart, Receipt, Settings as SettingsIcon, ShieldAlert, Plug } from "lucide-react";
+import { LayoutDashboard, Users, DollarSign, Activity, ArrowLeft, FileBarChart, Receipt, Settings as SettingsIcon, ShieldAlert, Plug, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -11,6 +11,7 @@ const items = [
   { url: "/admin/finanzas", label: "Finanzas", icon: DollarSign },
   { url: "/admin/actividad", label: "Actividad", icon: Activity },
   { url: "/admin/reportes", label: "Reportes", icon: FileBarChart },
+  { url: "/admin/sitios", label: "Sitios Web", icon: Globe },
   { url: "/admin/integraciones", label: "Integraciones", icon: Plug },
   { url: "/admin/configuracion", label: "Configuración", icon: SettingsIcon },
 ];

@@ -1,4 +1,50 @@
 export type Plan = "basic" | "pro" | "premium" | "clinic";
+
+export interface SiteTheme {
+  primaryColor: string;   // hex, e.g. "#2D6A4F"
+  bgColor: string;        // hex, e.g. "#F8F5F0"
+  cardBg: string;         // hex, e.g. "#FFFFFF"
+  textColor: string;      // hex, e.g. "#1A1A1A"
+  accentColor: string;    // hex, e.g. "#B5D5C5"
+  font: "inter" | "playfair" | "montserrat" | "lato";
+  heroStyle: "gradient" | "minimal" | "image";
+  borderRadius: "none" | "sm" | "md" | "lg" | "full";
+}
+
+export interface LandingConfig {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroImageUrl: string;
+  ctaText: string;
+  aboutText: string;
+  showAbout: boolean;
+  instagram: string;
+  showInstagram: boolean;
+  customSections: { id: string; title: string; body: string }[];
+}
+
+export const DEFAULT_THEME: SiteTheme = {
+  primaryColor: "#5B3EFF",
+  bgColor: "#FFFFFF",
+  cardBg: "#F9FAFB",
+  textColor: "#111827",
+  accentColor: "#EDE9FE",
+  font: "inter",
+  heroStyle: "gradient",
+  borderRadius: "lg",
+};
+
+export const DEFAULT_LANDING: LandingConfig = {
+  heroTitle: "",
+  heroSubtitle: "",
+  heroImageUrl: "",
+  ctaText: "Agendar consulta",
+  aboutText: "",
+  showAbout: false,
+  instagram: "",
+  showInstagram: false,
+  customSections: [],
+};
 export type TipoNegocio = "nutricionista" | "cosmetologa" | "odontologa" | "psicologa";
 export type SubmoduloCosmetologa = "piel" | "unas" | "pestanas";
 export type UserRole = "user" | "admin";
