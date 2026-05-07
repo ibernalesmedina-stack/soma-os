@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { BarChart3, CalendarDays, ClipboardList, CreditCard, LayoutDashboard, Plug, Settings, Sparkles, Users, Wrench } from "lucide-react";
+import { BarChart3, CalendarDays, ClipboardList, CreditCard, LayoutDashboard, Settings, Sparkles, Users, Wrench } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
@@ -25,7 +25,6 @@ export function AppSidebar() {
     { title: "Servicios", url: "/app/servicios", icon: Wrench, key: "servicios" as const },
     { title: "Automatizaciones", url: "/app/automatizaciones", icon: Sparkles, key: "automations" as const },
     { title: "Analítica", url: "/app/analitica", icon: BarChart3, key: "analytics" as const },
-    { title: "Integraciones", url: "/app/integraciones", icon: Plug, key: "integraciones" as const },
     { title: "Configuración", url: "/app/configuracion", icon: Settings, key: "config" as const },
   ];
 
