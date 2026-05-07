@@ -27,12 +27,15 @@ function startOfWeek(d: Date) {
   return x;
 }
 
+type GoogleEvent = { id: string; title: string; start: string; end: string; allDay: boolean };
+
 export default function Calendario() {
   const { user } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [weekStart, setWeekStart] = useState<Date>(startOfWeek(new Date()));
   const [syncing, setSyncing] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
+  const [googleEvents, setGoogleEvents] = useState<GoogleEvent[]>([]);
   const [searchParams] = useSearchParams();
   const { data: reservas, refetch: refetchReservas } = useReservas();
   const { data: bloqueos, refetch: refetchBloqueos } = useBloqueos();
@@ -44,6 +47,16 @@ export default function Calendario() {
   }, [user]);
 
   useEffect(() => { checkGoogleStatus(); }, [checkGoogleStatus]);
+
+  const fetchGoogleEvents = useCallback(async () => {
+    if (!user || !isGoogleConnected) return;
+    const res = await fetch(`/api/google/events?userId=${user.id}&weekStart=${weekStart.toISOString()}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    setGoogleEvents(data.events || []);
+  }, [user, isGoogleConnected, weekStart]);
+
+  useEffect(() => { fetchGoogleEvents(); }, [fetchGoogleEvents]);
 
   // Detect OAuth redirect result
   useEffect(() => {
@@ -67,15 +80,18 @@ export default function Calendario() {
   const syncNow = async () => {
     if (!user) return;
     setSyncing(true);
-    const res = await fetch("/api/google/sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id }),
-    });
-    const data = await res.json();
+    const [syncRes] = await Promise.all([
+      fetch("/api/google/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      }),
+      fetchGoogleEvents(),
+    ]);
+    const data = await syncRes.json();
     setSyncing(false);
     if (data.skipped) return toast({ title: "Google Calendar no conectado" });
-    toast({ title: `${data.synced} reservas sincronizadas ✓` });
+    toast({ title: `Calendario sincronizado ✓` });
   };
 
   if (!user || !cfg) return null;
@@ -149,6 +165,7 @@ export default function Calendario() {
         <Legend color="bg-primary" label={`${cfg.clientLabel} antiguo`} />
         <Legend color="bg-[hsl(var(--warning))]" label="Control" />
         <Legend color="bg-destructive" label="Horario bloqueado" />
+        {isGoogleConnected && <Legend color="bg-blue-500" label="Google Calendar" />}
       </div>
 
       <div className="surface-card overflow-hidden">
@@ -180,7 +197,7 @@ export default function Calendario() {
 
             {/* Filas por hora */}
             {HOURS.map((h) => (
-              <Row key={h} hour={h} days={days} weekReservas={weekReservas} weekBloqueos={weekBloqueos} allReservas={reservas} clientLabelNuevo={`${cfg.clientLabel} nuevo`} clientLabelAntiguo={`${cfg.clientLabel} antiguo`} onDeleteBloqueo={async (id) => { await deleteBloqueo(id); refetchBloqueos(); }} />
+              <Row key={h} hour={h} days={days} weekReservas={weekReservas} weekBloqueos={weekBloqueos} googleEvents={googleEvents} allReservas={reservas} clientLabelNuevo={`${cfg.clientLabel} nuevo`} clientLabelAntiguo={`${cfg.clientLabel} antiguo`} onDeleteBloqueo={async (id) => { await deleteBloqueo(id); refetchBloqueos(); }} />
             ))}
           </div>
         </div>
@@ -216,10 +233,11 @@ function isNuevoLocal(allReservas: Reserva[], clientKey: string): boolean {
   return completedOrPast.length <= 1;
 }
 
-function Row({ hour, days, weekReservas, weekBloqueos, allReservas, clientLabelNuevo, clientLabelAntiguo, onDeleteBloqueo }: {
+function Row({ hour, days, weekReservas, weekBloqueos, googleEvents, allReservas, clientLabelNuevo, clientLabelAntiguo, onDeleteBloqueo }: {
   hour: number; days: Date[];
   weekReservas: Reserva[];
   weekBloqueos: Bloqueo[];
+  googleEvents: GoogleEvent[];
   allReservas: Reserva[];
   clientLabelNuevo: string; clientLabelAntiguo: string;
   onDeleteBloqueo: (id: string) => void;
@@ -240,6 +258,12 @@ function Row({ hour, days, weekReservas, weekBloqueos, allReservas, clientLabelN
           const bs = new Date(b.start).getTime();
           const be = new Date(b.end).getTime();
           return bs < slotEnd.getTime() && be > slotStart.getTime();
+        });
+        const googleSlot = googleEvents.filter((e) => {
+          if (e.allDay) return false;
+          const es = new Date(e.start).getTime();
+          const ee = new Date(e.end).getTime();
+          return es < slotEnd.getTime() && ee > slotStart.getTime();
         });
         const isToday = d.toDateString() === new Date().toDateString();
         return (
@@ -280,6 +304,21 @@ function Row({ hour, days, weekReservas, weekBloqueos, allReservas, clientLabelN
                 </div>
               );
             })}
+            {googleSlot.map((e) => (
+              <div
+                key={e.id}
+                className="rounded-md px-1.5 py-1 text-[10px] border space-y-0.5 bg-blue-500/10 text-blue-600 border-blue-400/30"
+                title={`Google Calendar: ${e.title}`}
+              >
+                <div className="flex items-center gap-1 font-medium">
+                  <CalIcon className="h-2.5 w-2.5 shrink-0" />
+                  <span className="truncate">{e.title}</span>
+                </div>
+                <div className="mono opacity-80">
+                  {new Date(e.start).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            ))}
           </div>
         );
       })}
