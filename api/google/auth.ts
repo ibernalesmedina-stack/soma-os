@@ -18,7 +18,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: `${APP_URL}/api/google/callback`,
+    redirect_uri: `${APP_URL}/app/google-callback`,
     response_type: "code",
     scope: SCOPES,
     access_type: "offline",   // needed for refresh_token
