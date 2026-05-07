@@ -64,17 +64,6 @@ export default function Calendario() {
     window.location.href = `/api/google/auth?userId=${user.id}`;
   };
 
-  const disconnectGoogle = async () => {
-    if (!user) return;
-    await fetch("/api/google/disconnect", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id }),
-    });
-    setIsGoogleConnected(false);
-    toast({ title: "Google Calendar desconectado" });
-  };
-
   const syncNow = async () => {
     if (!user) return;
     setSyncing(true);
@@ -128,9 +117,9 @@ export default function Calendario() {
                   {syncing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1.5" />}
                   Sincronizar
                 </Button>
-                <Button variant="outline" size="sm" onClick={disconnectGoogle}>
-                  <CheckCircle2 className="h-4 w-4 mr-1.5 text-success" /> Google Calendar
-                </Button>
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground px-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Google Calendar
+                </div>
               </>
             ) : (
               <Button variant="outline" size="sm" onClick={connectGoogle}>
