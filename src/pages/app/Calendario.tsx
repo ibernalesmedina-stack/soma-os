@@ -53,7 +53,10 @@ export default function Calendario() {
       checkGoogleStatus();
     }
     if (google === "denied") toast({ title: "Acceso denegado", description: "No autorizaste el acceso a Google Calendar.", variant: "destructive" });
-    if (google === "error") toast({ title: "Error de conexión", description: "Revisa tu configuración de Google.", variant: "destructive" });
+    if (google === "error") {
+      const reason = searchParams.get("reason") || "Revisa tu configuración de Google.";
+      toast({ title: "Error de conexión", description: reason, variant: "destructive" });
+    }
   }, [searchParams]);
 
   const connectGoogle = () => {

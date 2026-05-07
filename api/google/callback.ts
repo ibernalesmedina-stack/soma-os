@@ -17,6 +17,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 1. Exchange auth code for tokens
+  const redirectUri = `${APP_URL}/api/google/callback`;
+  console.log("[callback] exchanging code, redirect_uri:", redirectUri);
+  console.log("[callback] client_id:", GOOGLE_CLIENT_ID ? "set" : "MISSING");
+  console.log("[callback] client_secret:", GOOGLE_CLIENT_SECRET ? "set" : "MISSING");
+
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -24,17 +29,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       code,
       client_id: GOOGLE_CLIENT_ID,
       client_secret: GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${APP_URL}/api/google/callback`,
+      redirect_uri: redirectUri,
       grant_type: "authorization_code",
     }),
   });
 
+  const tokenBody = await tokenRes.text();
   if (!tokenRes.ok) {
-    console.error("Token exchange failed:", await tokenRes.text());
-    return res.redirect(`${APP_URL}/app/calendario?google=error`);
+    console.error("[callback] Token exchange failed:", tokenRes.status, tokenBody);
+    // Show error details in redirect for debugging
+    const errData = JSON.parse(tokenBody);
+    return res.redirect(`${APP_URL}/app/calendario?google=error&reason=${encodeURIComponent(errData.error || tokenBody)}`);
   }
 
-  const tokens = await tokenRes.json() as {
+  const tokens = JSON.parse(tokenBody) as {
     access_token: string;
     refresh_token?: string;
     expires_in: number;
