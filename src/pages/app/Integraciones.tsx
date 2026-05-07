@@ -146,12 +146,33 @@ export default function Integraciones() {
               <div className="flex gap-2">
                 <Input placeholder="elliotnutrition.com" value={data.dominio}
                   onChange={e => set("dominio", e.target.value)} className="flex-1" />
-                <Button variant="outline" disabled={saving || !data.dominio}
-                  onClick={() => save({ domain_status: "pending" }, "Dominio guardado")}>
-                  Guardar
+                <Button variant="outline" disabled={!data.dominio || testing === "domain-save"}
+                  onClick={async () => {
+                    if (!user) return;
+                    setTesting("domain-save");
+                    try {
+                      const r = await fetch("/api/domain/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ domain: data.dominio, userId: user.id }) });
+                      if (!r.ok) { const e = await r.json(); throw new Error(e.error); }
+                      setData(p => ({ ...p, domain_status: "pending" }));
+                      toast({ title: "Dominio guardado ✓", description: "Configura el DNS y luego valida." });
+                    } catch (e: any) {
+                      toast({ title: "Error al guardar dominio", description: e.message, variant: "destructive" });
+                    } finally { setTesting(null); }
+                  }}>
+                  {testing === "domain-save" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
                 </Button>
                 <Button disabled={!data.dominio || testing === "domain"}
-                  onClick={async () => { await simulateTest("domain"); save({ domain_status: "connected" }, "¡Dominio conectado!"); }}>
+                  onClick={async () => {
+                    if (!user) return;
+                    setTesting("domain");
+                    try {
+                      const r = await fetch("/api/domain/validate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ domain: data.dominio, userId: user.id }) });
+                      const result = await r.json();
+                      setData(p => ({ ...p, domain_status: result.verified ? "connected" : "pending" }));
+                      toast({ title: result.verified ? "¡Dominio conectado! ✓" : "DNS aún pendiente", description: result.verified ? `${data.dominio} está activo` : "Puede tardar hasta 48h en propagarse.", variant: result.verified ? "default" : "destructive" });
+                    } catch { toast({ title: "Error al validar", variant: "destructive" }); }
+                    finally { setTesting(null); }
+                  }}>
                   {testing === "domain" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Validar"}
                 </Button>
               </div>

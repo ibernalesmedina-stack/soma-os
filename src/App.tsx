@@ -18,6 +18,7 @@ import Servicios from "./pages/app/Servicios";
 import Automatizaciones from "./pages/app/Automatizaciones";
 import Analitica from "./pages/app/Analitica";
 import Configuracion from "./pages/app/Configuracion";
+import Integraciones from "./pages/app/Integraciones";
 import GoogleCallback from "./pages/app/GoogleCallback";
 import { AdminLayout } from "@/components/AdminLayout";
 import AdminLogin from "./pages/admin/Login";
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="automatizaciones" element={<Automatizaciones />} />
               <Route path="analitica" element={<Analitica />} />
               <Route path="configuracion" element={<Configuracion />} />
+              <Route path="integraciones" element={<Integraciones />} />
               <Route path="google-callback" element={<GoogleCallback />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
