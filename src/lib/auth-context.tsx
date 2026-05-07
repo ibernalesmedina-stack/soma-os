@@ -96,60 +96,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     businessName: string; phone: string; plan: User["plan"];
     tipoNegocio: User["tipoNegocio"]; submodulos?: SubmoduloCosmetologa[];
   }): Promise<string | null> => {
-    // 1. Create auth user
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    });
-    if (error) return error.message;
-    if (!authData.user) return "No se pudo crear la cuenta";
-
-    // 2. Get a valid session — signUp may not return one if email confirm is on
-    let session = authData.session;
-    if (!session) {
-      // Attempt immediate sign-in (works when email confirmation is disabled)
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      if (signInError) return "Cuenta creada. Confirma tu email para continuar.";
-      session = signInData.session;
-    }
-
-    const userId = authData.user.id;
-    const token = session?.access_token;
-
-    // 3. Upsert profile (trigger may have already created the row)
-    const { error: profileError } = await supabase.from("perfiles").upsert(
-      {
-        id: userId,
-        name: data.name,
-        business_name: data.businessName,
-        phone: data.phone,
-        plan: data.plan,
-        tipo_negocio: data.tipoNegocio,
+    // Use server-side API route — creates user with service role key,
+    // no email sent, no rate limit, email auto-confirmed
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: data.email, password: data.password, name: data.name,
+        businessName: data.businessName, phone: data.phone,
+        plan: data.plan, tipoNegocio: data.tipoNegocio,
         submodulos: data.submodulos ?? [],
-        role: "user",
-      },
-      { onConflict: "id" },
-    );
-    if (profileError) {
-      console.error("Error creando perfil:", profileError);
-      // Don't block registration — profile may have been created by trigger
-    }
+      }),
+    });
 
-    // 4. Seed demo data (non-blocking — tables may not exist yet)
-    try {
-      await seedForUser(userId);
-    } catch (e) {
-      console.warn("Seed skipped (tables may not exist yet):", e);
-    }
+    const result = await res.json();
+    if (!res.ok) return result.error || "Error al crear la cuenta";
 
-    // 5. Set user state with fresh token
-    if (session) {
-      const u = await fetchUser(userId, data.email, token);
-      setUser(u);
-    }
+    // Set session from API response
+    const { access_token, refresh_token, userId } = result;
+    await supabase.auth.setSession({ access_token, refresh_token });
+
+    // Seed demo data (non-blocking)
+    try { await seedForUser(userId); } catch (e) { console.warn("Seed skipped:", e); }
+
+    // Fetch and set user profile
+    const u = await fetchUser(userId, data.email, access_token);
+    setUser(u);
 
     return null;
   };
