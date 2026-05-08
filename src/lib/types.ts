@@ -6,7 +6,7 @@ export interface SiteTheme {
   cardBg: string;         // hex, e.g. "#FFFFFF"
   textColor: string;      // hex, e.g. "#1A1A1A"
   accentColor: string;    // hex, e.g. "#B5D5C5"
-  font: "inter" | "playfair" | "montserrat" | "lato";
+  font: "inter" | "playfair" | "montserrat" | "lato" | "instrument";
   heroStyle: "gradient" | "minimal" | "image";
   borderRadius: "none" | "sm" | "md" | "lg" | "full";
 }
@@ -17,9 +17,13 @@ export interface LandingConfig {
   heroImageUrl: string;
   ctaText: string;
   aboutText: string;
+  aboutQuote: string;
   showAbout: boolean;
   instagram: string;
   showInstagram: boolean;
+  whatsapp: string;
+  stats: { value: string; label: string }[];
+  testimonials: { text: string; name: string }[];
   customSections: { id: string; title: string; body: string }[];
 }
 
@@ -40,9 +44,13 @@ export const DEFAULT_LANDING: LandingConfig = {
   heroImageUrl: "",
   ctaText: "Agendar consulta",
   aboutText: "",
+  aboutQuote: "",
   showAbout: false,
   instagram: "",
   showInstagram: false,
+  whatsapp: "",
+  stats: [],
+  testimonials: [],
   customSections: [],
 };
 export type TipoNegocio = "nutricionista" | "cosmetologa" | "odontologa" | "psicologa";
