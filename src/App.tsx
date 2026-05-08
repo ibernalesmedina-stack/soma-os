@@ -40,7 +40,25 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+// If visiting from a custom client domain, show their site directly
+const hostname = window.location.hostname;
+const isCustomDomain = !hostname.includes("vercel.app") && hostname !== "localhost" && !hostname.includes("somaos");
+
+const App = () => {
+  if (isCustomDomain) {
+    // Custom domain — Sitio component will detect hostname and load correct client
+    return (
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="*" element={<Sitio />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    );
+  }
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -91,6 +109,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
