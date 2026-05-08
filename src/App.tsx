@@ -44,14 +44,20 @@ const queryClient = new QueryClient();
 const hostname = window.location.hostname;
 const isCustomDomain = !hostname.includes("vercel.app") && hostname !== "localhost" && !hostname.includes("somaos");
 
+// Map known custom domains to their dedicated site component
+const DOMAIN_ROUTES: Record<string, React.ReactElement> = {
+  "www.elliotnutrition.com": <SitioPaulette />,
+  "elliotnutrition.com":     <SitioPaulette />,
+};
+
 const App = () => {
   if (isCustomDomain) {
-    // Custom domain — Sitio component will detect hostname and load correct client
+    const siteElement = DOMAIN_ROUTES[hostname] ?? <Sitio />;
     return (
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
-            <Route path="*" element={<Sitio />} />
+            <Route path="*" element={siteElement} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
