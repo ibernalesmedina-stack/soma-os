@@ -100,7 +100,7 @@ export default function SitioPaulette() {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { overflow-x: hidden; }
     .pe { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; background: #f6f6ea; color: #474511; }
-    .pe a { color: inherit; text-decoration: none; }
+    .pe a { text-decoration: none; }
     .pe button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
     .pe img { display: block; max-width: 100%; }
     .pe-serif { font-family: 'Instrument Serif', 'Times New Roman', serif; }
@@ -115,7 +115,7 @@ export default function SitioPaulette() {
     .pe-nav-links { display: flex; gap: 28px; }
     .pe-nav-links a { position: relative; padding: 6px 0; color: rgba(71,69,17,0.75); font-size: 16px; font-weight: 600; transition: color .2s; }
     .pe-nav-links a:hover { color: #474511; }
-    .pe-nav-btn { display: inline-flex; align-items: center; gap: 10px; padding: 11px 22px; border-radius: 999px; background: #d49930; color: #f6f6ea; font-size: 14px; font-weight: 500; transition: background .2s; }
+    .pe-nav-btn { display: inline-flex; align-items: center; gap: 10px; padding: 11px 22px; border-radius: 999px; background: #d49930; color: #f6f6ea !important; font-size: 14px; font-weight: 500; transition: background .2s; }
     .pe-nav-btn:hover { background: #333209; }
     @media (max-width: 760px) { .pe-nav-links { display: none; } }
 
@@ -126,9 +126,9 @@ export default function SitioPaulette() {
     .pe-hero-title em { font-style: italic; color: rgba(246,246,234,0.85); }
     .pe-hero-sub { font-size: 17px; line-height: 1.55; max-width: 46ch; color: rgba(246,246,234,0.88); margin: 0 0 32px; }
     .pe-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
-    .pe-btn-lime { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; background: #deeca0; color: #3b5345; font-size: 14px; font-weight: 500; transition: background .2s; }
+    .pe-btn-lime { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; background: #deeca0; color: #3b5345 !important; font-size: 14px; font-weight: 500; transition: background .2s; }
     .pe-btn-lime:hover { background: #e8f4b2; }
-    .pe-btn-ghost-lime { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; border: 1px solid #deeca0; color: #deeca0; font-size: 14px; font-weight: 500; transition: all .2s; }
+    .pe-btn-ghost-lime { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; border: 1px solid #deeca0; color: #deeca0 !important; font-size: 14px; font-weight: 500; transition: all .2s; }
     .pe-btn-ghost-lime:hover { background: #deeca0; color: #3b5345; }
     .pe-hero-meta { margin-top: 36px; display: flex; align-items: center; gap: 18px; font-family: 'Geist Mono', monospace; font-size: 12px; color: rgba(246,246,234,0.7); letter-spacing: 0.04em; font-weight: 600; flex-wrap: wrap; }
     .pe-hero-sep { width: 20px; height: 1px; background: currentColor; opacity: .5; flex-shrink: 0; }
@@ -148,7 +148,7 @@ export default function SitioPaulette() {
     .pe-about p { font-size: 17px; line-height: 1.65; opacity: .85; max-width: 52ch; margin: 0 0 18px; }
     .pe-quote { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 22px; line-height: 1.35; padding: 16px 0 0; }
     .pe-author { margin-top: 10px; font-size: 15px; font-weight: 500; opacity: .7; }
-    .pe-cta-gold { display: inline-flex; margin-top: 28px; background: #d49930; color: #f8f3e7; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s; }
+    .pe-cta-gold { display: inline-flex; margin-top: 28px; background: #d49930; color: #f8f3e7 !important; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s; }
     .pe-cta-gold:hover { background: #c08a26; }
     @media (max-width: 960px) { .pe-about-grid { grid-template-columns: 1fr; } }
 
@@ -197,8 +197,8 @@ export default function SitioPaulette() {
     .pe-plan-feat li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: start; }
     .pe-plan-feat li::before { content: "✓"; font-family: 'Geist Mono', monospace; font-size: 12px; color: #6f8c2a; padding-top: 1px; }
     .pe-plan.featured .pe-plan-feat li::before { color: #deeca0; }
-    .pe-plan-btn { margin-top: 24px; display: inline-flex; align-items: center; justify-content: space-between; background: #403c01; color: #f6f6ea; padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; gap: 10px; transition: transform .15s; width: 100%; flex-shrink: 0; }
-    .pe-plan.featured .pe-plan-btn { background: #f6f6ea; color: #403c01; }
+    .pe-plan-btn { margin-top: auto; display: inline-flex; align-items: center; justify-content: space-between; background: #403c01; color: #f6f6ea !important; padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; gap: 10px; transition: transform .15s; width: 100%; text-decoration: none; }
+    .pe-plan.featured .pe-plan-btn { background: #f6f6ea; color: #403c01 !important; }
     .pe-plan-btn:hover { transform: translateX(2px); }
     .pe-plans-cta { margin: 0 auto; text-align: center; max-width: 560px; padding: 36px 32px; border-radius: 24px; background: #474511; color: #f6f6ea; position: relative; overflow: hidden; }
     .pe-wa-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px; background: #25D366; color: #fff; font-size: 14px; font-weight: 600; transition: transform .15s, background .2s; }
@@ -222,7 +222,7 @@ export default function SitioPaulette() {
     .pe-closing { padding: clamp(48px,6vw,80px) 0; text-align: center; background: #474511; color: #f6f6ea; }
     .pe-closing h2 { font-family: 'Instrument Serif', serif; font-size: clamp(26px,3.2vw,40px); line-height: 1.25; letter-spacing: -0.015em; margin: 0 auto 28px; max-width: 48ch; font-weight: 400; }
     .pe-closing h2 em { font-style: italic; color: #dba22d; }
-    .pe-closing-btn { display: inline-flex; align-items: center; background: #dba22d; color: #474511; padding: 14px 28px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s; }
+    .pe-closing-btn { display: inline-flex; align-items: center; background: #dba22d; color: #474511 !important; padding: 14px 28px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s; }
     .pe-closing-btn:hover { background: #e8b13f; }
 
     /* BOOKING */
@@ -269,7 +269,7 @@ export default function SitioPaulette() {
     .pe-footer a:hover { opacity: .7; }
     .pe-footer-logo { display: block; margin-bottom: 18px; filter: brightness(0) invert(1); width: 155px; }
     .pe-footer-social { display: flex; gap: 10px; margin-top: 16px; }
-    .pe-btn-ghost-footer { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(246,246,234,0.6); color: #f6f6ea; font-size: 12px; font-weight: 500; transition: all .2s; }
+    .pe-btn-ghost-footer { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(246,246,234,0.6); color: #f6f6ea !important; font-size: 12px; font-weight: 500; transition: all .2s; }
     .pe-btn-ghost-footer:hover { background: #f6f6ea; color: #dba22d; }
     .pe-footer-bottom { display: flex; justify-content: space-between; padding-top: 24px; border-top: 1px solid rgba(246,246,234,0.3); font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.08em; font-weight: 600; text-transform: uppercase; }
     @media (max-width: 960px) { .pe-footer-grid { grid-template-columns: 1fr 1fr; } }
