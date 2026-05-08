@@ -181,7 +181,7 @@ export default function SitioPaulette() {
     .pe-plan-feat li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: start; }
     .pe-plan-feat li::before { content: "✓"; font-family: 'Geist Mono', monospace; font-size: 12px; color: #6f8c2a; padding-top: 1px; }
     .pe-plan.featured .pe-plan-feat li::before { color: #deeca0; }
-    .pe-plan-btn { margin-top: auto; display: inline-flex; align-items: center; justify-content: space-between; background: #403c01; color: #f6f6ea; padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; gap: 10px; transition: transform .15s; width: 100%; }
+    .pe-plan-btn { margin-top: 24px; display: inline-flex; align-items: center; justify-content: space-between; background: #403c01; color: #f6f6ea; padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; gap: 10px; transition: transform .15s; width: 100%; flex-shrink: 0; }
     .pe-plan.featured .pe-plan-btn { background: #f6f6ea; color: #403c01; }
     .pe-plan-btn:hover { transform: translateX(2px); }
     .pe-plans-cta { margin: 0 auto; text-align: center; max-width: 560px; padding: 36px 32px; border-radius: 24px; background: #474511; color: #f6f6ea; position: relative; overflow: hidden; }
