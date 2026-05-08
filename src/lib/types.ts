@@ -17,13 +17,13 @@ export interface LandingConfig {
   heroImageUrl: string;
   ctaText: string;
   aboutText: string;
-  aboutQuote: string;
+  aboutQuote?: string;
   showAbout: boolean;
   instagram: string;
   showInstagram: boolean;
-  whatsapp: string;
-  stats: { value: string; label: string }[];
-  testimonials: { text: string; name: string }[];
+  whatsapp?: string;
+  stats?: { value: string; label: string }[];
+  testimonials?: { text: string; name: string }[];
   customSections: { id: string; title: string; body: string }[];
 }
 
@@ -44,13 +44,9 @@ export const DEFAULT_LANDING: LandingConfig = {
   heroImageUrl: "",
   ctaText: "Agendar consulta",
   aboutText: "",
-  aboutQuote: "",
   showAbout: false,
   instagram: "",
   showInstagram: false,
-  whatsapp: "",
-  stats: [],
-  testimonials: [],
   customSections: [],
 };
 export type TipoNegocio = "nutricionista" | "cosmetologa" | "odontologa" | "psicologa";
