@@ -33,6 +33,7 @@ import AdminReportes from "./pages/admin/Reportes";
 import AdminIntegraciones from "./pages/admin/Integraciones";
 import AdminSitioEditor from "./pages/admin/SitioEditor";
 import Sitio from "./pages/Sitio";
+import SitioPaulette from "./pages/SitioPaulette";
 import Privacidad from "./pages/Privacidad";
 import Terminos from "./pages/Terminos";
 import NotFound from "./pages/NotFound";
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="integraciones" element={<AdminIntegraciones />} />
               <Route path="sitios" element={<AdminSitioEditor />} />
             </Route>
+            <Route path="/s/e84c4f11-50c2-4b6e-8c4b-055bb635edcd" element={<SitioPaulette />} />
             <Route path="/s/:userId" element={<Sitio />} />
             <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/terminos" element={<Terminos />} />
