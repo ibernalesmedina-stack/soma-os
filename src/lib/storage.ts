@@ -29,7 +29,10 @@ const toPago = (r: any): Pago => ({
 const toServicio = (r: any): Servicio => ({
   id: r.id, user_id: r.user_id, name: r.name,
   description: r.description, price: r.price,
+  priceOnline: r.price_online ?? 0,
   durationMin: r.duration_min, active: r.active,
+  modality: r.modality ?? "ambos",
+  featured: r.featured ?? false,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,7 +155,8 @@ export const upsertServicio = async (s: Servicio) => {
   const { error } = await supabase.from("servicios").upsert({
     id: s.id, user_id: s.user_id, name: s.name,
     description: s.description, price: s.price,
-    duration_min: s.durationMin, active: s.active,
+    price_online: s.priceOnline, duration_min: s.durationMin,
+    active: s.active, modality: s.modality, featured: s.featured,
   });
   if (error) throw error;
 };

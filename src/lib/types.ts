@@ -109,8 +109,11 @@ export interface Servicio {
   name: string;
   description: string;
   price: number;
+  priceOnline: number;
   durationMin: number;
   active: boolean;
+  modality: "presencial" | "online" | "ambos";
+  featured: boolean;
 }
 
 export interface ClienteFicha {
