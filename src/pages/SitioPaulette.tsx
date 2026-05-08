@@ -6,7 +6,10 @@ interface Servicio {
   name: string;
   description: string;
   price: number;
+  price_online: number;
   duration_min: number;
+  modality: "presencial" | "online" | "ambos";
+  featured: boolean;
 }
 
 const USER_ID = "e84c4f11-50c2-4b6e-8c4b-055bb635edcd";
@@ -57,18 +60,31 @@ export default function SitioPaulette() {
     const load = async () => {
       const { data } = await supabase
         .from("servicios")
-        .select("id, name, description, price, duration_min")
+        .select("id, name, description, price, price_online, duration_min, modality, featured")
         .eq("user_id", USER_ID).eq("active", true).order("created_at");
       if (data && data.length > 0) {
         setServicios(data as Servicio[]);
-        // Map to plan format if they follow the naming convention
-        const mapped = data.filter(s => !s.name.toLowerCase().includes("control")).map((s, i) => ({
-          id: s.id, tag: i === 1 ? "Más elegido" : i === 0 ? "Primer paso" : "Transformación",
-          name: s.name, desc: s.description || "",
-          prices: { presencial: s.price, online: Math.round(s.price * 0.92) },
-          meta: `${s.duration_min} minutos`, featured: i === 1,
-          feat: PLANS_DATA[Math.min(i, 2)]?.feat ?? [],
-        }));
+        const filtered = data.filter(s => !s.name.toLowerCase().includes("control"));
+        const tags = ["Primer paso", "Más elegido", "Transformación"];
+        const mapped = filtered.map((s, i) => {
+          const onlinePrice = s.price_online > 0 ? s.price_online : Math.round(s.price * 0.92);
+          const showPresencial = s.modality === "presencial" || s.modality === "ambos";
+          const showOnline = s.modality === "online" || s.modality === "ambos";
+          return {
+            id: s.id,
+            tag: tags[Math.min(i, 2)],
+            name: s.name,
+            desc: s.description || "",
+            prices: {
+              presencial: showPresencial ? s.price : 0,
+              online: showOnline ? onlinePrice : 0,
+            },
+            modality: s.modality,
+            meta: `${s.duration_min} minutos`,
+            featured: s.featured ?? (i === 1),
+            feat: PLANS_DATA[Math.min(i, 2)]?.feat ?? [],
+          };
+        });
         if (mapped.length > 0) setPlans(mapped as typeof PLANS_DATA);
       }
     };
@@ -439,7 +455,9 @@ export default function SitioPaulette() {
                 <span className="pe-plan-tag">{p.tag}</span>
                 <h3 className="pe-plan-name">{p.name}</h3>
                 <p className="pe-plan-desc">{p.desc}</p>
-                <div className="pe-plan-price">{fmtCLP(p.prices[modo])}<small>CLP</small></div>
+                <div className="pe-plan-price">
+                  {p.prices[modo] > 0 ? <>{fmtCLP(p.prices[modo])}<small>CLP</small></> : <span style={{fontSize:"0.55em",opacity:0.6}}>No disponible {modo}</span>}
+                </div>
                 <div className="pe-plan-meta">{p.meta} · {modo}</div>
                 <ul className="pe-plan-feat">{p.feat.map(f => <li key={f}>{f}</li>)}</ul>
                 <a href={wa(`Hola! Me gustaría agendar: ${p.name}`)} target="_blank" rel="noopener noreferrer" className="pe-plan-btn">
