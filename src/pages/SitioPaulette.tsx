@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "behold-widget": { "feed-id": string };
+    }
+  }
+}
+
 interface Servicio {
   id: string;
   name: string;
@@ -92,6 +100,15 @@ export default function SitioPaulette() {
     const ch = supabase.channel("paulette-s")
       .on("postgres_changes", { event: "*", schema: "public", table: "servicios", filter: `user_id=eq.${USER_ID}` }, load)
       .subscribe();
+
+    // Load Behold Instagram widget script
+    if (!document.querySelector('script[src="https://w.behold.so/widget.js"]')) {
+      const s = document.createElement("script");
+      s.type = "module";
+      s.src = "https://w.behold.so/widget.js";
+      document.head.appendChild(s);
+    }
+
     return () => { supabase.removeChannel(ch); };
   }, []);
 
@@ -659,6 +676,10 @@ export default function SitioPaulette() {
           <div style={{ marginBottom: 36 }}>
             <span className="pe-mono" style={{ color: "#dba22d", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>Instagram</span>
             <h2>Sígueme en <em>@elliotnutrition</em></h2>
+          </div>
+          {/* Behold Instagram widget */}
+          <div style={{ marginBottom: 32 }}>
+            <behold-widget feed-id="x8PAUKU3v1tfORMVsBTv" />
           </div>
           <div style={{ textAlign: "center", marginTop: 28 }}>
             <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noopener noreferrer"
