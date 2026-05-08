@@ -283,9 +283,14 @@ export default function SitioPaulette() {
   const [bPlan, setBPlan] = useState("1m");
   const [bTipo, setBTipo] = useState<"nuevo" | "control">("nuevo");
   const [bDate, setBDate] = useState(() => { const d = new Date(); return d.toISOString().slice(0, 10); });
-  const [bHour, setBHour] = useState("09:00");
+  const [bHour, setBHour] = useState("");
   const [bName, setBName] = useState(""); const [bRut, setBRut] = useState("");
   const [bEmail, setBEmail] = useState(""); const [bPhone, setBPhone] = useState("");
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const allPlans = [
     { id: "ctrl", name: "Control Nutricional", prices: { presencial: 40000, online: 40000 } },
@@ -295,23 +300,44 @@ export default function SitioPaulette() {
   const selPlan = allPlans.find(p => p.id === bPlan) ?? allPlans[1];
   const totalAmount = fmtCLP(selPlan.prices[bModo]);
 
-  const hours = (() => {
-    const d = new Date(bDate + "T12:00:00"); const dow = d.getDay();
-    if (dow === 0) return [];
+  // Fetch available slots whenever date or tipo changes
+  useEffect(() => {
+    if (!bDate) return;
+    setLoadingSlots(true);
+    setBHour("");
     const dur = bTipo === "control" ? 30 : 60;
-    const start = dow === 6 ? 600 : 540; const end = dow === 6 ? 840 : 1200;
-    const slots = [];
-    for (let m = start; m + dur <= end; m += dur) {
-      if (dow !== 6 && Math.floor(m / 60) === 14) continue;
-      slots.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
-    }
-    return slots;
-  })();
+    fetch(`/api/booking/slots?date=${bDate}&duration=${dur}`)
+      .then(r => r.json())
+      .then(d => { setAvailableSlots(d.slots ?? []); })
+      .catch(() => setAvailableSlots([]))
+      .finally(() => setLoadingSlots(false));
+  }, [bDate, bTipo]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const msg = `Hola Paulette! Quiero agendar:\n\nPlan: ${selPlan.name}\nModalidad: ${bModo}\nFecha: ${bDate}\nHora: ${bHour}\nTipo: ${bTipo === "nuevo" ? "Paciente nuevo" : "Control"}\n\nNombre: ${bName}\nRUT: ${bRut}\nEmail: ${bEmail}\nTeléfono: ${bPhone}\n\nTotal: ${totalAmount}`;
-    window.open(wa(msg), "_blank");
+    if (!bHour) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch("/api/booking/slots", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: bName, email: bEmail, phone: bPhone, rut: bRut,
+          date: bDate, hour: bHour,
+          esControl: bTipo === "control",
+          planId: selPlan.id, serviceName: selPlan.name,
+          amount: selPlan.prices[bModo], modo: bModo,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al agendar");
+      setSubmitted(true);
+    } catch (err: unknown) {
+      setSubmitError(err instanceof Error ? err.message : "Error al agendar");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -571,9 +597,11 @@ export default function SitioPaulette() {
                 <label className="pe-label" style={{ marginTop: 20 }}>Fecha</label>
                 <div className="pe-field"><input type="date" value={bDate} onChange={e => setBDate(e.target.value)} /></div>
                 <label className="pe-label">Hora disponible</label>
-                {hours.length === 0
-                  ? <p style={{ padding: "14px 16px", borderRadius: 10, background: "#f6f6ea", border: "1px dashed rgba(71,69,17,0.2)", fontSize: 13, color: "rgba(71,69,17,0.65)" }}>Sin atención los domingos.</p>
-                  : <div className="pe-hours">{hours.map(h => <button key={h} type="button" className={`pe-hour${bHour === h ? " active" : ""}`} onClick={() => setBHour(h)}>{h}</button>)}</div>
+                {loadingSlots
+                  ? <p style={{ padding: "14px 16px", borderRadius: 10, background: "#f6f6ea", fontSize: 13, color: "rgba(71,69,17,0.5)" }}>Cargando horarios...</p>
+                  : availableSlots.length === 0
+                    ? <p style={{ padding: "14px 16px", borderRadius: 10, background: "#f6f6ea", border: "1px dashed rgba(71,69,17,0.2)", fontSize: 13, color: "rgba(71,69,17,0.65)" }}>Sin horarios disponibles para este día.</p>
+                    : <div className="pe-hours">{availableSlots.map(h => <button key={h} type="button" className={`pe-hour${bHour === h ? " active" : ""}`} onClick={() => setBHour(h)}>{h}</button>)}</div>
                 }
               </div>
             </div>
@@ -604,11 +632,22 @@ export default function SitioPaulette() {
                   <span>El pago confirma tu reserva</span>
                 </div>
               </div>
-              <button type="submit" className="pe-pay-btn">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="14" rx="2" /><path d="M2 10h20" /><path d="M6 16h4" /></svg>
-                CONFIRMAR Y AGENDAR · WHATSAPP
-              </button>
-              <p style={{ textAlign: "center", fontSize: 12, color: "rgba(71,69,17,0.55)", marginTop: 14 }}>Se abrirá WhatsApp para confirmar tu reserva · Pago en consulta</p>
+              {submitted ? (
+                <div style={{ textAlign: "center", padding: "32px 20px", background: "#deeca0", borderRadius: 16 }}>
+                  <div style={{ fontSize: 32, marginBottom: 10 }}>✅</div>
+                  <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 22, fontWeight: 600, marginBottom: 6 }}>¡Hora agendada!</p>
+                  <p style={{ fontSize: 14, color: "rgba(71,69,17,0.75)" }}>Tu reserva quedó confirmada para el {bDate} a las {bHour}. Te contactaremos pronto.</p>
+                </div>
+              ) : (
+                <>
+                  {submitError && <p style={{ color: "#c0392b", fontSize: 13, marginBottom: 10, textAlign: "center" }}>{submitError}</p>}
+                  <button type="submit" className="pe-pay-btn" disabled={submitting || !bHour}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="14" rx="2" /><path d="M2 10h20" /><path d="M6 16h4" /></svg>
+                    {submitting ? "AGENDANDO..." : "CONFIRMAR Y AGENDAR"}
+                  </button>
+                  <p style={{ textAlign: "center", fontSize: 12, color: "rgba(71,69,17,0.55)", marginTop: 14 }}>Recibirás confirmación · Pago en consulta · Boleta válida para Isapre</p>
+                </>
+              )}
             </div>
           </form>
         </div>
