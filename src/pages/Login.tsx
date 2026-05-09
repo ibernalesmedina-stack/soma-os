@@ -64,7 +64,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
 
         {/* Brand */}
         <div className="relative z-10 flex items-center gap-2.5">
-          <img src="/logosoma.svg" alt="SomaOS" className="h-10 w-auto brightness-0 invert" />
+          <img src="/logosoma.svg" alt="SomaOS" className="h-16 w-auto brightness-0 invert" />
         </div>
 
         {/* Headline + product mockup */}
@@ -106,7 +106,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
       <div className="flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 flex items-center gap-2">
-            <img src="/logosoma.svg" alt="SomaOS" className="h-8 w-auto" />
+            <img src="/logosoma.svg" alt="SomaOS" className="h-10 w-auto brightness-0" />
           </div>
           <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
           <p className="text-sm text-muted-foreground mt-1 mb-6">{subtitle}</p>
