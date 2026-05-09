@@ -60,7 +60,7 @@ export function AdminLayout() {
     <div className="min-h-screen flex w-full bg-background">
       <aside className="w-60 border-r flex flex-col">
         <div className="h-14 px-4 flex items-center gap-2 border-b">
-          <img src="/logosoma.svg" alt="SomaOS" className="h-9 w-auto brightness-0" />
+          <img src="/logosoma.png" alt="SomaOS" className="h-9 w-auto" />
           <div className="leading-tight">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Admin · Control central</div>
           </div>

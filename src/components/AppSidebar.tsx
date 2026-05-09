@@ -33,7 +33,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r">
       <SidebarContent>
         <div className={cn("flex items-center gap-2 px-4 h-14 border-b border-sidebar-border", collapsed && "justify-center px-2")}>
-          <img src="/logosoma.svg" alt="SomaOS" className={cn("h-9 w-auto brightness-0", collapsed && "h-7")} />
+          <img src="/logosoma.png" alt="SomaOS" className={cn("h-9 w-auto", collapsed && "h-7")} />
           {!collapsed && (
             <div className="leading-tight">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{cfg?.label ?? "Operations"}</div>
