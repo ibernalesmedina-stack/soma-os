@@ -22,16 +22,20 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
 }
 
 async function getValidToken(integration: Record<string, string>): Promise<string | null> {
-  const expiry = new Date(integration.google_token_expiry);
-  const isExpired = expiry < new Date(Date.now() + 60_000); // 1min buffer
+  // Support both column names (google_access_token from new schema, google_calendar_token from base)
+  const currentToken = integration.google_access_token || integration.google_calendar_token;
+  if (!currentToken) return null;
 
-  if (!isExpired) return integration.google_access_token;
-  if (!integration.google_refresh_token) return null;
+  const expiry = integration.google_token_expiry ? new Date(integration.google_token_expiry) : null;
+  const isExpired = !expiry || expiry < new Date(Date.now() + 60_000);
+
+  if (!isExpired) return currentToken;
+  if (!integration.google_refresh_token) return currentToken; // expired but no refresh → try anyway
 
   const newToken = await refreshAccessToken(integration.google_refresh_token);
-  if (!newToken) return null;
+  if (!newToken) return currentToken; // refresh failed → try with existing token
 
-  // Save refreshed token to Supabase
+  // Save refreshed token using google_calendar_token (column guaranteed to exist in all schemas)
   await fetch(`${SUPABASE_URL}/rest/v1/client_integrations?user_id=eq.${integration.user_id}`, {
     method: "PATCH",
     headers: {
@@ -39,7 +43,7 @@ async function getValidToken(integration: Record<string, string>): Promise<strin
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      google_access_token: newToken,
+      google_calendar_token: newToken,
       google_token_expiry: new Date(Date.now() + 3600_000).toISOString(),
     }),
   });
@@ -91,14 +95,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const integrations = await intRes.json();
   const integration = integrations[0];
 
-  // Support both column names (google_access_token from new schema, google_calendar_token from base schema)
+  // Support both column names (normalize for getValidToken)
   const storedToken = integration?.google_access_token || integration?.google_calendar_token;
   if (!storedToken) {
     return res.status(200).json({ skipped: "No Google Calendar connected" });
   }
-  if (!integration.google_access_token) {
-    integration.google_access_token = storedToken;
-  }
+  integration.google_access_token = storedToken;
+  integration.google_calendar_token = storedToken;
 
   // 2. Get valid access token
   const accessToken = await getValidToken(integration);

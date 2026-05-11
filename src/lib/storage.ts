@@ -459,6 +459,10 @@ export const saveClientEmail = async (userId: string, email: string) => {
 
 // ── Seed demo data ─────────────────────────────────────────────────
 export const seedForUser = async (userId: string) => {
+  // Guard: skip if user already has services (prevents duplicates on re-register)
+  const { data: existing } = await supabase.from("servicios").select("id").eq("user_id", userId).limit(1);
+  if (existing && existing.length > 0) return;
+
   const services = [
     { id: uid(), user_id: userId, name: "Sesión inicial", description: "Consulta de diagnóstico 1:1", price: 35000, duration_min: 60, active: true },
     { id: uid(), user_id: userId, name: "Sesión de seguimiento", description: "Continuidad del plan", price: 28000, duration_min: 45, active: true },

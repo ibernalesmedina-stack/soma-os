@@ -1,9 +1,15 @@
 import type { Pago, Reserva, User } from "./types";
 
-// Admin.ts reads from Supabase via the hooks; these helpers accept pre-loaded data as params.
-
 export const allReservas = (): Reserva[] => [];
 export const allPagos = (): Pago[] => [];
+
+// Precio mensual por plan (en CLP)
+export const PLAN_PRICE: Record<string, number> = {
+  basic:   19990,
+  pro:     34990,
+  premium: 49990,
+  clinic:  49990,
+};
 
 export interface ClientaMetrics {
   pacientes: number;
@@ -13,9 +19,9 @@ export interface ClientaMetrics {
   ultimaActividad?: string;
 }
 
-export const metricsForUser = (userId: string): ClientaMetrics => {
-  return { pacientes: 0, reservasMes: 0, ingresosMes: 0, ingresosTotal: 0 };
-};
+export const metricsForUser = (_userId: string): ClientaMetrics => ({
+  pacientes: 0, reservasMes: 0, ingresosMes: 0, ingresosTotal: 0,
+});
 
 export interface GlobalMetrics {
   totalClientas: number;
@@ -33,15 +39,16 @@ export const globalMetrics = (users: User[] = []): GlobalMetrics => {
   const now = new Date();
   const startMes = new Date(now.getFullYear(), now.getMonth(), 1);
   const nuevasMes = clientes.filter(u => new Date(u.createdAt) >= startMes).length;
-  const usuariosActivos = clientes.filter(u => u.active !== false).length;
+  const activos = clientes.filter(u => u.active !== false);
+  const mrr = activos.reduce((acc, u) => acc + (PLAN_PRICE[u.plan] ?? PLAN_PRICE.basic), 0);
   return {
     totalClientas: clientes.length,
     nuevasMes,
-    mrr: 0,
+    mrr,
     reservasTotales: 0,
-    usuariosActivos,
-    ingresosTotales: 0,
-    promedioPorClienta: 0,
+    usuariosActivos: activos.length,
+    ingresosTotales: mrr,
+    promedioPorClienta: activos.length > 0 ? Math.round(mrr / activos.length) : 0,
     pagosFallidos: 0,
   };
 };

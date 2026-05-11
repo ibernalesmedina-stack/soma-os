@@ -282,7 +282,27 @@ export default function Integraciones() {
           status={data.calendar_status}
           action={
             <Button size="sm" variant="outline" disabled={!data.google_calendar_token || testing === "calendar"}
-              onClick={async () => { await simulateTest("calendar", 2000); save({ calendar_status: "synced" }, "Calendario sincronizado ✓"); }}>
+              onClick={async () => {
+                if (!user) return;
+                setTesting("calendar");
+                try {
+                  const res = await fetch("/api/google/sync", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id }),
+                  });
+                  const json = await res.json();
+                  if (json.skipped) {
+                    toast({ title: "Google Calendar no conectado", description: "Conecta tu cuenta desde el botón de arriba.", variant: "destructive" });
+                  } else {
+                    save({ calendar_status: "synced" }, `Sincronizado ✓ — ${json.synced ?? 0} eventos actualizados`);
+                  }
+                } catch {
+                  toast({ title: "Error al sincronizar", variant: "destructive" });
+                } finally {
+                  setTesting(null);
+                }
+              }}>
               {testing === "calendar" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Sincronizar"}
             </Button>
           }

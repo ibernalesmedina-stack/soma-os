@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
-import { globalMetrics } from "@/lib/admin";
+import { globalMetrics, PLAN_PRICE } from "@/lib/admin";
 import { ingresosUltimos12Meses, tasaRetencion } from "@/lib/admin-store";
 import { formatCLP, formatDate } from "@/lib/format";
 import { DollarSign, TrendingUp, UserCheck, Users, Percent } from "lucide-react";
@@ -12,8 +12,17 @@ export default function AdminOverview() {
   const { data: allUsers, loading } = useAdminUsers();
   const users = allUsers.filter(u => u.role !== "admin");
   const m = globalMetrics(allUsers);
-  const series = ingresosUltimos12Meses([]);
   const retencion = tasaRetencion(users);
+
+  // Genera pagos sintéticos basados en plan × fecha de alta para el gráfico de ingresos
+  const syntheticPagos = users
+    .filter(u => u.active !== false)
+    .map(u => ({
+      date: u.createdAt,
+      amount: PLAN_PRICE[u.plan] ?? PLAN_PRICE.basic,
+      status: "pagado" as const,
+    }));
+  const series = ingresosUltimos12Meses(syntheticPagos);
   const ultimos = [...users].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
 
   if (loading) return <div className="p-8 text-sm text-muted-foreground">Cargando…</div>;
