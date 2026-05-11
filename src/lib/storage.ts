@@ -579,4 +579,101 @@ export const seedForUser = async (userId: string) => {
     { id: uid(), user_id: userId, client_key: demoKey, date: new Date(Date.now() - 60 * 86400000).toISOString(), title: "Seguimiento semana 5", content: "Excelente adherencia. Bajó 1.8 kg. Refuerzo en colaciones saludables para el trabajo. Buena actitud hacia el proceso." },
     { id: uid(), user_id: userId, client_key: demoKey, date: new Date(Date.now() - 30 * 86400000).toISOString(), title: "Ajuste de plan — sesión 8", content: "Se ajusta el plan para incorporar más proteína en el desayuno. La paciente comenzó a hacer ejercicio regularmente. Se actualiza objetivo calórico." },
   ]);
+
+  // Demo psicóloga: Laura Morales
+  const psiNombre = "Laura Morales";
+  const psiKey = "laura-morales";
+  const psiReservas = [
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, service_id: services[0].id, service_name: services[0].name, status: "completada", amount: 35000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 84 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 56 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 28000, tipo_atencion: "online", es_control: false, date: new Date(Date.now() - 28 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, service_id: services[1].id, service_name: services[1].name, status: "confirmada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() + 5 * 86400000).toISOString() },
+  ];
+  await supabase.from("reservas").insert(psiReservas);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: psiKey, client_name: psiNombre,
+    email: "laura.morales@gmail.com", phone: "+56 9 7654 3210",
+    birth_date: "1987-07-22", occupation: "Diseñadora gráfica", estado: "activo",
+    tipo_atencion: "presencial",
+    motivo_consulta: "Ansiedad generalizada y crisis de pánico recurrentes desde hace 2 años. Dificultades para dormir y concentrarse en el trabajo.",
+    objetivos: "Reducir frecuencia e intensidad de las crisis. Desarrollar herramientas de regulación emocional. Mejorar calidad del sueño.",
+    evaluacion_nivel: "medio",
+    progreso_texto: "La paciente muestra avance significativo en técnicas de respiración y mindfulness. Ha logrado reducir las crisis de pánico de 3 a 1 por semana.",
+    alertas: "Historial de crisis nocturnas. Avisar ante cualquier cambio en medicación (clonazepam 0.5mg según necesidad).",
+    notas_generales: "Muy comprometida con el proceso. Hace las tareas entre sesiones. Le cuesta hablar de su familia de origen.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("registros").insert([
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, tipo: "sesion", titulo: "Sesión 1 — Evaluación inicial", fecha: new Date(Date.now() - 84 * 86400000).toISOString(), data: {}, notas: "Se aplica entrevista inicial. Paciente relata episodios de pánico en el trabajo. Alta motivación al cambio." },
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, tipo: "sesion", titulo: "Sesión 3 — Técnicas de respiración", fecha: new Date(Date.now() - 56 * 86400000).toISOString(), data: {}, notas: "Se trabaja respiración 4-7-8 y grounding 5-4-3-2-1. Reporta haber usado la técnica dos veces durante la semana con buen resultado." },
+    { id: uid(), user_id: userId, client_id: psiKey, client_name: psiNombre, tipo: "sesion", titulo: "Sesión 6 — Reestructuración cognitiva", fecha: new Date(Date.now() - 28 * 86400000).toISOString(), data: {}, notas: "Se identifican distorsiones cognitivas principales: catastrofización y lectura del pensamiento. La paciente logra cuestionar pensamientos automáticos." },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: psiKey, date: new Date(Date.now() - 56 * 86400000).toISOString(), title: "Nota privada — sesión 3", content: "Paciente menciona conflicto con su pareja que no quiere profundizar aún. Quedó pendiente para próxima sesión si ella lo trae." },
+    { id: uid(), user_id: userId, client_key: psiKey, date: new Date(Date.now() - 28 * 86400000).toISOString(), title: "Nota privada — sesión 6", content: "Menciona que su madre también tuvo ataques de pánico. Posible componente hereditario/aprendido. Explorar en próxima sesión." },
+  ]);
+
+  // Demo cosmetóloga: Valentina Cruz
+  const cosNombre = "Valentina Cruz";
+  const cosKey = "valentina-cruz";
+  const cosReservas = [
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, service_id: services[0].id, service_name: services[0].name, status: "completada", amount: 35000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 75 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 54 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 33 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, service_id: services[1].id, service_name: services[1].name, status: "confirmada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() + 10 * 86400000).toISOString() },
+  ];
+  await supabase.from("reservas").insert(cosReservas);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: cosKey, client_name: cosNombre,
+    email: "valentina.cruz@gmail.com", phone: "+56 9 6543 2109",
+    birth_date: "1995-01-10", occupation: "Ejecutiva comercial", estado: "activo",
+    tipo_atencion: "presencial",
+    tipo_piel: "Mixta", sensibilidad: "Moderada", frecuencia: "Cada 3 semanas",
+    rutina_actual: "Limpiadora Cetaphil mañana y noche, Vitamina C sérum en la mañana, SPF 50 diario.",
+    diagnostico: "Poros dilatados en zona T, manchas post-acné leves en mejillas, deshidratación superficial.",
+    proxima_accion: "Peeling enzimático suave + hidratación profunda. Evaluar si incorporar retinol en rutina nocturna.",
+    recomendaciones: ["Usar SPF 50 todos los días sin excepción", "Evitar tocar el rostro durante el día", "Peeling enzimático en casa 1 vez/semana", "Micellar water para desmaquillar antes del limpiador"],
+    notas_generales: "Muy ordenada con su rutina. Viene puntual. Le interesa mucho entender el por qué de cada producto.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("registros").insert([
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, tipo: "tratamiento", titulo: "Limpieza facial profunda + extracción", fecha: new Date(Date.now() - 75 * 86400000).toISOString(), data: {}, notas: "Piel con comedones abiertos en nariz y mentón. Se realiza vapor, extracción manual y mascarilla de caolín. Alta tolerancia al dolor." },
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, tipo: "tratamiento", titulo: "Peeling enzimático + vitamina C", fecha: new Date(Date.now() - 54 * 86400000).toISOString(), data: {}, notas: "Se aplica peeling enzimático de papaya 10 min. Luego sérum vitamina C 20% con microagujas. Piel rojiza post-tratamiento normal." },
+    { id: uid(), user_id: userId, client_id: cosKey, client_name: cosNombre, tipo: "tratamiento", titulo: "Hidratación profunda + LED", fecha: new Date(Date.now() - 33 * 86400000).toISOString(), data: {}, notas: "Terapia LED luz roja 15 min anti-inflamatoria. Mascarilla de ácido hialurónico. Piel notoriamente más luminosa al finalizar." },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: cosKey, date: new Date(Date.now() - 54 * 86400000).toISOString(), title: "Nota — segunda sesión", content: "La paciente reporta que su piel está mucho menos brillosa desde que cambió el limpiador. Las manchas del acné han aclarado un tono. Continuar con el plan actual." },
+    { id: uid(), user_id: userId, client_key: cosKey, date: new Date(Date.now() - 33 * 86400000).toISOString(), title: "Nota — tercera sesión", content: "Piel en excelente estado. Considerar agregar retinol 0.025% en rutina nocturna a partir del próximo mes. Avisar en caso de irritación." },
+  ]);
+
+  // Demo odontóloga: Sofía Vargas
+  const odonNombre = "Sofía Vargas";
+  const odonKey = "sofia-vargas";
+  const odonReservas = [
+    { id: uid(), user_id: userId, client_id: odonKey, client_name: odonNombre, service_id: services[0].id, service_name: services[0].name, status: "completada", amount: 35000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 60 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: odonKey, client_name: odonNombre, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 45000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 30 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: odonKey, client_name: odonNombre, service_id: services[1].id, service_name: services[1].name, status: "confirmada", amount: 45000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() + 14 * 86400000).toISOString() },
+  ];
+  await supabase.from("reservas").insert(odonReservas);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: odonKey, client_name: odonNombre,
+    email: "sofia.vargas@gmail.com", phone: "+56 9 5432 1098",
+    birth_date: "1993-11-05", occupation: "Enfermera", estado: "activo",
+    tipo_atencion: "presencial",
+    diagnostico: "Caries incipiente pza 16. Pza 26 con restauración previa en buen estado. Pza 36 caries media. Higiene oral mejorable, acumulación de sarro lingual.",
+    proxima_accion: "Restauración pza 16 y 36 con resina fotopolimerizable. Profilaxis completa + instrucción de higiene oral.",
+    antecedentes_medicos: "Sin enfermedades sistémicas relevantes. No anticoagulantes ni bifosfonatos.",
+    alergias: "Alergia a la penicilina (reportada)",
+    dental: { "16": "caries", "26": "tratado", "36": "caries", "46": "tratado", "11": "tratado", "21": "sano" },
+    notas_generales: "Paciente ansiosa ante los procedimientos. Prefiere anestesia tópica antes de la infiltración. Trabaja en turnos nocturnos.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("registros").insert([
+    { id: uid(), user_id: userId, client_id: odonKey, client_name: odonNombre, tipo: "tratamiento", titulo: "Examen clínico + radiografías", fecha: new Date(Date.now() - 60 * 86400000).toISOString(), data: {}, notas: "Se toman 4 radiografías periapicales. Se detectan caries en pzas 16 y 36. Pza 26 con restauración antigua en buen estado. Se planifica tratamiento." },
+    { id: uid(), user_id: userId, client_id: odonKey, client_name: odonNombre, tipo: "tratamiento", titulo: "Profilaxis + instrucción de higiene", fecha: new Date(Date.now() - 30 * 86400000).toISOString(), data: {}, notas: "Detartraje supragingival completo. Se instruye en técnica de Bass modificada. Se entrega cepillo interdental. Paciente colaboradora." },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: odonKey, date: new Date(Date.now() - 60 * 86400000).toISOString(), title: "Primera consulta", content: "Paciente llega con dolor leve en sector molar superior derecho. Sensible a fríos. Se confirma caries pza 16. Se tranquiliza y explica el plan de tratamiento." },
+    { id: uid(), user_id: userId, client_key: odonKey, date: new Date(Date.now() - 30 * 86400000).toISOString(), title: "Post-profilaxis", content: "Paciente muy conforme con la limpieza. Refiere que no se limpiaba con hilo dental. Se comprometió a hacerlo diariamente. Control próximo: restauraciones pzas 16 y 36." },
+  ]);
 };

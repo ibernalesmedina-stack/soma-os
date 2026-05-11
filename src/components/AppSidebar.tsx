@@ -7,12 +7,20 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { cn } from "@/lib/utils";
+import type { TipoNegocio } from "@/lib/types";
+
+const TIPOS: { value: TipoNegocio; label: string; short: string }[] = [
+  { value: "nutricionista", label: "Nutricionista", short: "Nutri" },
+  { value: "psicologa",     label: "Psicóloga",     short: "Psico" },
+  { value: "cosmetologa",   label: "Cosmetóloga",   short: "Cosme" },
+  { value: "odontologa",    label: "Odontóloga",    short: "Odont" },
+];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
-  const { user } = useAuth();
+  const { user, update } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
 
   const items = [
@@ -60,6 +68,33 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Demo switcher */}
+        <div className={cn("mt-auto border-t border-sidebar-border px-3 py-3", collapsed && "px-1.5")}>
+          {!collapsed && (
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 px-1">Vista de profesional</p>
+          )}
+          <div className={cn("grid gap-1", collapsed ? "grid-cols-1" : "grid-cols-2")}>
+            {TIPOS.map((t) => {
+              const active = user?.tipoNegocio === t.value;
+              return (
+                <button
+                  key={t.value}
+                  onClick={() => update({ tipoNegocio: t.value })}
+                  title={t.label}
+                  className={cn(
+                    "rounded-md px-2 py-1.5 text-[11px] font-medium transition-colors text-center truncate",
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  {collapsed ? t.short[0] : (collapsed ? t.short : t.label)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
       </SidebarContent>
     </Sidebar>
