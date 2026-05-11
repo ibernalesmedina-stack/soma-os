@@ -12,10 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Lock, Plus, Calendar as CalIcon, CheckCircle2, AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Plus, Calendar as CalIcon, CheckCircle2, AlertCircle, Loader2, RefreshCw, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { slugify } from "@/lib/format";
+import { reservasParaRecordar, whatsappRecordatorioURL } from "@/lib/notifications";
 
 const HOURS = Array.from({ length: 13 }).map((_, i) => i + 8); // 08:00 - 20:00
 
@@ -127,6 +128,25 @@ export default function Calendario() {
         description={`Vista semanal con sincronización a Google Calendar.`}
         actions={
           <div className="flex gap-2">
+            {/* Recordatorios 24h — abre WhatsApp con mensaje pre-armado */}
+            {(() => {
+              const pendientes = reservasParaRecordar(reservas);
+              if (!user?.phone || pendientes.length === 0) return null;
+              return (
+                <div className="relative">
+                  <Button variant="outline" size="sm" asChild className="text-amber-600 border-amber-300 hover:bg-amber-50">
+                    <a
+                      href={whatsappRecordatorioURL(pendientes[0], user.phone, user.businessName)}
+                      target="_blank" rel="noopener noreferrer"
+                      title={`${pendientes.length} cita(s) mañana — enviar recordatorio`}
+                    >
+                      <Bell className="h-4 w-4 mr-1.5" />
+                      {pendientes.length} recordatorio{pendientes.length > 1 ? "s" : ""}
+                    </a>
+                  </Button>
+                </div>
+              );
+            })()}
             {isGoogleConnected ? (
               <>
                 <Button variant="outline" size="sm" onClick={syncNow} disabled={syncing}>

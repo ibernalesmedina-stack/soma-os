@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AtencionBadge } from "@/components/AtencionBadge";
 import { formatCLP, formatDateTime, slugify } from "@/lib/format";
-import { Calendar, LayoutList, Plus, Search } from "lucide-react";
+import { Calendar, LayoutList, Plus, Search, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { addReserva } from "@/lib/storage";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import { sendConfirmationEmail, whatsappConfirmacionURL } from "@/lib/notifications";
 
 function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: () => void }) {
   const { user } = useAuth();
@@ -29,6 +30,7 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
 
   const [form, setForm] = useState({
     clientName: "",
+    clientEmail: "",
     serviceId: "",
     date: today,
     time: "09:00",
@@ -36,6 +38,7 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
     status: "confirmada" as Reserva["status"],
     amount: 0,
     esControl: false,
+    sendEmail: true,
   });
 
   const set = (k: string, v: unknown) => setForm(prev => ({ ...prev, [k]: v }));
@@ -74,10 +77,20 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
         tipoAtencion: form.tipoAtencion,
         esControl: form.esControl,
       });
-      toast({ title: "Reserva creada ✓" });
+
+      // Enviar email de confirmación si el cliente tiene email
+      if (form.sendEmail && form.clientEmail) {
+        sendConfirmationEmail(
+          { clientName: form.clientName, serviceName: servicio.name, date: dateISO, tipoAtencion: form.tipoAtencion, amount: form.amount },
+          form.clientEmail,
+          { userId: user.id, businessName: user.businessName, phone: user.phone },
+        ).catch(() => {}); // non-blocking
+      }
+
+      toast({ title: "Reserva creada ✓", description: form.sendEmail && form.clientEmail ? "Email de confirmación enviado." : undefined });
       onCreated();
       onClose();
-      setForm({ clientName: "", serviceId: "", date: today, time: "09:00", tipoAtencion: "presencial", status: "confirmada", amount: 0, esControl: false });
+      setForm({ clientName: "", clientEmail: "", serviceId: "", date: today, time: "09:00", tipoAtencion: "presencial", status: "confirmada", amount: 0, esControl: false, sendEmail: true });
     } catch (e) {
       toast({ title: "Error al crear la reserva", variant: "destructive" });
     } finally {
@@ -91,9 +104,15 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
         <DialogHeader><DialogTitle>Nueva reserva</DialogTitle></DialogHeader>
         <div className="grid gap-4 py-2">
           {/* Cliente */}
-          <div className="grid gap-1.5">
-            <Label>Cliente</Label>
-            <Input placeholder="Nombre del cliente" value={form.clientName} onChange={e => set("clientName", e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label>Cliente</Label>
+              <Input placeholder="Nombre completo" value={form.clientName} onChange={e => set("clientName", e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Email del cliente <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+              <Input type="email" placeholder="cliente@email.com" value={form.clientEmail} onChange={e => set("clientEmail", e.target.value)} />
+            </div>
           </div>
 
           {/* Servicio */}
@@ -156,6 +175,14 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
             <Checkbox id="control" checked={form.esControl} onCheckedChange={v => set("esControl", !!v)} />
             <Label htmlFor="control" className="font-normal text-sm cursor-pointer">Es sesión de control (30 min)</Label>
           </div>
+
+          {/* Notificación por email */}
+          <div className="flex items-center gap-2">
+            <Checkbox id="sendEmail" checked={form.sendEmail} onCheckedChange={v => set("sendEmail", !!v)} disabled={!form.clientEmail} />
+            <Label htmlFor="sendEmail" className={cn("font-normal text-sm cursor-pointer", !form.clientEmail && "text-muted-foreground")}>
+              Enviar email de confirmación al cliente
+            </Label>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
@@ -167,11 +194,14 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
 }
 
 export default function Reservas() {
+  const { user } = useAuth();
   const { data: all, refetch } = useReservas();
   const [view, setView] = useState<"list" | "calendar">("list");
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [showNew, setShowNew] = useState(false);
+  // WhatsApp number del profesional (para enviar recordatorios a clientes)
+  const waNumber = user?.phone?.replace(/\D/g, "") ?? "";
 
   const filtered = all.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
@@ -226,6 +256,7 @@ export default function Reservas() {
                   <th className="text-left font-medium px-4 py-2.5">Tipo</th>
                   <th className="text-left font-medium px-4 py-2.5">Estado</th>
                   <th className="text-right font-medium px-4 py-2.5">Monto</th>
+                  <th className="px-4 py-2.5" />
                 </tr>
               </thead>
               <tbody>
@@ -241,6 +272,19 @@ export default function Reservas() {
                     <td className="px-4 py-3"><AtencionBadge tipo={r.tipoAtencion} /></td>
                     <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
                     <td className="px-4 py-3 text-right mono">{formatCLP(r.amount)}</td>
+                    <td className="px-4 py-3 text-right">
+                      {waNumber && r.status !== "cancelada" && (
+                        <a
+                          href={whatsappConfirmacionURL(r, waNumber, user?.businessName)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Enviar confirmación por WhatsApp"
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-green-50 text-green-600 transition-colors"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </a>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

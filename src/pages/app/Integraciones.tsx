@@ -216,8 +216,34 @@ export default function Integraciones() {
           title="Email transaccional" description="Envía confirmaciones y recordatorios via Resend"
           status={data.resend_status}
           action={
-            <Button size="sm" variant="outline" disabled={!data.resend_api_key || testing === "email"}
-              onClick={async () => { await simulateTest("email"); toast({ title: "Email de prueba enviado ✓", description: data.resend_email }); }}>
+            <Button size="sm" variant="outline" disabled={!data.resend_api_key || !data.resend_email || testing === "email"}
+              onClick={async () => {
+                if (!user) return;
+                setTesting("email");
+                try {
+                  const res = await fetch("/api/email/send", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      userId: user.id,
+                      to: data.resend_email,
+                      template: "prueba",
+                      businessName: user.businessName,
+                    }),
+                  });
+                  if (res.ok) {
+                    toast({ title: "Email de prueba enviado ✓", description: data.resend_email });
+                    save({ resend_status: "connected" }, "");
+                  } else {
+                    const err = await res.json();
+                    toast({ title: "Error al enviar", description: err.error || "Verifica tu API key de Resend", variant: "destructive" });
+                  }
+                } catch {
+                  toast({ title: "Error de conexión", variant: "destructive" });
+                } finally {
+                  setTesting(null);
+                }
+              }}>
               {testing === "email" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Probar"}
             </Button>
           }
