@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
-import { getIntegration, saveClientEmail, saveWebPayConfig } from "@/lib/storage";
+import { getIntegration, saveClientEmail, saveWebPayConfig, seedDemoClients } from "@/lib/storage";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
+import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2, ShieldCheck, FlaskConical } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Configuracion() {
@@ -21,6 +21,7 @@ export default function Configuracion() {
   const [wpCode, setWpCode] = useState("");
   const [wpSaved, setWpSaved] = useState(false);
   const [wpSaving, setWpSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -181,6 +182,33 @@ export default function Configuracion() {
               onChange={(v) => { update({ paymentMethods: { ...pm, transferencia: v } }); toast({ title: v ? "Transferencia activada" : "Transferencia desactivada" }); }}
             />
           </div>
+        </section>
+
+        {/* Datos demo */}
+        <section className="surface-card p-6">
+          <h3 className="font-semibold flex items-center gap-2"><FlaskConical className="h-4 w-4" />Datos de demostración</h3>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">
+            Carga 4 pacientes de ejemplo (uno por tipo de profesional) para explorar todas las fichas y vistas de la plataforma.
+          </p>
+          <Button
+            variant="outline"
+            disabled={seeding}
+            onClick={async () => {
+              if (!user) return;
+              setSeeding(true);
+              try {
+                await seedDemoClients(user.id);
+                toast({ title: "Pacientes demo cargados ✓", description: "Encuéntralos en la sección Clientes." });
+              } catch {
+                toast({ title: "Error al cargar datos demo", variant: "destructive" });
+              } finally {
+                setSeeding(false);
+              }
+            }}
+          >
+            {seeding ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Cargando…</> : "Cargar pacientes demo"}
+          </Button>
+          <p className="text-[11px] text-muted-foreground mt-2">Si ya los tienes cargados, esta acción no hace nada.</p>
         </section>
 
         {/* Sitio público */}

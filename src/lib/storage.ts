@@ -500,6 +500,152 @@ export const deleteClientFile = async (path: string): Promise<void> => {
   if (error) throw error;
 };
 
+// ── Seed demo clients (safe to call on existing accounts) ─────────
+
+export const seedDemoClients = async (userId: string): Promise<void> => {
+  // Guard: skip if already seeded
+  const { data: guard } = await supabase
+    .from("fichas_clientes").select("id").eq("user_id", userId).eq("client_key", "maria-gonzalez").maybeSingle();
+  if (guard) return;
+
+  // Use existing services or create minimal ones
+  const { data: svcs } = await supabase.from("servicios").select("id,name,price").eq("user_id", userId).limit(3);
+  let s0: { id: string; name: string; price: number };
+  let s1: { id: string; name: string; price: number };
+  if (svcs && svcs.length >= 2) {
+    s0 = svcs[0]; s1 = svcs[1];
+  } else {
+    const newSvcs = [
+      { id: uid(), user_id: userId, name: "Sesión inicial", description: "Consulta diagnóstico", price: 35000, duration_min: 60, active: true },
+      { id: uid(), user_id: userId, name: "Sesión de seguimiento", description: "Continuidad del plan", price: 28000, duration_min: 45, active: true },
+    ];
+    await supabase.from("servicios").insert(newSvcs);
+    s0 = newSvcs[0]; s1 = newSvcs[1];
+  }
+  const now = new Date().toISOString();
+  const ago = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
+  const in_ = (days: number) => new Date(Date.now() + days * 86400000).toISOString();
+
+  // ── Nutricionista: María González ─────────────────────────────────
+  const mgKey = "maria-gonzalez"; const mgName = "María González";
+  await supabase.from("reservas").insert([
+    { id: uid(), user_id: userId, client_id: mgKey, client_name: mgName, service_id: s0.id, service_name: s0.name, status: "completada", amount: s0.price, tipo_atencion: "presencial", es_control: false, date: ago(90) },
+    { id: uid(), user_id: userId, client_id: mgKey, client_name: mgName, service_id: s1.id, service_name: s1.name, status: "completada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: ago(60) },
+    { id: uid(), user_id: userId, client_id: mgKey, client_name: mgName, service_id: s1.id, service_name: s1.name, status: "completada", amount: s1.price, tipo_atencion: "online",     es_control: true,  date: ago(30) },
+    { id: uid(), user_id: userId, client_id: mgKey, client_name: mgName, service_id: s1.id, service_name: s1.name, status: "confirmada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: in_(7) },
+  ]);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: mgKey, client_name: mgName,
+    email: "maria.gonzalez@gmail.com", phone: "+56 9 8765 4321",
+    birth_date: "1990-03-15", occupation: "Profesora", estado: "activo", tipo_atencion: "presencial",
+    motivo_consulta: "Mejorar alimentación y bajar de peso. Dificultades para mantener una dieta equilibrada por su trabajo.",
+    altura: "163", peso_inicial: "72", peso_actual: "68.5", porc_grasa: "28", porc_muscular: "34",
+    objetivo_texto: "Llegar a 65 kg con composición corporal saludable. Aumentar masa muscular y reducir % grasa a menos de 25%.",
+    evaluacion_inicial: "Sobrepeso leve, hábitos irregulares. Actividad física baja (2 veces/semana).",
+    plan_tratamiento: "Plan con déficit moderado (300 kcal). 5 comidas al día, énfasis en proteínas y verduras.",
+    alergias: "Intolerancia a la lactosa", medicacion: "Ninguna",
+    notas_generales: "Muy motivada y constante. Asiste puntual. Prefiere sesiones de tarde.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("progreso").insert([
+    { id: uid(), user_id: userId, client_key: mgKey, fecha: ago(90), peso: 72,   porc_grasa: 30.5, porc_muscular: 32,   notas: "Consulta inicial" },
+    { id: uid(), user_id: userId, client_key: mgKey, fecha: ago(60), peso: 70.2, porc_grasa: 29.1, porc_muscular: 32.8, notas: "Buena adherencia al plan" },
+    { id: uid(), user_id: userId, client_key: mgKey, fecha: ago(30), peso: 68.5, porc_grasa: 28.0, porc_muscular: 34.0, notas: "Incorporó ejercicio 3 veces/semana" },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: mgKey, date: ago(60), title: "Seguimiento semana 5", content: "Excelente adherencia. Bajó 1.8 kg. Refuerzo en colaciones." },
+    { id: uid(), user_id: userId, client_key: mgKey, date: ago(30), title: "Ajuste de plan — sesión 8", content: "Más proteína en el desayuno. Comenzó ejercicio regularmente." },
+  ]);
+
+  // ── Psicóloga: Laura Morales ───────────────────────────────────────
+  const lmKey = "laura-morales"; const lmName = "Laura Morales";
+  await supabase.from("reservas").insert([
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, service_id: s0.id, service_name: s0.name, status: "completada", amount: s0.price, tipo_atencion: "presencial", es_control: false, date: ago(84) },
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, service_id: s1.id, service_name: s1.name, status: "completada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: ago(56) },
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, service_id: s1.id, service_name: s1.name, status: "completada", amount: s1.price, tipo_atencion: "online",     es_control: false, date: ago(28) },
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, service_id: s1.id, service_name: s1.name, status: "confirmada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: in_(5) },
+  ]);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: lmKey, client_name: lmName,
+    email: "laura.morales@gmail.com", phone: "+56 9 7654 3210",
+    birth_date: "1987-07-22", occupation: "Diseñadora gráfica", estado: "activo", tipo_atencion: "presencial",
+    motivo_consulta: "Ansiedad generalizada y crisis de pánico recurrentes desde hace 2 años. Dificultades para dormir y concentrarse.",
+    objetivos: "Reducir frecuencia e intensidad de las crisis. Desarrollar herramientas de regulación emocional.",
+    evaluacion_nivel: "medio",
+    progreso_texto: "Avance significativo en técnicas de respiración y mindfulness. Redujo crisis de 3 a 1 por semana.",
+    alertas: "Historial de crisis nocturnas. Avisar ante cambios en medicación (clonazepam 0.5mg s/n).",
+    notas_generales: "Comprometida con el proceso. Hace tareas entre sesiones. Le cuesta hablar de su familia de origen.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("registros").insert([
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, tipo: "sesion", titulo: "Sesión 1 — Evaluación inicial", fecha: ago(84), data: {}, notas: "Entrevista inicial. Relata episodios de pánico en el trabajo. Alta motivación al cambio." },
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, tipo: "sesion", titulo: "Sesión 3 — Técnicas de respiración", fecha: ago(56), data: {}, notas: "Respiración 4-7-8 y grounding 5-4-3-2-1. Reporta haberlas usado con buen resultado." },
+    { id: uid(), user_id: userId, client_id: lmKey, client_name: lmName, tipo: "sesion", titulo: "Sesión 6 — Reestructuración cognitiva", fecha: ago(28), data: {}, notas: "Identifica distorsiones: catastrofización y lectura del pensamiento. Logra cuestionar pensamientos automáticos." },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: lmKey, date: ago(56), title: "Nota privada — sesión 3", content: "Menciona conflicto con su pareja que no quiere profundizar aún. Queda pendiente." },
+    { id: uid(), user_id: userId, client_key: lmKey, date: ago(28), title: "Nota privada — sesión 6", content: "Su madre también tuvo ataques de pánico. Posible componente hereditario/aprendido. Explorar próxima sesión." },
+  ]);
+
+  // ── Cosmetóloga: Valentina Cruz ────────────────────────────────────
+  const vcKey = "valentina-cruz"; const vcName = "Valentina Cruz";
+  await supabase.from("reservas").insert([
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, service_id: s0.id, service_name: s0.name, status: "completada", amount: s0.price, tipo_atencion: "presencial", es_control: false, date: ago(75) },
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, service_id: s1.id, service_name: s1.name, status: "completada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: ago(54) },
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, service_id: s1.id, service_name: s1.name, status: "completada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: ago(33) },
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, service_id: s1.id, service_name: s1.name, status: "confirmada", amount: s1.price, tipo_atencion: "presencial", es_control: false, date: in_(10) },
+  ]);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: vcKey, client_name: vcName,
+    email: "valentina.cruz@gmail.com", phone: "+56 9 6543 2109",
+    birth_date: "1995-01-10", occupation: "Ejecutiva comercial", estado: "activo", tipo_atencion: "presencial",
+    tipo_piel: "Mixta", sensibilidad: "Moderada", frecuencia: "Cada 3 semanas",
+    rutina_actual: "Cetaphil mañana/noche, Vitamina C sérum AM, SPF 50 diario.",
+    diagnostico: "Poros dilatados en zona T, manchas post-acné leves en mejillas, deshidratación superficial.",
+    proxima_accion: "Peeling enzimático suave + hidratación profunda. Evaluar retinol en rutina nocturna.",
+    recomendaciones: ["Usar SPF 50 todos los días sin excepción", "Evitar tocar el rostro durante el día", "Peeling enzimático en casa 1 vez/semana", "Agua micelar para desmaquillar antes del limpiador"],
+    notas_generales: "Ordenada con su rutina. Viene puntual. Le interesa mucho entender el por qué de cada producto.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("registros").insert([
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, tipo: "tratamiento", titulo: "Limpieza facial profunda + extracción", fecha: ago(75), data: {}, notas: "Comedones abiertos en nariz y mentón. Vapor, extracción y mascarilla caolín. Alta tolerancia." },
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, tipo: "tratamiento", titulo: "Peeling enzimático + vitamina C", fecha: ago(54), data: {}, notas: "Peeling papaya 10 min. Sérum vitamina C 20% con microagujas. Rojez post-tratamiento normal." },
+    { id: uid(), user_id: userId, client_id: vcKey, client_name: vcName, tipo: "tratamiento", titulo: "Hidratación profunda + LED", fecha: ago(33), data: {}, notas: "LED luz roja 15 min anti-inflamatoria. Mascarilla ácido hialurónico. Piel notoriamente luminosa." },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: vcKey, date: ago(54), title: "Nota — segunda sesión", content: "Piel menos brillosa desde que cambió el limpiador. Las manchas del acné aclararon un tono." },
+    { id: uid(), user_id: userId, client_key: vcKey, date: ago(33), title: "Nota — tercera sesión", content: "Piel en excelente estado. Considerar retinol 0.025% en rutina nocturna próximo mes." },
+  ]);
+
+  // ── Odontóloga: Sofía Vargas ───────────────────────────────────────
+  const svKey = "sofia-vargas"; const svName = "Sofía Vargas";
+  await supabase.from("reservas").insert([
+    { id: uid(), user_id: userId, client_id: svKey, client_name: svName, service_id: s0.id, service_name: s0.name, status: "completada", amount: s0.price, tipo_atencion: "presencial", es_control: false, date: ago(60) },
+    { id: uid(), user_id: userId, client_id: svKey, client_name: svName, service_id: s1.id, service_name: s1.name, status: "completada", amount: 45000,   tipo_atencion: "presencial", es_control: false, date: ago(30) },
+    { id: uid(), user_id: userId, client_id: svKey, client_name: svName, service_id: s1.id, service_name: s1.name, status: "confirmada", amount: 45000,   tipo_atencion: "presencial", es_control: false, date: in_(14) },
+  ]);
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: svKey, client_name: svName,
+    email: "sofia.vargas@gmail.com", phone: "+56 9 5432 1098",
+    birth_date: "1993-11-05", occupation: "Enfermera", estado: "activo", tipo_atencion: "presencial",
+    diagnostico: "Caries incipiente pza 16. Pza 26 con restauración previa en buen estado. Pza 36 caries media. Acumulación de sarro lingual.",
+    proxima_accion: "Restauración pza 16 y 36 con resina fotopolimerizable. Profilaxis completa.",
+    antecedentes_medicos: "Sin enfermedades sistémicas relevantes.",
+    alergias: "Alergia a la penicilina",
+    dental: { "16": "caries", "26": "tratado", "36": "caries", "46": "tratado", "11": "tratado" },
+    notas_generales: "Paciente ansiosa. Prefiere anestesia tópica antes de la infiltración. Trabaja en turnos nocturnos.",
+    created_at: now, updated_at: now,
+  });
+  await supabase.from("registros").insert([
+    { id: uid(), user_id: userId, client_id: svKey, client_name: svName, tipo: "tratamiento", titulo: "Examen clínico + radiografías", fecha: ago(60), data: {}, notas: "4 radiografías periapicales. Caries en pzas 16 y 36. Pza 26 restauración antigua en buen estado." },
+    { id: uid(), user_id: userId, client_id: svKey, client_name: svName, tipo: "tratamiento", titulo: "Profilaxis + instrucción de higiene", fecha: ago(30), data: {}, notas: "Detartraje supragingival completo. Técnica de Bass modificada. Cepillo interdental entregado." },
+  ]);
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: svKey, date: ago(60), title: "Primera consulta", content: "Dolor leve molar superior derecho. Sensible a fríos. Caries pza 16 confirmada. Se explica plan." },
+    { id: uid(), user_id: userId, client_key: svKey, date: ago(30), title: "Post-profilaxis", content: "Muy conforme con la limpieza. Se comprometió a usar hilo dental diariamente." },
+  ]);
+};
+
 // ── Seed demo data ─────────────────────────────────────────────────
 export const seedForUser = async (userId: string) => {
   // Guard: skip if user already has services (prevents duplicates on re-register)
