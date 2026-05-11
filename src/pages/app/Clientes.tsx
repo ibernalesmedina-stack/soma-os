@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useFichas, usePagos, useReservas } from "@/lib/hooks";
-import { getOrCreateFicha, importFichasCSV } from "@/lib/storage";
+import { getOrCreateFicha, importFichasCSV, registerConsent } from "@/lib/storage";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatCLP, formatDate, slugify } from "@/lib/format";
-import { Search, ChevronRight, Download, Upload, Plus } from "lucide-react";
+import { Search, ChevronRight, Download, Upload, Plus, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 function NuevoPacienteDialog({ open, onClose, onCreated, clientLabel, userId }: {
@@ -23,27 +23,26 @@ function NuevoPacienteDialog({ open, onClose, onCreated, clientLabel, userId }: 
   const [birthDate, setBirthDate] = useState("");
   const [occupation, setOccupation] = useState("");
   const [notas, setNotas] = useState("");
+  const [consent, setConsent] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const reset = () => { setNombre(""); setEmail(""); setPhone(""); setBirthDate(""); setOccupation(""); setNotas(""); };
+  const reset = () => { setNombre(""); setEmail(""); setPhone(""); setBirthDate(""); setOccupation(""); setNotas(""); setConsent(false); };
 
   const handleSubmit = async () => {
     if (!nombre.trim()) return toast({ title: "Ingresa el nombre del paciente", variant: "destructive" });
     setSaving(true);
     try {
       const ficha = await getOrCreateFicha(userId, nombre.trim());
-      // Update optional fields if provided
       if (email || phone || birthDate || occupation || notas) {
         const { updateFicha } = await import("@/lib/storage");
         await updateFicha(ficha.id, {
-          email: email || undefined,
-          phone: phone || undefined,
-          birthDate: birthDate || undefined,
-          occupation: occupation || undefined,
+          email: email || undefined, phone: phone || undefined,
+          birthDate: birthDate || undefined, occupation: occupation || undefined,
           notasGenerales: notas || undefined,
         });
       }
-      toast({ title: `${clientLabel} creado ✓` });
+      if (consent) await registerConsent(userId, ficha.clientKey, nombre.trim());
+      toast({ title: `${clientLabel} creado ✓`, description: consent ? "Consentimiento registrado." : undefined });
       onCreated(ficha.clientKey);
       onClose();
       reset();
@@ -96,6 +95,18 @@ function NuevoPacienteDialog({ open, onClose, onCreated, clientLabel, userId }: 
               onChange={(e) => setNotas(e.target.value)}
             />
           </div>
+          <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${consent ? "border-success bg-success/5" : "border-input hover:bg-muted/30"}`}>
+            <input type="checkbox" className="mt-0.5 accent-primary" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+            <div>
+              <div className="flex items-center gap-1.5 text-sm font-medium">
+                <ShieldCheck className={`h-4 w-4 ${consent ? "text-success" : "text-muted-foreground"}`} />
+                Registrar consentimiento informado
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                El/la paciente autorizó el tratamiento de sus datos personales y clínicos conforme a la normativa vigente (Ley 20.584 / GDPR).
+              </p>
+            </div>
+          </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => { onClose(); reset(); }}>Cancelar</Button>

@@ -5,6 +5,7 @@ import {
   addNota, addProgreso, deleteNota, deleteProgreso, getOrCreateFicha,
   listFichas, listNotas, listPagos, listProgreso, listRegistros, listReservas, updateFicha,
   uploadClientFile, listClientFiles, deleteClientFile,
+  registerConsent, getConsent, exportClientData, deleteClientData,
 } from "@/lib/storage";
 import type { ClientFile } from "@/lib/storage";
 import type { Reserva } from "@/lib/types";
@@ -17,7 +18,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { AtencionBadge } from "@/components/AtencionBadge";
 import { formatCLP, formatDate, formatDateTime, slugify } from "@/lib/format";
 import type { ClienteFicha, Pago, ProgresoEntry, Registro, SesionNota } from "@/lib/types";
-import { ArrowLeft, Plus, Save, Trash2, CalendarPlus, FileText, AlertCircle, Upload, Download, Image as ImageIcon, File as FileIcon } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2, CalendarPlus, FileText, AlertCircle, Upload, Download, Image as ImageIcon, File as FileIcon, ShieldCheck, ShieldAlert, PackageOpen } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { BUSINESS_CONFIG } from "@/lib/business";
@@ -36,6 +37,8 @@ export default function ClienteDetalle() {
   const [ficha, setFicha] = useState<ClienteFicha | null>(null);
   const [notas, setNotas] = useState<SesionNota[]>([]);
   const [progreso, setProgreso] = useState<ProgresoEntry[]>([]);
+  const [consentDate, setConsentDate] = useState<string | null>(null);
+  const [showDelete, setShowDelete] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -54,10 +57,14 @@ export default function ClienteDetalle() {
       if (name) {
         const f = await getOrCreateFicha(user.id, name);
         setFicha(f);
-        const allNotas = await listNotas(user.id);
+        const [allNotas, allProgreso, consent] = await Promise.all([
+          listNotas(user.id),
+          listProgreso(user.id),
+          getConsent(user.id, clientKey),
+        ]);
         setNotas(allNotas.filter(n => n.clientKey === clientKey).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-        const allProgreso = await listProgreso(user.id);
         setProgreso(allProgreso.filter(p => p.clientKey === clientKey).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()));
+        setConsentDate(consent);
       }
     })();
   }, [user, clientKey]);
@@ -92,6 +99,33 @@ export default function ClienteDetalle() {
         <ArrowLeft className="h-3.5 w-3.5" /> Volver
       </Link>
 
+      {/* Delete confirmation */}
+      {showDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-background rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="size-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                <Trash2 className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Eliminar datos de {clientName}</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Se eliminarán la ficha, notas, progreso y registros clínicos. Las reservas y pagos quedarán anonimizados (obligación contable). Esta acción es <strong>irreversible</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setShowDelete(false)}>Cancelar</Button>
+              <Button variant="destructive" size="sm" onClick={async () => {
+                await deleteClientData(user.id, clientKey);
+                toast({ title: "Datos eliminados" });
+                navigate("/app/clientes");
+              }}>Eliminar definitivamente</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
@@ -101,6 +135,22 @@ export default function ClienteDetalle() {
               <h1 className="text-2xl font-semibold tracking-tight">{clientName}</h1>
               <span className={cn("text-[10px] uppercase mono px-2 py-0.5 rounded-full font-medium", estadoColor)}>{estadoLabel}</span>
               <AtencionBadge tipo={ficha.tipoAtencion} />
+              {consentDate ? (
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-success/10 text-success font-medium">
+                  <ShieldCheck className="h-3 w-3" /> Consentimiento {formatDate(consentDate)}
+                </span>
+              ) : (
+                <button
+                  onClick={async () => {
+                    await registerConsent(user.id, clientKey, clientName);
+                    setConsentDate(new Date().toISOString());
+                    toast({ title: "Consentimiento registrado ✓" });
+                  }}
+                  className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-warning/10 text-warning font-medium hover:bg-warning/20 transition-colors"
+                >
+                  <ShieldAlert className="h-3 w-3" /> Sin consentimiento — click para registrar
+                </button>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1">
               <span>{cfg.clientLabel}</span>
@@ -119,9 +169,21 @@ export default function ClienteDetalle() {
             <option value="presencial">Presencial</option>
             <option value="online">Online</option>
           </select>
+          <Button variant="outline" size="sm" onClick={async () => {
+            const data = await exportClientData(user.id, clientKey);
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = `${clientKey}-datos-${new Date().toISOString().slice(0,10)}.json`;
+            a.click(); URL.revokeObjectURL(url);
+            toast({ title: "Datos exportados" });
+          }}><PackageOpen className="h-4 w-4 mr-1.5" />Exportar datos</Button>
           <Button variant="outline" size="sm" onClick={() => navigate("/app/calendario")}><CalendarPlus className="h-4 w-4 mr-1.5" />Agendar</Button>
           <Button variant="outline" size="sm" onClick={() => navigate("/app/registros")}><FileText className="h-4 w-4 mr-1.5" />Nueva acción</Button>
           <Button size="sm" onClick={onSave}><Save className="h-4 w-4 mr-1.5" />Guardar</Button>
+          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setShowDelete(true)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 

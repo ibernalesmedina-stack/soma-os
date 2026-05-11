@@ -500,6 +500,76 @@ export const deleteClientFile = async (path: string): Promise<void> => {
   if (error) throw error;
 };
 
+// ── GDPR: Consentimiento, Derecho al olvido, Portabilidad ─────────
+
+/** Registra el consentimiento informado del paciente (almacenado en registros) */
+export const registerConsent = async (userId: string, clientKey: string, clientName: string): Promise<void> => {
+  await supabase.from("registros").insert({
+    id: uid(), user_id: userId, client_id: clientKey, client_name: clientName,
+    tipo: "consentimiento",
+    titulo: "Consentimiento informado registrado",
+    fecha: new Date().toISOString(),
+    data: { given: true },
+    notas: "El/la paciente otorgó consentimiento informado para el tratamiento y almacenamiento de sus datos personales y clínicos conforme a la normativa vigente.",
+  });
+};
+
+/** Devuelve la fecha del último consentimiento, o null si no existe */
+export const getConsent = async (userId: string, clientKey: string): Promise<string | null> => {
+  const { data } = await supabase.from("registros")
+    .select("fecha")
+    .eq("user_id", userId).eq("client_id", clientKey).eq("tipo", "consentimiento")
+    .order("fecha", { ascending: false }).limit(1).maybeSingle();
+  return data?.fecha ?? null;
+};
+
+/** Exporta todos los datos del paciente como objeto JSON (portabilidad GDPR) */
+export const exportClientData = async (userId: string, clientKey: string): Promise<object> => {
+  const [fichaRes, reservasRes, pagosRes, notasRes, progresoRes, registrosRes] = await Promise.all([
+    supabase.from("fichas_clientes").select("*").eq("user_id", userId).eq("client_key", clientKey),
+    supabase.from("reservas").select("*").eq("user_id", userId).eq("client_id", clientKey),
+    supabase.from("pagos").select("*").eq("user_id", userId).eq("client_id", clientKey),
+    supabase.from("notas_sesion").select("*").eq("user_id", userId).eq("client_key", clientKey),
+    supabase.from("progreso").select("*").eq("user_id", userId).eq("client_key", clientKey),
+    supabase.from("registros").select("*").eq("user_id", userId).eq("client_id", clientKey),
+  ]);
+  return {
+    exported_at: new Date().toISOString(),
+    platform: "SomaOS",
+    ficha: fichaRes.data?.[0] ?? null,
+    reservas: reservasRes.data ?? [],
+    pagos: pagosRes.data ?? [],
+    notas_sesion: notasRes.data ?? [],
+    progreso: progresoRes.data ?? [],
+    registros: registrosRes.data ?? [],
+  };
+};
+
+/** Elimina todos los datos clínicos del paciente y anonimiza registros financieros (GDPR derecho al olvido) */
+export const deleteClientData = async (userId: string, clientKey: string): Promise<void> => {
+  // Eliminar datos clínicos
+  await Promise.all([
+    supabase.from("fichas_clientes").delete().eq("user_id", userId).eq("client_key", clientKey),
+    supabase.from("notas_sesion").delete().eq("user_id", userId).eq("client_key", clientKey),
+    supabase.from("progreso").delete().eq("user_id", userId).eq("client_key", clientKey),
+    supabase.from("registros").delete().eq("user_id", userId).eq("client_id", clientKey),
+  ]);
+  // Anonimizar registros financieros (obligación contable — no se borran)
+  await Promise.all([
+    supabase.from("reservas").update({ client_name: "Datos eliminados", client_id: "deleted" })
+      .eq("user_id", userId).eq("client_id", clientKey),
+    supabase.from("pagos").update({ client_name: "Datos eliminados", client_id: "deleted" })
+      .eq("user_id", userId).eq("client_id", clientKey),
+  ]);
+  // Eliminar archivos de Storage
+  const { data: files } = await supabase.storage.from("client-files")
+    .list(`${userId}/${clientKey}`);
+  if (files?.length) {
+    await supabase.storage.from("client-files")
+      .remove(files.map((f) => `${userId}/${clientKey}/${f.name}`));
+  }
+};
+
 // ── Seed demo clients (safe to call on existing accounts) ─────────
 
 export const seedDemoClients = async (userId: string): Promise<void> => {
