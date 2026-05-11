@@ -1,15 +1,112 @@
 import { useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useFichas, usePagos, useReservas } from "@/lib/hooks";
-import { importFichasCSV } from "@/lib/storage";
+import { getOrCreateFicha, importFichasCSV } from "@/lib/storage";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { formatCLP, formatDate, slugify } from "@/lib/format";
-import { Search, ChevronRight, Download, Upload } from "lucide-react";
+import { Search, ChevronRight, Download, Upload, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+
+function NuevoPacienteDialog({ open, onClose, onCreated, clientLabel, userId }: {
+  open: boolean; onClose: () => void; onCreated: (key: string) => void;
+  clientLabel: string; userId: string;
+}) {
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [occupation, setOccupation] = useState("");
+  const [notas, setNotas] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const reset = () => { setNombre(""); setEmail(""); setPhone(""); setBirthDate(""); setOccupation(""); setNotas(""); };
+
+  const handleSubmit = async () => {
+    if (!nombre.trim()) return toast({ title: "Ingresa el nombre del paciente", variant: "destructive" });
+    setSaving(true);
+    try {
+      const ficha = await getOrCreateFicha(userId, nombre.trim());
+      // Update optional fields if provided
+      if (email || phone || birthDate || occupation || notas) {
+        const { updateFicha } = await import("@/lib/storage");
+        await updateFicha(ficha.id, {
+          email: email || undefined,
+          phone: phone || undefined,
+          birthDate: birthDate || undefined,
+          occupation: occupation || undefined,
+          notasGenerales: notas || undefined,
+        });
+      }
+      toast({ title: `${clientLabel} creado ✓` });
+      onCreated(ficha.clientKey);
+      onClose();
+      reset();
+    } catch {
+      toast({ title: "Error al crear el paciente", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Nuevo {clientLabel}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-2">
+          <div className="grid gap-1.5">
+            <Label>Nombre completo <span className="text-destructive">*</span></Label>
+            <Input autoFocus placeholder="Ej: Ana García" value={nombre} onChange={(e) => setNombre(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label>Email <span className="text-muted-foreground font-normal text-xs">(opcional)</span></Label>
+              <Input type="email" placeholder="ana@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Teléfono <span className="text-muted-foreground font-normal text-xs">(opcional)</span></Label>
+              <Input placeholder="+56 9 …" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label>Fecha de nacimiento</Label>
+              <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Ocupación</Label>
+              <Input placeholder="Ej: Profesora" value={occupation} onChange={(e) => setOccupation(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid gap-1.5">
+            <Label>Notas iniciales <span className="text-muted-foreground font-normal text-xs">(opcional)</span></Label>
+            <textarea
+              rows={3}
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+              placeholder="Motivo de consulta, observaciones…"
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => { onClose(); reset(); }}>Cancelar</Button>
+          <Button onClick={handleSubmit} disabled={saving}>
+            {saving ? "Creando…" : `Crear ${clientLabel}`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 interface ClienteRow {
   clientKey: string;
@@ -25,7 +122,9 @@ export default function Clientes() {
   const { user } = useAuth();
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [q, setQ] = useState("");
+  const [showNew, setShowNew] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const { data: reservas } = useReservas();
   const { data: pagos } = usePagos();
@@ -34,6 +133,17 @@ export default function Clientes() {
   const clientes = useMemo<ClienteRow[]>(() => {
     const map = new Map<string, ClienteRow>();
     const now = Date.now();
+
+    // Seed from fichas first so patients without reservas still appear
+    for (const f of fichas) {
+      if (!map.has(f.clientKey)) {
+        map.set(f.clientKey, {
+          clientKey: f.clientKey, clientName: f.clientName, totalSesiones: 0,
+          totalPagado: 0, estados: { confirmadas: 0, pendientes: 0, completadas: 0 },
+        });
+      }
+    }
+
     for (const r of reservas) {
       const key = slugify(r.clientName);
       const row = map.get(key) ?? {
@@ -58,7 +168,7 @@ export default function Clientes() {
       if (row && p.status === "pagado") row.totalPagado += p.amount;
     }
     return Array.from(map.values()).sort((a, b) => a.clientName.localeCompare(b.clientName));
-  }, [reservas, pagos]);
+  }, [reservas, pagos, fichas]);
 
   const filtered = clientes.filter((c) => !q || c.clientName.toLowerCase().includes(q.toLowerCase()));
 
@@ -106,6 +216,13 @@ export default function Clientes() {
 
   return (
     <>
+      <NuevoPacienteDialog
+        open={showNew}
+        onClose={() => setShowNew(false)}
+        onCreated={(key) => { refetchFichas(); navigate(`/app/clientes/${key}`); }}
+        clientLabel={cfg?.clientLabel ?? "paciente"}
+        userId={user?.id ?? ""}
+      />
       <PageHeader
         title={cfg?.clientLabelPlural ?? "Clientes"}
         description={`Ficha e historial de cada ${cfg?.clientLabel.toLowerCase() ?? "cliente"}.`}
@@ -117,6 +234,9 @@ export default function Clientes() {
             </Button>
             <Button variant="outline" size="sm" onClick={exportCSV}>
               <Download className="h-3.5 w-3.5 mr-1.5" /> Exportar CSV
+            </Button>
+            <Button size="sm" onClick={() => setShowNew(true)}>
+              <Plus className="h-4 w-4 mr-1.5" /> Nuevo {cfg?.clientLabel ?? "paciente"}
             </Button>
           </div>
         }
@@ -131,7 +251,8 @@ export default function Clientes() {
         {filtered.length === 0 ? (
           <div className="p-16 text-center">
             <p className="text-sm font-medium">Sin {cfg?.clientLabelPlural.toLowerCase() ?? "clientes"}</p>
-            <p className="text-xs text-muted-foreground mt-1">Cuando registres reservas aparecerán aquí.</p>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">Crea tu primer {cfg?.clientLabel.toLowerCase() ?? "paciente"} o registra una reserva.</p>
+            <Button size="sm" onClick={() => setShowNew(true)}><Plus className="h-4 w-4 mr-1.5" />Nuevo {cfg?.clientLabel ?? "paciente"}</Button>
           </div>
         ) : (
           <table className="w-full text-sm">
