@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import {
   addNota, addProgreso, deleteNota, deleteProgreso, getOrCreateFicha,
   listFichas, listNotas, listPagos, listProgreso, listRegistros, listReservas, updateFicha,
+  uploadClientFile, listClientFiles, deleteClientFile,
 } from "@/lib/storage";
+import type { ClientFile } from "@/lib/storage";
 import type { Reserva } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +17,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { AtencionBadge } from "@/components/AtencionBadge";
 import { formatCLP, formatDate, formatDateTime, slugify } from "@/lib/format";
 import type { ClienteFicha, Pago, ProgresoEntry, Registro, SesionNota } from "@/lib/types";
-import { ArrowLeft, Plus, Save, Trash2, CalendarPlus, FileText, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2, CalendarPlus, FileText, AlertCircle, Upload, Download, Image as ImageIcon, File as FileIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { BUSINESS_CONFIG } from "@/lib/business";
@@ -254,6 +256,7 @@ function NutricionistaView({ ficha, onChange, progreso, setProgreso, notas, setN
         <TabsTrigger value="planes">Planes ({registros.length})</TabsTrigger>
         <TabsTrigger value="historial">Historial</TabsTrigger>
         <TabsTrigger value="notas">Notas</TabsTrigger>
+        <TabsTrigger value="archivos">Archivos</TabsTrigger>
       </TabsList>
 
       <TabsContent value="resumen" className="mt-4 space-y-4">
@@ -336,6 +339,7 @@ function NutricionistaView({ ficha, onChange, progreso, setProgreso, notas, setN
 
       <TabsContent value="historial" className="mt-4"><HistorialTab reservas={reservas} /></TabsContent>
       <TabsContent value="notas" className="mt-4"><NotasTab notas={notas} setNotas={setNotas} userId={userId} clientKey={clientKey} /></TabsContent>
+      <TabsContent value="archivos" className="mt-4"><ArchivosTab userId={userId} clientKey={clientKey} /></TabsContent>
     </Tabs>
   );
 }
@@ -350,6 +354,7 @@ function PsicologaView({ ficha, onChange, notas, setNotas, reservas, userId, cli
         <TabsTrigger value="sesiones">Sesiones ({registros.length})</TabsTrigger>
         <TabsTrigger value="proceso">Proceso</TabsTrigger>
         <TabsTrigger value="notas">Notas privadas ({notas.length})</TabsTrigger>
+        <TabsTrigger value="archivos">Archivos</TabsTrigger>
       </TabsList>
 
       <TabsContent value="resumen" className="mt-4 space-y-4">
@@ -400,6 +405,7 @@ function PsicologaView({ ficha, onChange, notas, setNotas, reservas, userId, cli
       </TabsContent>
 
       <TabsContent value="notas" className="mt-4"><NotasTab notas={notas} setNotas={setNotas} userId={userId} clientKey={clientKey} privado /></TabsContent>
+      <TabsContent value="archivos" className="mt-4"><ArchivosTab userId={userId} clientKey={clientKey} /></TabsContent>
     </Tabs>
   );
 }
@@ -421,6 +427,7 @@ function CosmetologaView({ ficha, setFicha, onChange, notas, setNotas, reservas,
         {submodulos.includes("unas") && <TabsTrigger value="unas">Uñas</TabsTrigger>}
         {submodulos.includes("pestanas") && <TabsTrigger value="pestanas">Pestañas</TabsTrigger>}
         <TabsTrigger value="notas">Notas</TabsTrigger>
+        <TabsTrigger value="archivos">Archivos</TabsTrigger>
       </TabsList>
 
       <TabsContent value="resumen" className="mt-4 space-y-4">
@@ -513,6 +520,7 @@ function CosmetologaView({ ficha, setFicha, onChange, notas, setNotas, reservas,
       )}
 
       <TabsContent value="notas" className="mt-4"><NotasTab notas={notas} setNotas={setNotas} userId={userId} clientKey={clientKey} /></TabsContent>
+      <TabsContent value="archivos" className="mt-4"><ArchivosTab userId={userId} clientKey={clientKey} /></TabsContent>
     </Tabs>
   );
 }
@@ -539,6 +547,7 @@ function OdontologaView({ ficha, onChange, setFicha, notas, setNotas, reservas, 
         <TabsTrigger value="tratamientos">Tratamientos ({registros.length})</TabsTrigger>
         <TabsTrigger value="historial">Historial</TabsTrigger>
         <TabsTrigger value="notas">Notas</TabsTrigger>
+        <TabsTrigger value="archivos">Archivos</TabsTrigger>
       </TabsList>
 
       <TabsContent value="resumen" className="mt-4 space-y-4">
@@ -577,6 +586,7 @@ function OdontologaView({ ficha, onChange, setFicha, notas, setNotas, reservas, 
       <TabsContent value="tratamientos" className="mt-4"><RegistrosLista registros={registros} /></TabsContent>
       <TabsContent value="historial" className="mt-4"><HistorialTab reservas={reservas} /></TabsContent>
       <TabsContent value="notas" className="mt-4"><NotasTab notas={notas} setNotas={setNotas} userId={userId} clientKey={clientKey} /></TabsContent>
+      <TabsContent value="archivos" className="mt-4"><ArchivosTab userId={userId} clientKey={clientKey} /></TabsContent>
     </Tabs>
   );
 }
@@ -606,6 +616,107 @@ function RegistrosLista({ registros }: { registros: any[] }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+/* ---------------- Archivos ---------------- */
+
+function ArchivosTab({ userId, clientKey }: { userId: string; clientKey: string }) {
+  const [files, setFiles] = useState<ClientFile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    listClientFiles(userId, clientKey).then((f) => { setFiles(f); setLoading(false); });
+  }, [userId, clientKey]);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const uploaded = await uploadClientFile(userId, clientKey, file);
+      setFiles((prev) => [uploaded, ...prev]);
+      toast({ title: "Archivo subido" });
+    } catch {
+      toast({ title: "Error al subir el archivo", variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleDelete = async (path: string) => {
+    try {
+      await deleteClientFile(path);
+      setFiles((prev) => prev.filter((f) => f.path !== path));
+      toast({ title: "Archivo eliminado" });
+    } catch {
+      toast({ title: "Error al eliminar", variant: "destructive" });
+    }
+  };
+
+  const fileIcon = (mime: string) => {
+    if (mime.startsWith("image/")) return <ImageIcon className="h-5 w-5 text-blue-500" />;
+    if (mime === "application/pdf") return <FileText className="h-5 w-5 text-red-500" />;
+    return <FileIcon className="h-5 w-5 text-muted-foreground" />;
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+  };
+
+  return (
+    <Section title="Archivos" action={
+      <>
+        <input ref={fileInput} type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onChange={handleUpload} />
+        <Button size="sm" onClick={() => fileInput.current?.click()} disabled={uploading}>
+          <Upload className="h-4 w-4 mr-1.5" />{uploading ? "Subiendo…" : "Subir archivo"}
+        </Button>
+      </>
+    }>
+      {loading ? (
+        <div className="py-8 text-center text-sm text-muted-foreground">Cargando…</div>
+      ) : files.length === 0 ? (
+        <div className="py-10 border-2 border-dashed rounded-lg text-center cursor-pointer" onClick={() => fileInput.current?.click()}>
+          <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+          <p className="text-sm font-medium">Sin archivos</p>
+          <p className="text-xs text-muted-foreground mt-1">Sube fotos, análisis o documentos del cliente</p>
+          <Button size="sm" variant="outline" className="mt-3">Seleccionar archivo</Button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {files.map((f) => (
+            <div key={f.path} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+              {f.mimeType.startsWith("image/") ? (
+                <img src={f.url} alt={f.name} className="h-10 w-10 rounded object-cover shrink-0" />
+              ) : (
+                <div className="h-10 w-10 rounded bg-muted flex items-center justify-center shrink-0">
+                  {fileIcon(f.mimeType)}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{f.name}</p>
+                <p className="text-xs text-muted-foreground">{formatBytes(f.size)} · {formatDate(f.createdAt)}</p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <a href={f.url} target="_blank" rel="noopener noreferrer" download={f.name}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Descargar">
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </a>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" title="Eliminar" onClick={() => handleDelete(f.path)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Section>
   );
 }
 

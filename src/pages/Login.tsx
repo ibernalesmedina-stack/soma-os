@@ -4,17 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
-import { ArrowRight, Calendar, CreditCard, Sparkles, CheckCircle2, Users, TrendingUp } from "lucide-react";
+import { ArrowRight, Calendar, CreditCard, Sparkles, CheckCircle2, Users, TrendingUp, ArrowLeft } from "lucide-react";
 
 export default function Login() {
-  const { user, login } = useAuth();
+  const { user, login, resetPassword } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  if (user) return <Navigate to="/app" replace />;
-
   const [submitting, setSubmitting] = useState(false);
+  const [view, setView] = useState<"login" | "forgot" | "sent">("login");
+  const [resetEmail, setResetEmail] = useState("");
+
+  if (user) return <Navigate to="/app" replace />;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,15 +27,68 @@ export default function Login() {
     navigate("/app");
   };
 
+  const onReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    const err = await resetPassword(resetEmail);
+    setSubmitting(false);
+    if (err) return setError(err);
+    setView("sent");
+  };
+
+  if (view === "forgot") {
+    return (
+      <AuthShell title="Recuperar contraseña" subtitle="Te enviamos un enlace a tu email para que puedas entrar">
+        <form onSubmit={onReset} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="reset-email">Email</Label>
+            <Input id="reset-email" type="email" required autoFocus
+              value={resetEmail} onChange={(e) => { setResetEmail(e.target.value); setError(null); }}
+              placeholder="tu@negocio.com" />
+          </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? "Enviando…" : "Enviar enlace de recuperación"}
+          </Button>
+          <button type="button" onClick={() => { setView("login"); setError(null); }}
+            className="w-full flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5" /> Volver al inicio de sesión
+          </button>
+        </form>
+      </AuthShell>
+    );
+  }
+
+  if (view === "sent") {
+    return (
+      <AuthShell title="Revisa tu email" subtitle="Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.">
+        <div className="space-y-4">
+          <div className="rounded-lg bg-primary/5 border border-primary/15 p-4 text-sm text-center text-muted-foreground">
+            Enlace enviado a <strong className="text-foreground">{resetEmail}</strong>
+          </div>
+          <Button variant="outline" className="w-full" onClick={() => { setView("login"); setError(null); }}>
+            <ArrowLeft className="h-4 w-4 mr-1.5" /> Volver al inicio de sesión
+          </Button>
+        </div>
+      </AuthShell>
+    );
+  }
+
   return <AuthShell title="Bienvenida de vuelta" subtitle="Accede a tu workspace SomaOS">
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@negocio.com" />
+        <Input id="email" type="email" required value={email} onChange={(e) => { setEmail(e.target.value); setError(null); }} placeholder="tu@negocio.com" />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="password">Contraseña</Label>
-        <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Contraseña</Label>
+          <button type="button" onClick={() => { setResetEmail(email); setView("forgot"); setError(null); }}
+            className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
+        <Input id="password" type="password" required value={password} onChange={(e) => { setPassword(e.target.value); setError(null); }} />
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
       <Button type="submit" className="w-full" disabled={submitting}>

@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { AppLayout } from "@/components/AppLayout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/app/Dashboard";
 import Reservas from "./pages/app/Reservas";
 import Calendario from "./pages/app/Calendario";
@@ -75,6 +76,7 @@ const App = () => {
             <Route path="/" element={<Navigate to="/app" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="reservas" element={<Reservas />} />

@@ -457,6 +457,49 @@ export const saveClientEmail = async (userId: string, email: string) => {
   if (error) throw error;
 };
 
+// ── Client Files (Supabase Storage) ───────────────────────────────
+
+export interface ClientFile {
+  name: string;
+  path: string;
+  size: number;
+  mimeType: string;
+  createdAt: string;
+  url: string;
+}
+
+export const uploadClientFile = async (userId: string, clientKey: string, file: File): Promise<ClientFile> => {
+  const path = `${userId}/${clientKey}/${Date.now()}_${file.name}`;
+  const { error } = await supabase.storage.from("client-files").upload(path, file, { upsert: false });
+  if (error) throw error;
+  const { data: urlData } = await supabase.storage.from("client-files").createSignedUrl(path, 3600);
+  return { name: file.name, path, size: file.size, mimeType: file.type, createdAt: new Date().toISOString(), url: urlData?.signedUrl ?? "" };
+};
+
+export const listClientFiles = async (userId: string, clientKey: string): Promise<ClientFile[]> => {
+  const folder = `${userId}/${clientKey}`;
+  const { data, error } = await supabase.storage.from("client-files").list(folder, { sortBy: { column: "created_at", order: "desc" } });
+  if (error || !data) return [];
+  const items = data.filter((f) => f.name !== ".emptyFolderPlaceholder" && f.name);
+  return Promise.all(items.map(async (f) => {
+    const path = `${folder}/${f.name}`;
+    const { data: urlData } = await supabase.storage.from("client-files").createSignedUrl(path, 3600);
+    return {
+      name: f.name.replace(/^\d+_/, ""),
+      path,
+      size: f.metadata?.size ?? 0,
+      mimeType: f.metadata?.mimetype ?? "",
+      createdAt: f.created_at ?? new Date().toISOString(),
+      url: urlData?.signedUrl ?? "",
+    };
+  }));
+};
+
+export const deleteClientFile = async (path: string): Promise<void> => {
+  const { error } = await supabase.storage.from("client-files").remove([path]);
+  if (error) throw error;
+};
+
 // ── Seed demo data ─────────────────────────────────────────────────
 export const seedForUser = async (userId: string) => {
   // Guard: skip if user already has services (prevents duplicates on re-register)
@@ -498,4 +541,42 @@ export const seedForUser = async (userId: string) => {
       reserva_id: r.id,
     }));
   await supabase.from("pagos").insert(pagosData);
+
+  // Demo client: María González — ficha completa para previsualizar la UI
+  const demoName = "María González";
+  const demoKey = "maria-gonzalez";
+  const demoReservas = [
+    { id: uid(), user_id: userId, client_id: demoKey, client_name: demoName, service_id: services[0].id, service_name: services[0].name, status: "completada", amount: 35000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 90 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: demoKey, client_name: demoName, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() - 60 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: demoKey, client_name: demoName, service_id: services[1].id, service_name: services[1].name, status: "completada", amount: 28000, tipo_atencion: "online", es_control: true, date: new Date(Date.now() - 30 * 86400000).toISOString() },
+    { id: uid(), user_id: userId, client_id: demoKey, client_name: demoName, service_id: services[1].id, service_name: services[1].name, status: "confirmada", amount: 28000, tipo_atencion: "presencial", es_control: false, date: new Date(Date.now() + 7 * 86400000).toISOString() },
+  ];
+  await supabase.from("reservas").insert(demoReservas);
+
+  const now = new Date().toISOString();
+  await supabase.from("fichas_clientes").insert({
+    id: uid(), user_id: userId, client_key: demoKey, client_name: demoName,
+    email: "maria.gonzalez@gmail.com", phone: "+56 9 8765 4321",
+    birth_date: "1990-03-15", occupation: "Profesora", estado: "activo",
+    tipo_atencion: "presencial", motivo_consulta: "Mejorar alimentación y bajar de peso. Ha tenido dificultades para mantener una dieta equilibrada por su trabajo.",
+    altura: "163", peso_inicial: "72", peso_actual: "68.5",
+    porc_grasa: "28", porc_muscular: "34",
+    objetivo_texto: "Llegar a 65 kg con composición corporal saludable. Aumentar masa muscular y reducir % grasa a menos de 25%.",
+    evaluacion_inicial: "Paciente con sobrepeso leve, hábitos alimentarios irregulares. Come principalmente fuera del hogar. Actividad física baja (2 veces/semana).",
+    plan_tratamiento: "Plan de alimentación saludable con déficit moderado (300 kcal). Incluye 5 comidas al día, énfasis en proteínas y verduras.",
+    alergias: "Intolerancia a la lactosa", medicacion: "Ninguna",
+    notas_generales: "Muy motivada y constante. Asiste puntual a todas las sesiones. Prefiere sesiones de tarde.",
+    created_at: now, updated_at: now,
+  });
+
+  await supabase.from("progreso").insert([
+    { id: uid(), user_id: userId, client_key: demoKey, fecha: new Date(Date.now() - 90 * 86400000).toISOString(), peso: 72, porc_grasa: 30.5, porc_muscular: 32, notas: "Consulta inicial" },
+    { id: uid(), user_id: userId, client_key: demoKey, fecha: new Date(Date.now() - 60 * 86400000).toISOString(), peso: 70.2, porc_grasa: 29.1, porc_muscular: 32.8, notas: "Buena adherencia al plan" },
+    { id: uid(), user_id: userId, client_key: demoKey, fecha: new Date(Date.now() - 30 * 86400000).toISOString(), peso: 68.5, porc_grasa: 28.0, porc_muscular: 34.0, notas: "Incorporó ejercicio 3 veces/semana" },
+  ]);
+
+  await supabase.from("notas_sesion").insert([
+    { id: uid(), user_id: userId, client_key: demoKey, date: new Date(Date.now() - 60 * 86400000).toISOString(), title: "Seguimiento semana 5", content: "Excelente adherencia. Bajó 1.8 kg. Refuerzo en colaciones saludables para el trabajo. Buena actitud hacia el proceso." },
+    { id: uid(), user_id: userId, client_key: demoKey, date: new Date(Date.now() - 30 * 86400000).toISOString(), title: "Ajuste de plan — sesión 8", content: "Se ajusta el plan para incorporar más proteína en el desayuno. La paciente comenzó a hacer ejercicio regularmente. Se actualiza objetivo calórico." },
+  ]);
 };

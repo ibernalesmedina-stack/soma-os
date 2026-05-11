@@ -14,6 +14,7 @@ interface Ctx {
   }) => Promise<string | null>;
   logout: () => Promise<void>;
   update: (patch: Partial<User>) => Promise<void>;
+  resetPassword: (email: string) => Promise<string | null>;
 }
 
 const AuthCtx = createContext<Ctx | null>(null);
@@ -131,6 +132,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const resetPassword = async (email: string): Promise<string | null> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return error ? error.message : null;
+  };
+
   const update = async (patch: Partial<User>) => {
     if (!user) return;
     await updateUserById(user.id, patch);
@@ -138,7 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthCtx.Provider value={{ user, loading, login, register, logout, update }}>
+    <AuthCtx.Provider value={{ user, loading, login, register, logout, update, resetPassword }}>
       {children}
     </AuthCtx.Provider>
   );
