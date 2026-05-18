@@ -128,7 +128,7 @@ export default function SitioPaulette() {
     /* NAV */
     .pe-nav { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); background: #f6f6ea; }
     .pe-nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 0; }
-    .pe-nav-logo { height: 82px; width: auto; }
+    .pe-nav-logo { height: 115px; width: auto; }
     .pe-nav-links { display: flex; gap: 28px; }
     .pe-nav-links a { position: relative; padding: 6px 0; color: rgba(71,69,17,0.75); font-size: 16px; font-weight: 600; transition: color .2s; }
     .pe-nav-links a:hover { color: #474511; }
