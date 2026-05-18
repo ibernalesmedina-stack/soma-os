@@ -44,14 +44,30 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// If visiting from a custom client domain, show their site directly
 const hostname = window.location.hostname;
-const isCustomDomain = !hostname.includes("vercel.app") && hostname !== "localhost" && !hostname.includes("somaos");
 
-// Map known custom domains to their dedicated site component
+// Dominios que pertenecen a la PLATAFORMA SomaOS (nunca son sitios de clientes)
+const PLATFORM_DOMAINS = new Set([
+  "localhost",
+  "somaos.app",
+  "www.somaos.app",
+  "app.somaos.app",
+]);
+const isPlatformDomain =
+  PLATFORM_DOMAINS.has(hostname) ||
+  hostname.includes("vercel.app") ||
+  hostname.includes("somaos");
+
+// Si no es dominio de la plataforma → es el sitio personalizado de una clienta
+const isCustomDomain = !isPlatformDomain;
+
+// Mapa: dominio personalizado → componente del sitio de la clienta
+// Cada clienta con sitio propio se agrega aquí + configura su DNS en Vercel
 const DOMAIN_ROUTES: Record<string, React.ReactElement> = {
   "www.elliotnutrition.com": <SitioPaulette />,
   "elliotnutrition.com":     <SitioPaulette />,
+  // Próximas clientas:
+  // "www.nombrecliente.com": <SitioNombreCliente />,
 };
 
 const App = () => {
@@ -111,7 +127,6 @@ const App = () => {
               <Route path="integraciones" element={<AdminIntegraciones />} />
               <Route path="sitios" element={<AdminSitioEditor />} />
             </Route>
-            <Route path="/s/e84c4f11-50c2-4b6e-8c4b-055bb635edcd" element={<SitioPaulette />} />
             <Route path="/s/:userId" element={<Sitio />} />
             <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/terminos" element={<Terminos />} />
