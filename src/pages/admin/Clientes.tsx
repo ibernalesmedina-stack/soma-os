@@ -55,7 +55,7 @@ export default function AdminClientes() {
 
       <div className="surface-card overflow-hidden">
         <div className="p-3 border-b flex flex-wrap gap-2 items-center">
-          <div className="relative flex-1 min-w-[220px] max-w-sm">
+          <div className="relative flex-1 min-w-0 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar nombre o email…" className="pl-8 h-9" />
           </div>
@@ -76,7 +76,8 @@ export default function AdminClientes() {
             <p className="text-xs text-muted-foreground mt-1">No hay clientes que coincidan con tu búsqueda.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="text-left font-medium px-4 py-2.5">Nombre</th>
@@ -119,6 +120,7 @@ export default function AdminClientes() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </>

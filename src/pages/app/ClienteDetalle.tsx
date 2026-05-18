@@ -159,7 +159,7 @@ export default function ClienteDetalle() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <select
             className="h-9 rounded-md border border-input bg-background px-2 text-xs"
             value={ficha.tipoAtencion ?? "presencial"}
@@ -169,6 +169,8 @@ export default function ClienteDetalle() {
             <option value="presencial">Presencial</option>
             <option value="online">Online</option>
           </select>
+          <Button variant="outline" size="sm" onClick={() => navigate("/app/calendario")}><CalendarPlus className="h-4 w-4 mr-1.5" />Agendar</Button>
+          <Button variant="outline" size="sm" onClick={() => navigate("/app/registros")}><FileText className="h-4 w-4 mr-1.5" />Acción</Button>
           <Button variant="outline" size="sm" onClick={async () => {
             const data = await exportClientData(user.id, clientKey);
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -177,11 +179,9 @@ export default function ClienteDetalle() {
             a.href = url; a.download = `${clientKey}-datos-${new Date().toISOString().slice(0,10)}.json`;
             a.click(); URL.revokeObjectURL(url);
             toast({ title: "Datos exportados" });
-          }}><PackageOpen className="h-4 w-4 mr-1.5" />Exportar datos</Button>
-          <Button variant="outline" size="sm" onClick={() => navigate("/app/calendario")}><CalendarPlus className="h-4 w-4 mr-1.5" />Agendar</Button>
-          <Button variant="outline" size="sm" onClick={() => navigate("/app/registros")}><FileText className="h-4 w-4 mr-1.5" />Nueva acción</Button>
+          }} title="Exportar datos del paciente"><PackageOpen className="h-4 w-4" /></Button>
           <Button size="sm" onClick={onSave}><Save className="h-4 w-4 mr-1.5" />Guardar</Button>
-          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setShowDelete(true)}>
+          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setShowDelete(true)} title="Eliminar paciente">
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -276,7 +276,7 @@ function HistorialTab({ reservas }: { reservas: Reserva[] }) {
   return (
     <div className="surface-card overflow-hidden">
       {reservas.length === 0 ? <EmptyState /> : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full text-sm min-w-[480px]">
           <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="text-left font-medium px-4 py-2.5">Fecha</th>
@@ -297,7 +297,7 @@ function HistorialTab({ reservas }: { reservas: Reserva[] }) {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
     </div>
   );
@@ -565,7 +565,6 @@ function CosmetologaView({ ficha, setFicha, onChange, notas, setNotas, reservas,
               <Field label="Tipo de uña"><Input value={ficha.notasGenerales ?? ""} onChange={e => onChange("notasGenerales", e.target.value)} /></Field>
               <Field label="Preferencias"><Input value={ficha.objetivos ?? ""} onChange={e => onChange("objetivos", e.target.value)} /></Field>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">Galería de fotos próximamente.</p>
           </Section>
         </TabsContent>
       )}

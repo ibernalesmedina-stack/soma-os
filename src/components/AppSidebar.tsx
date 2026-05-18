@@ -9,11 +9,11 @@ import { BUSINESS_CONFIG } from "@/lib/business";
 import { cn } from "@/lib/utils";
 import type { TipoNegocio } from "@/lib/types";
 
-const TIPOS: { value: TipoNegocio; label: string; short: string }[] = [
-  { value: "nutricionista", label: "Nutricionista", short: "Nutri" },
-  { value: "psicologa",     label: "Psicóloga",     short: "Psico" },
-  { value: "cosmetologa",   label: "Cosmetóloga",   short: "Cosme" },
-  { value: "odontologa",    label: "Odontóloga",    short: "Odont" },
+const TIPOS: { value: TipoNegocio; label: string; short: string; icon: string }[] = [
+  { value: "nutricionista", label: "Nutricionista", short: "Nut", icon: "🥗" },
+  { value: "psicologa",     label: "Psicóloga",     short: "Psi", icon: "🧠" },
+  { value: "cosmetologa",   label: "Cosmetóloga",   short: "Cos", icon: "✨" },
+  { value: "odontologa",    label: "Odontóloga",    short: "Odo", icon: "🦷" },
 ];
 
 export function AppSidebar() {
@@ -89,7 +89,7 @@ export function AppSidebar() {
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                   )}
                 >
-                  {collapsed ? t.short[0] : (collapsed ? t.short : t.label)}
+                  {collapsed ? `${t.icon}` : t.label}
                 </button>
               );
             })}

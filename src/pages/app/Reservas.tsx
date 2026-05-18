@@ -247,7 +247,8 @@ export default function Reservas() {
               <p className="text-xs text-muted-foreground mt-1">Cuando tengas reservas aparecerán aquí.</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
               <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="text-left font-medium px-4 py-2.5">Cliente</th>
@@ -289,6 +290,7 @@ export default function Reservas() {
                 ))}
               </tbody>
             </table>
+            </div>
           )
         ) : (
           <CalendarView reservas={filtered} />

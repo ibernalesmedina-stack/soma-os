@@ -21,7 +21,8 @@ export default function Pagos() {
         {pagos.length === 0 ? (
           <div className="p-16 text-center text-sm text-muted-foreground">Sin transacciones aún.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[540px]">
             <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="text-left font-medium px-4 py-2.5">Cliente</th>
@@ -47,6 +48,7 @@ export default function Pagos() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </>

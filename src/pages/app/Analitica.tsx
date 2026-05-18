@@ -69,7 +69,7 @@ export default function Analitica() {
         }
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <KPI label="Ingresos del período" value={formatCLP(totalIngreso)} />
         <KPI label="Reservas" value={String(totalReservas)} />
         <KPI label="Pacientes nuevos" value={String(totalNuevos)} />
@@ -140,8 +140,8 @@ export default function Analitica() {
 function KPI({ label, value }: { label: string; value: string }) {
   return (
     <div className="surface-card p-4">
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="text-lg font-semibold tracking-tight mt-1">{value}</div>
+      <div className="text-[11px] uppercase tracking-wider text-muted-foreground truncate">{label}</div>
+      <div className="text-xl font-semibold tracking-tight mt-1">{value}</div>
     </div>
   );
 }

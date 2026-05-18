@@ -201,7 +201,10 @@ export default function Calendario() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {weekReservas.length === 0 && weekBloqueos.length === 0 && (
+          <div className="text-center py-6 text-sm text-muted-foreground border-b">Sin citas ni bloqueos esta semana.</div>
+        )}
+          <div className="overflow-x-auto">
           <div className="grid grid-cols-[60px_repeat(7,minmax(120px,1fr))] min-w-[900px]">
             {/* Header fila */}
             <div className="border-b border-r bg-muted/30" />
@@ -209,7 +212,7 @@ export default function Calendario() {
               const isToday = d.toDateString() === new Date().toDateString();
               return (
                 <div key={d.toISOString()} className={cn("border-b border-r p-2 text-center", isToday && "bg-primary/5")}>
-                  <div className="text-[10px] uppercase text-muted-foreground tracking-wider">{d.toLocaleDateString("es-CL", { weekday: "short" })}</div>
+                  <div className="text-[11px] uppercase text-muted-foreground tracking-wider">{d.toLocaleDateString("es-CL", { weekday: "short" })}</div>
                   <div className={cn("text-sm font-semibold", isToday && "text-primary")}>{d.getDate()}</div>
                 </div>
               );
@@ -221,7 +224,7 @@ export default function Calendario() {
             ))}
           </div>
         </div>
-      </div>
+        </div>
 
       {weekBloqueos.length > 0 && (
         <div className="surface-card mt-4 p-4">

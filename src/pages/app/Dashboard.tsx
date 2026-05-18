@@ -61,10 +61,18 @@ function GoogleCalendarBanner({ userId }: { userId: string }) {
   );
 }
 
+function SkeletonCard() {
+  return <div className="stat-tile animate-pulse"><div className="h-8 w-8 rounded-md bg-muted" /><div className="mt-3 h-3 w-24 rounded bg-muted" /><div className="mt-1 h-6 w-16 rounded bg-muted" /></div>;
+}
+function SkeletonRow() {
+  return <li className="py-3 flex items-center gap-3"><div className="size-8 rounded-full bg-muted animate-pulse" /><div className="flex-1 space-y-1"><div className="h-3 w-32 rounded bg-muted animate-pulse" /><div className="h-2.5 w-48 rounded bg-muted animate-pulse" /></div></li>;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
-  const { data: reservas } = useReservas();
-  const { data: pagos } = usePagos();
+  const { data: reservas, loading: loadingR } = useReservas();
+  const { data: pagos, loading: loadingP } = usePagos();
+  const loading = loadingR || loadingP;
 
   const ingresos = pagos.filter((p) => p.status === "pagado").reduce((a, b) => a + b.amount, 0);
   const upcoming = reservas.filter((r) => new Date(r.date) >= new Date() && r.status !== "cancelada")
@@ -84,10 +92,12 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Metric icon={Calendar} label="Total reservas" value={String(reservas.length)} delta="+12%" />
-        <Metric icon={CreditCard} label="Ingresos" value={formatCLP(ingresos)} delta="+8.4%" />
-        <Metric icon={Users} label="Clientes activos" value={String(new Set(reservas.map((r) => r.client_id)).size)} delta="+3" />
-        <Metric icon={TrendingUp} label="Próximas citas" value={String(upcoming.length)} delta="hoy" />
+        {loading ? <><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></> : <>
+          <Metric icon={Calendar} label="Total reservas" value={String(reservas.length)} delta="+12%" />
+          <Metric icon={CreditCard} label="Ingresos" value={formatCLP(ingresos)} delta="+8.4%" />
+          <Metric icon={Users} label="Clientes activos" value={String(new Set(reservas.map((r) => r.client_id)).size)} delta="+3" />
+          <Metric icon={TrendingUp} label="Próximas citas" value={String(upcoming.length)} delta="hoy" />
+        </>}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
@@ -98,7 +108,9 @@ export default function Dashboard() {
               Ver todo <ArrowUpRight className="h-3 w-3 ml-0.5" />
             </Link>
           </div>
-          {recent.length === 0 ? (
+          {loading ? (
+            <ul className="divide-y">{Array.from({length:4}).map((_,i)=><SkeletonRow key={i}/>)}</ul>
+          ) : recent.length === 0 ? (
             <EmptyState message="Sin actividad aún" />
           ) : (
             <ul className="divide-y">

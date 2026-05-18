@@ -136,7 +136,7 @@ function NuevoRegistroDialog({
               <Input placeholder={`Nombre del ${cfg.clientLabel.toLowerCase()}`} value={clientName} onChange={(e) => setClientName(e.target.value)} />
             )}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label className="text-xs">Título</Label>
               <Input value={titulo} onChange={(e) => setTitulo(e.target.value)} />

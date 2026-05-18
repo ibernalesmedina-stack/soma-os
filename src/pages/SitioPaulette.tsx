@@ -678,8 +678,13 @@ export default function SitioPaulette() {
             <h2>Sígueme en <em>@elliotnutrition</em></h2>
           </div>
           {/* Behold Instagram widget */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 32, minHeight: 200 }}>
             <behold-widget feed-id="x8PAUKU3v1tfORMVsBTv" />
+            <noscript>
+              <p style={{ textAlign: "center", color: "#474511", opacity: 0.6, fontSize: 14 }}>
+                Activa JavaScript para ver el feed de Instagram.
+              </p>
+            </noscript>
           </div>
           <div style={{ textAlign: "center", marginTop: 28 }}>
             <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noopener noreferrer"

@@ -146,7 +146,7 @@ export default function Integraciones() {
               <div className="flex gap-2">
                 <Input placeholder="elliotnutrition.com" value={data.dominio}
                   onChange={e => set("dominio", e.target.value)} className="flex-1" />
-                <Button variant="outline" disabled={!data.dominio || testing === "domain-save"}
+                <Button variant="outline" disabled={!data.dominio || testing === "domain-save"} title={!data.dominio ? "Ingresa un dominio primero" : "Guardar dominio"}
                   onClick={async () => {
                     if (!user) return;
                     setTesting("domain-save");
@@ -161,7 +161,7 @@ export default function Integraciones() {
                   }}>
                   {testing === "domain-save" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
                 </Button>
-                <Button disabled={!data.dominio || testing === "domain"}
+                <Button disabled={!data.dominio || testing === "domain"} title={!data.dominio ? "Ingresa un dominio primero" : "Verificar DNS del dominio"}
                   onClick={async () => {
                     if (!user) return;
                     setTesting("domain");
