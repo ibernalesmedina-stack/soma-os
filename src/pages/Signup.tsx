@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
+import { storeSignupConsent } from "@/lib/storage";
 import { AuthShell } from "./Login";
 import { PLAN_LABEL } from "@/lib/plans";
 import { BUSINESS_CONFIG } from "@/lib/business";
@@ -21,6 +22,15 @@ const SUBMODULOS: { key: SubmoduloCosmetologa; label: string; desc: string }[] =
 
 export default function Signup() {
   const { user, register } = useAuth();
+  const [pendingConsent, setPendingConsent] = useState<{ consent: typeof consent; ip: string } | null>(null);
+
+  useEffect(() => {
+    if (user && pendingConsent) {
+      storeSignupConsent(user.id, user.name || form.name, pendingConsent.consent, pendingConsent.ip)
+        .catch(() => {});
+      setPendingConsent(null);
+    }
+  }, [user, pendingConsent]); // eslint-disable-line react-hooks/exhaustive-deps
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ email: "", password: "", name: "", businessName: "", phone: "" });
@@ -31,16 +41,18 @@ export default function Signup() {
   const [inviteError, setInviteError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [consent, setConsent] = useState({ privacy: false, terms: false, retention: false });
 
   if (user) return <Navigate to="/app" replace />;
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
-  // Steps: 1=credentials, 2=business, 3=tipo, 4=submódulos(cosmet only), N-1=invite, N=plan
-  const totalSteps = tipoNegocio === "cosmetologa" ? 6 : 5;
-  const inviteStep = totalSteps - 1;
-  const planStep = totalSteps;
+  // Steps: 1=credentials, 2=business, 3=tipo, 4=submódulos(cosmet only), N-2=invite, N-1=plan, N=consentimiento
+  const totalSteps = tipoNegocio === "cosmetologa" ? 7 : 6;
+  const inviteStep = totalSteps - 2;
+  const planStep = totalSteps - 1;
+  const consentStep = totalSteps;
 
   const canNext = () => {
     if (step === 1) return form.email.includes("@") && form.password.length >= 6;
@@ -48,6 +60,7 @@ export default function Signup() {
     if (step === 3) return !!tipoNegocio;
     if (step === 4 && tipoNegocio === "cosmetologa") return submodulos.length > 0;
     if (step === inviteStep) return inviteCode.trim().length > 0;
+    if (step === consentStep) return consent.privacy && consent.terms && consent.retention;
     return true;
   };
 
@@ -65,8 +78,11 @@ export default function Signup() {
 
     if (step < totalSteps) { setStep(step + 1); return; }
 
-    // Final step: create account
+    // Final step: create account + store consent
     setSubmitting(true);
+    let ip = "desconocida";
+    try { const r = await fetch("https://api.ipify.org?format=json"); const d = await r.json(); ip = d.ip; } catch {}
+
     const err = await register({
       email: form.email, password: form.password, name: form.name,
       businessName: form.businessName, phone: form.phone, plan, tipoNegocio,
@@ -74,6 +90,8 @@ export default function Signup() {
     });
     setSubmitting(false);
     if (err) return setError(err);
+    // Store consent — user is set in context after register(); access via pending state
+    setPendingConsent({ consent, ip });
     navigate("/app");
   };
 
@@ -171,8 +189,8 @@ export default function Signup() {
       </div>
     );
 
-    // Plan step (last)
-    return (
+    // Plan step
+    if (step === planStep) return (
       <div className="grid grid-cols-3 gap-2">
         {(["basic", "pro", "premium"] as Plan[]).map((p) => (
           <button type="button" key={p} onClick={() => setPlan(p)}
@@ -188,6 +206,44 @@ export default function Signup() {
         ))}
       </div>
     );
+
+    // Consent step (last)
+    return (
+      <div className="space-y-3">
+        <div className="rounded-xl border bg-primary/5 p-3 flex items-start gap-2.5">
+          <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground">Lee y acepta los documentos legales para completar tu registro. Son obligatorios para usar SomaOS.</p>
+        </div>
+        {[
+          {
+            key: "privacy" as const,
+            label: "Acepto la Política de Privacidad",
+            detail: <>He leído y acepto la <Link to="/privacidad" target="_blank" className="text-primary hover:underline">Política de Privacidad</Link> de SomaOS (Ley 19.628, Chile).</>,
+          },
+          {
+            key: "terms" as const,
+            label: "Acepto los Términos de Servicio",
+            detail: <>He leído y acepto los <Link to="/terminos" target="_blank" className="text-primary hover:underline">Términos de Servicio</Link> de SomaOS, incluyendo mis obligaciones como profesional de salud.</>,
+          },
+          {
+            key: "retention" as const,
+            label: "Acepto la política de retención de datos",
+            detail: "Entiendo que mis datos y los de mis pacientes se conservarán durante 30 días tras cancelar mi cuenta, y luego serán eliminados definitivamente.",
+          },
+        ].map(({ key, label, detail }) => (
+          <label key={key} className={cn("flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors", consent[key] ? "border-primary bg-primary/5" : "hover:bg-muted/30")}>
+            <input type="checkbox" className="mt-0.5 accent-primary shrink-0" checked={consent[key]} onChange={e => setConsent(c => ({ ...c, [key]: e.target.checked }))} />
+            <div>
+              <div className="text-sm font-medium">{label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{detail}</div>
+            </div>
+          </label>
+        ))}
+        <p className="text-[11px] text-muted-foreground text-center">
+          Se registrará la fecha, hora e IP de tu aceptación como evidencia legal.
+        </p>
+      </div>
+    );
   };
 
   const stepTitles: Record<number, string> = {
@@ -196,7 +252,8 @@ export default function Signup() {
     3: "Tipo de negocio",
     4: tipoNegocio === "cosmetologa" ? "Submódulos" : "Código de invitación",
     5: tipoNegocio === "cosmetologa" ? "Código de invitación" : "Elige tu plan",
-    6: "Elige tu plan",
+    6: tipoNegocio === "cosmetologa" ? "Elige tu plan" : "Documentos legales",
+    7: "Documentos legales",
   };
   const stepSubtitles: Record<number, string> = {
     1: "Empieza en menos de 2 minutos",
@@ -204,7 +261,8 @@ export default function Signup() {
     3: "Personalizamos el dashboard a tu profesión",
     4: tipoNegocio === "cosmetologa" ? "Áreas que trabajas" : "Solo para profesionales invitadas",
     5: tipoNegocio === "cosmetologa" ? "Solo para profesionales invitadas" : "Puedes cambiarlo cuando quieras",
-    6: "Puedes cambiarlo cuando quieras",
+    6: tipoNegocio === "cosmetologa" ? "Puedes cambiarlo cuando quieras" : "Requerido para completar el registro",
+    7: "Requerido para completar el registro",
   };
 
   return (
@@ -225,7 +283,7 @@ export default function Signup() {
               <ArrowLeft className="h-3.5 w-3.5 mr-1" />Volver
             </Button>
             <Button type="submit" disabled={!canNext() || submitting}>
-              {submitting ? "Creando…" : step < totalSteps ? <>Continuar <ArrowRight className="h-4 w-4 ml-1.5" /></> : "Crear cuenta"}
+              {submitting ? "Creando…" : step < totalSteps ? <>Continuar <ArrowRight className="h-4 w-4 ml-1.5" /></> : <>Crear cuenta <Check className="h-4 w-4 ml-1.5" /></>}
             </Button>
           </div>
         </form>

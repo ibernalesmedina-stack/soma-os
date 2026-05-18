@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2, ShieldCheck, FlaskConical } from "lucide-react";
+import { Globe, Copy, ExternalLink, CreditCard, Mail, CheckCircle2, Loader2, ShieldCheck, FlaskConical, FileText } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Configuracion() {
@@ -181,6 +181,29 @@ export default function Configuracion() {
               checked={pm.transferencia}
               onChange={(v) => { update({ paymentMethods: { ...pm, transferencia: v } }); toast({ title: v ? "Transferencia activada" : "Transferencia desactivada" }); }}
             />
+          </div>
+        </section>
+
+        {/* Documentos legales y consentimiento */}
+        <section className="surface-card p-6">
+          <h3 className="font-semibold flex items-center gap-2"><ShieldCheck className="h-4 w-4" />Privacidad y documentos legales</h3>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">Accede a los documentos legales que aceptaste al registrarte y descarga tu certificado de consentimiento.</p>
+          <div className="flex flex-wrap gap-2">
+            <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
+              <FileText className="h-3.5 w-3.5" /> Política de Privacidad
+            </a>
+            <a href="/terminos" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
+              <FileText className="h-3.5 w-3.5" /> Términos de Servicio
+            </a>
+            <a href="/seguridad" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
+              <ShieldCheck className="h-3.5 w-3.5" /> Aviso de Seguridad
+            </a>
+            <Link to="/app/consentimiento" className="inline-flex items-center gap-1.5 text-xs border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
+              <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Descargar certificado de consentimiento
+            </Link>
+            <a href="/dpo" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs border rounded-md px-3 py-1.5 hover:bg-muted transition-colors text-muted-foreground">
+              Solicitar borrado de datos (DPO)
+            </a>
           </div>
         </section>
 

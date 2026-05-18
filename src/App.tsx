@@ -37,6 +37,9 @@ import Sitio from "./pages/Sitio";
 import SitioPaulette from "./pages/SitioPaulette";
 import Privacidad from "./pages/Privacidad";
 import Terminos from "./pages/Terminos";
+import Seguridad from "./pages/Seguridad";
+import Dpo from "./pages/Dpo";
+import ConsentCertificate from "./pages/app/ConsentCertificate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -91,6 +94,7 @@ const App = () => {
               <Route path="configuracion" element={<Configuracion />} />
               <Route path="integraciones" element={<Integraciones />} />
               <Route path="google-callback" element={<GoogleCallback />} />
+              <Route path="consentimiento" element={<ConsentCertificate />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminLayout />}>
@@ -111,6 +115,8 @@ const App = () => {
             <Route path="/s/:userId" element={<Sitio />} />
             <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/terminos" element={<Terminos />} />
+            <Route path="/seguridad" element={<Seguridad />} />
+            <Route path="/dpo" element={<Dpo />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

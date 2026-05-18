@@ -457,6 +457,36 @@ export const saveClientEmail = async (userId: string, email: string) => {
   if (error) throw error;
 };
 
+// ── Consentimiento de registro (signup) ───────────────────────────
+
+export const storeSignupConsent = async (
+  userId: string,
+  userName: string,
+  consent: { privacy: boolean; terms: boolean; retention: boolean },
+  ip?: string,
+): Promise<void> => {
+  await supabase.from("registros").insert({
+    id: uid(),
+    user_id: userId,
+    client_id: userId,
+    client_name: userName || "Usuario",
+    tipo: "consentimiento",
+    titulo: "Consentimiento de alta en SomaOS v1.0",
+    fecha: new Date().toISOString(),
+    data: {
+      privacy: consent.privacy,
+      terms: consent.terms,
+      retention: consent.retention,
+      ip: ip ?? "desconocida",
+      version: "1.0",
+      privacyVersion: "1.1",
+      termsVersion: "1.1",
+      timestamp: new Date().toISOString(),
+    },
+    notas: `Privacidad v1.1: ${consent.privacy} · Términos v1.1: ${consent.terms} · Retención 30d: ${consent.retention} · IP: ${ip ?? "desconocida"}`,
+  });
+};
+
 // ── Client Files (Supabase Storage) ───────────────────────────────
 
 export interface ClientFile {
