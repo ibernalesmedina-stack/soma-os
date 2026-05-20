@@ -40,6 +40,7 @@ import Terminos from "./pages/Terminos";
 import Seguridad from "./pages/Seguridad";
 import Dpo from "./pages/Dpo";
 import ConsentCertificate from "./pages/app/ConsentCertificate";
+import EmailPreview from "./pages/app/EmailPreview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -111,6 +112,7 @@ const App = () => {
               <Route path="integraciones" element={<Integraciones />} />
               <Route path="google-callback" element={<GoogleCallback />} />
               <Route path="consentimiento" element={<ConsentCertificate />} />
+              <Route path="email-preview" element={<EmailPreview />} />
             </Route>
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminLayout />}>

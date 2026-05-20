@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { Switch } from "@/components/ui/switch";
 import { PLAN_FEATURES } from "@/lib/plans";
 import { PlanLocked } from "@/components/PlanLocked";
-import { Mail, MessageCircle, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
+import { Mail, MessageCircle, CheckCircle2, XCircle, Clock, RefreshCw, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -82,6 +83,13 @@ export default function Automatizaciones() {
             <Switch checked={a.enabled} onCheckedChange={() => onToggle(a.id)} />
           </div>
         ))}
+      </div>
+
+      {/* Preview link */}
+      <div className="flex justify-end mb-2">
+        <Link to="/app/email-preview" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary border rounded-md px-3 py-1.5 transition-colors">
+          <Eye className="h-3.5 w-3.5" /> Ver diseño de emails
+        </Link>
       </div>
 
       {/* Email info box */}
