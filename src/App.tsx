@@ -35,6 +35,7 @@ import AdminIntegraciones from "./pages/admin/Integraciones";
 import AdminSitioEditor from "./pages/admin/SitioEditor";
 import Sitio from "./pages/Sitio";
 import SitioPaulette from "./pages/SitioPaulette";
+import Landing from "./pages/Landing";
 import Privacidad from "./pages/Privacidad";
 import Terminos from "./pages/Terminos";
 import Seguridad from "./pages/Seguridad";
@@ -93,7 +94,7 @@ const App = () => {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Navigate to="/app" replace />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />

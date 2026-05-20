@@ -12,6 +12,11 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
+        // Landing page tokens
+        cream: "hsl(var(--cream))",
+        ink: { DEFAULT: "hsl(var(--ink))", soft: "hsl(var(--ink-soft))" },
+        brand: { DEFAULT: "hsl(var(--brand))", soft: "hsl(var(--brand-soft))", glow: "hsl(var(--brand-glow))", 2: "hsl(var(--brand-2))" },
+        line: "hsl(var(--line))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -6,6 +6,16 @@
 
 @layer base {
   :root {
+    /* Landing page tokens */
+    --cream: 36 33% 97%;
+    --ink: 250 70% 9%;
+    --ink-soft: 252 22% 38%;
+    --brand: 230 39% 47%;
+    --brand-2: 230 39% 60%;
+    --brand-soft: 247 47% 91%;
+    --brand-glow: 230 60% 65%;
+    --line: 36 18% 89%;
+
     --background: 0 0% 100%;
     --foreground: 240 10% 8%;
 
