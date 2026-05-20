@@ -69,8 +69,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Demo switcher */}
-        <div className={cn("mt-auto border-t border-sidebar-border px-3 py-3", collapsed && "px-1.5")}>
+        {/* Demo switcher — solo visible para admin */}
+        {user?.role === "admin" && <div className={cn("mt-auto border-t border-sidebar-border px-3 py-3", collapsed && "px-1.5")}>
           {!collapsed && (
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 px-1">Vista de profesional</p>
           )}
@@ -94,7 +94,7 @@ export function AppSidebar() {
               );
             })}
           </div>
-        </div>
+        </div>}
 
       </SidebarContent>
     </Sidebar>
