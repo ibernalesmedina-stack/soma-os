@@ -392,6 +392,7 @@ const toIntegration = (r: any): ClientIntegration => ({
   calendar_status: r.calendar_status ?? (r.google_access_token || r.google_calendar_token ? "synced" : "disconnected"),
   webpay_merchant_code: r.webpay_merchant_code ?? "", webpay_api_key: r.webpay_api_key ?? "", webpay_status: r.webpay_status ?? "inactive",
   transfer_banco: r.transfer_banco ?? "", transfer_cuenta: r.transfer_cuenta ?? "", transfer_rut: r.transfer_rut ?? "", transfer_status: r.transfer_status ?? "unverified",
+  google_review_url: r.google_review_url ?? "",
   created_at: r.created_at, updated_at: r.updated_at,
 });
 
@@ -430,6 +431,7 @@ export const upsertIntegration = async (
       ...(patch.transfer_cuenta      !== undefined && { transfer_cuenta:      patch.transfer_cuenta }),
       ...(patch.transfer_rut         !== undefined && { transfer_rut:         patch.transfer_rut }),
       ...(patch.transfer_status      !== undefined && { transfer_status:      patch.transfer_status }),
+      ...(patch.google_review_url    !== undefined && { google_review_url:    patch.google_review_url }),
     },
     { onConflict: "user_id" },
   );

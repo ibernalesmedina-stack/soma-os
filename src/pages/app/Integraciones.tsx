@@ -20,6 +20,7 @@ const EMPTY: Omit<ClientIntegration, "id" | "user_id" | "created_at" | "updated_
   google_calendar_token: "", calendar_status: "disconnected",
   webpay_merchant_code: "", webpay_status: "inactive",
   transfer_banco: "", transfer_cuenta: "", transfer_rut: "", transfer_status: "unverified",
+  google_review_url: "",
 };
 
 type Status = "connected" | "pending" | "disconnected" | "synced" | "active" | "inactive" | "verified" | "unverified" | "error";
@@ -259,6 +260,20 @@ export default function Integraciones() {
               <Input placeholder="hola@tudominio.com" value={data.resend_email}
                 onChange={e => set("resend_email", e.target.value)} />
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs flex items-center gap-1.5">
+              <span>Link de Google Reviews</span>
+              <span className="text-muted-foreground font-normal">(opcional — para el email de seguimiento)</span>
+            </Label>
+            <Input
+              placeholder="https://g.page/r/tu-negocio/review"
+              value={data.google_review_url}
+              onChange={e => set("google_review_url", e.target.value)}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Encuéntralo en Google Maps → tu negocio → "Pedir reseñas". Si no lo tienes, el email usa una búsqueda de Google automática.
+            </p>
           </div>
           <div className="flex justify-end">
             <Button disabled={saving || (!data.resend_api_key && !data.resend_email)}

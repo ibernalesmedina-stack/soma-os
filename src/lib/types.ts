@@ -240,6 +240,8 @@ export interface ClientIntegration {
   transfer_cuenta: string;
   transfer_rut: string;
   transfer_status: "verified" | "unverified";
+  // Google Reviews
+  google_review_url: string;
   created_at: string;
   updated_at: string;
 }
