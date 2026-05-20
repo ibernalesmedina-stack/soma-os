@@ -457,6 +457,41 @@ export const saveClientEmail = async (userId: string, email: string) => {
   if (error) throw error;
 };
 
+// ── Email logs (stored in registros with tipo="email_log") ────────
+
+export interface EmailLog {
+  id: string;
+  userId: string;
+  reservaId?: string;
+  toEmail: string;
+  templateId: string;
+  status: "sent" | "failed";
+  resendId?: string;
+  error?: string;
+  createdAt: string;
+}
+
+export const listEmailLogs = async (userId: string, limit = 50): Promise<EmailLog[]> => {
+  const { data } = await supabase
+    .from("registros")
+    .select("id, user_id, client_id, client_name, titulo, fecha, data, notas")
+    .eq("user_id", userId)
+    .eq("tipo", "email_log")
+    .order("fecha", { ascending: false })
+    .limit(limit);
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    userId: r.user_id,
+    reservaId: r.data?.reserva_id,
+    toEmail: r.client_name,
+    templateId: r.titulo,
+    status: r.data?.status ?? "sent",
+    resendId: r.data?.resend_id,
+    error: r.data?.error,
+    createdAt: r.fecha,
+  }));
+};
+
 // ── Consentimiento de registro (signup) ───────────────────────────
 
 export const storeSignupConsent = async (

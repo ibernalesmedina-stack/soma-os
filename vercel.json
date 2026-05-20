@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/email/send",
+      "schedule": "0 12 * * *"
+    }
+  ],
   "routes": [
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
