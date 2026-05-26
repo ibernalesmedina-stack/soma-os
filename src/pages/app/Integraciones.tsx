@@ -152,7 +152,7 @@ export default function Integraciones() {
                     if (!user) return;
                     setTesting("domain-save");
                     try {
-                      const r = await fetch("/api/domain/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ domain: data.dominio, userId: user.id }) });
+                      const r = await fetch("/api/domain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "register", domain: data.dominio, userId: user.id }) });
                       if (!r.ok) { const e = await r.json(); throw new Error(e.error); }
                       setData(p => ({ ...p, domain_status: "pending" }));
                       toast({ title: "Dominio guardado ✓", description: "Configura el DNS y luego valida." });
@@ -167,7 +167,7 @@ export default function Integraciones() {
                     if (!user) return;
                     setTesting("domain");
                     try {
-                      const r = await fetch("/api/domain/validate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ domain: data.dominio, userId: user.id }) });
+                      const r = await fetch("/api/domain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "validate", domain: data.dominio, userId: user.id }) });
                       const result = await r.json();
                       setData(p => ({ ...p, domain_status: result.verified ? "connected" : "pending" }));
                       toast({ title: result.verified ? "¡Dominio conectado! ✓" : "DNS aún pendiente", description: result.verified ? `${data.dominio} está activo` : "Puede tardar hasta 48h en propagarse.", variant: result.verified ? "default" : "destructive" });
