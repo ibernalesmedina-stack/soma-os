@@ -133,10 +133,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const resetPassword = async (email: string): Promise<string | null> => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return error ? error.message : null;
+    try {
+      const res = await fetch("/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("Error al enviar");
+      return null;
+    } catch {
+      return "No se pudo enviar el correo. Intenta de nuevo.";
+    }
   };
 
   const update = async (patch: Partial<User>) => {
