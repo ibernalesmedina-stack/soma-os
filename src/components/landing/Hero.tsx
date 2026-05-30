@@ -37,7 +37,7 @@ export const Hero = () => {
           </motion.h1>
 
           <motion.p {...stagger(3)} className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed font-bold text-ink sm:text-xl">
-            <span className="text-brand">Lo dejamos operando solo en 7 días.</span> Soma automatiza reservas, pagos, recordatorios y seguimiento para que dejes de administrar tu negocio manualmente y vuelvas a enfocarte en <span className="underline decoration-brand decoration-2 underline-offset-4">atender.</span>
+            Soma automatiza reservas, pagos, recordatorios y reviews para que vuelvas a enfocarte en lo que importa: <span className="underline decoration-brand decoration-2 underline-offset-4">tu trabajo.</span> Implementado a tu medida en 7 días. <span className="text-brand">Tuyo para siempre.</span>
           </motion.p>
         </div>
 
@@ -106,7 +106,7 @@ export const Hero = () => {
             </a>
           </motion.div>
           <motion.p {...stagger(5)} className="mt-6 max-w-2xl text-base text-ink/70 sm:text-lg">
-            Implementación en 7 días · Sin contratos · Soporte continuo
+            Implementación en 7 días · Pago único · 30 días de garantía
           </motion.p>
         </div>
       </div>

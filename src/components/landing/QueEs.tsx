@@ -1,13 +1,16 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, Users, MessageCircle, LineChart, Settings, FileText } from "lucide-react";
+import { CalendarDays, Users, MessageCircle, LineChart, CreditCard, FileText, Star, Globe, BookOpen } from "lucide-react";
 
 const features = [
-  { icon: CalendarDays, title: "Agenda inteligente", desc: "Visualiza reservas, bloquea horarios y administra disponibilidad en tiempo real." },
-  { icon: Users, title: "Gestión de clientes", desc: "Accede a historial, notas, pagos y seguimiento desde un solo panel." },
-  { icon: MessageCircle, title: "Automatización de mensajes", desc: "WhatsApp y emails automáticos antes y después de cada cita." },
-  { icon: LineChart, title: "Control financiero", desc: "Visualiza ingresos, pagos pendientes y rendimiento semanal o mensual." },
-  { icon: Settings, title: "Administración de servicios", desc: "Agrega, edita o elimina servicios y actualiza automáticamente tu sitio." },
-  { icon: FileText, title: "Integración tributaria", desc: "Conecta pagos y emisión automática de boletas mediante SII." },
+  { icon: Globe, title: "Sitio web profesional", desc: "Diseñado a tu marca, no un template. Tu negocio se ve serio desde el primer clic." },
+  { icon: CalendarDays, title: "Agenda inteligente", desc: "Tus clientes reservan online 24/7 y se sincroniza automáticamente con Google Calendar." },
+  { icon: CreditCard, title: "Cobros automáticos", desc: "WebPay y Mercado Pago integrados. Cobras al momento de la reserva, sin perseguir a nadie." },
+  { icon: MessageCircle, title: "Recordatorios automáticos", desc: "WhatsApp y email antes de cada cita. Bajas ausencias y dejas de responder confirmaciones." },
+  { icon: Star, title: "Reviews automáticos en Google", desc: "15 días después de la cita, pedimos review en tu perfil. Solo a clientes nuevos." },
+  { icon: FileText, title: "Boletas SII automáticas", desc: "Emisión electrónica al confirmar pago. Cumples con tributario sin pensarlo." },
+  { icon: Users, title: "Base de datos de clientes", desc: "Historial completo, notas, frecuencia. Para que sepas quién es quién y vuelvas a contactarlos." },
+  { icon: LineChart, title: "Panel de control", desc: "Ingresos, sesiones, clientes y métricas en tiempo real. Sabes cómo va tu negocio." },
+  { icon: BookOpen, title: "Capacitación incluida", desc: "Sesión 1-a-1 grabada para que aprendas en 20 minutos. Tu equipo también puede verla." },
 ];
 
 export const QueEs = () => {
@@ -22,12 +25,12 @@ export const QueEs = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-3xl text-center"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Lo que puedes hacer con Soma</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Todo lo que incluye</p>
           <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.1] text-ink sm:text-5xl lg:text-[48px]">
-            Un sistema que trabaja <span className="text-brand">en segundo plano.</span>
+            Un sistema completo, <span className="text-brand">no una herramienta más.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-ink/80 sm:text-xl">
-            Soma conecta todo lo que hoy haces manualmente en un solo flujo automatizado. Tus clientes reservan, pagan y reciben recordatorios mientras tú recuperas tu tiempo. Todo desde un solo lugar.
+            No es un software con mensualidad ni una app que tienes que aprender. Es el sistema completo de tu negocio, configurado a tu medida y listo para usar.
           </p>
         </motion.div>
 

@@ -10,7 +10,7 @@ export const Footer = () => {
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-cream text-ink text-sm font-bold">S</span>
               <span className="text-lg font-bold tracking-tight text-cream">SomaOS</span>
             </div>
-            <p className="mt-3 text-sm text-cream/60">Un sistema vivo que organiza tu negocio.</p>
+            <p className="mt-3 text-sm text-cream/60">El sistema completo de tu negocio. Tuyo para siempre.</p>
           </div>
           <div className="flex items-center gap-2">
             <a

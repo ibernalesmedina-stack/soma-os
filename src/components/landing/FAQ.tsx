@@ -5,14 +5,14 @@ import { MessageCircle } from "lucide-react";
 const WHATSAPP_URL = "https://wa.me/56990797847?text=Hola%20SomaOS%2C%20quiero%20conversar";
 
 const faqs = [
-  { q: "¿Necesito saber de tecnología?", a: "No. Nosotros configuramos todo. Tú solo aprendes a usarlo —se aprende en 20 minutos." },
-  { q: "¿Por qué se paga una mensualidad?", a: "El pago inicial cubre la implementación completa: diseño, sitio web, integraciones y capacitación. La mensualidad de $12.990 cubre lo que mantiene tu sistema funcionando todos los días: hosting, dominio, WhatsApp API, respaldos, actualizaciones y soporte técnico. Son costos que cualquier negocio digital tiene —la diferencia es que nosotros los manejamos por ti." },
-  { q: "¿Qué pasa si dejo de pagar la mensualidad?", a: "Te enviamos un respaldo completo de tu base de datos (clientes, reservas, historial). El sitio queda inactivo, pero guardado. Si más adelante quieres reactivarlo, lo hacemos por $29.000 y todos tus datos siguen ahí esperando." },
-  { q: "¿Cuánto demora la implementación?", a: "7 días hábiles desde que recibimos los accesos y la información que necesitamos." },
-  { q: "¿Hay permanencia mínima o contrato?", a: "No. Cancelas cuando quieras, sin multas ni letra chica. Solo te pedimos avisarnos con 7 días para procesar el cierre." },
-  { q: "¿El precio de la mensualidad puede subir?", a: "Si subimos el precio, te avisamos con 60 días de anticipación. Si no estás de acuerdo, puedes cancelar sin costo. Nunca subimos precios sin avisar." },
-  { q: "¿Qué incluye el soporte mensual?", a: "Hasta 3 consultas técnicas al mes por WhatsApp o email, con respuesta en 24-48 horas hábiles. Resolvemos problemas, actualizaciones e integraciones que dejen de funcionar. Para rediseños grandes o nuevas funcionalidades, las cotizamos aparte." },
-  { q: "¿Atienden fuera de Chile?", a: "Por ahora trabajamos solo con profesionales en Chile (por integración con WebPay y SII). Estamos preparando expansión." },
+  { q: "¿Necesito saber de tecnología?", a: "No. Nosotros configuramos todo. Tú solo aprendes a usarlo en una sesión 1-a-1 de 45 minutos que dejamos grabada para que la veas cuando quieras." },
+  { q: "¿Hay mensualidad o costos ocultos?", a: "No. Pagas una sola vez $590.000 + IVA y el sistema es tuyo para siempre. Los únicos costos externos son el dominio web (~$12.000/año que pagas a Nic.cl) y las comisiones de WebPay (2.95% por transacción que cobra Transbank). Esos no van a nosotros, los pagas directo a esos servicios." },
+  { q: "¿Cómo se paga?", a: "50% al iniciar (al confirmar el proyecto) y 50% contra entrega (cuando recibes el sistema funcionando). Aceptamos transferencia bancaria, WebPay y Mercado Pago. Los $590.000 + IVA se pagan en pesos chilenos." },
+  { q: "¿Cuánto demora la implementación?", a: "7 días hábiles desde que recibimos los accesos y la información que necesitamos. Algunos casos toman 10 días si esperas integraciones de terceros (ej. activación de WhatsApp Business API)." },
+  { q: "¿Qué pasa si quiero cambios después?", a: "Tienes 30 días de soporte post-entrega incluidos: ajustes de copy, precios, servicios o horarios sin costo. Cambios mayores (rediseño, nuevas funcionalidades) se cotizan aparte." },
+  { q: "¿El sistema queda a mi nombre?", a: "Sí. El sitio queda alojado a tu nombre con tu dominio. La base de datos es tuya. Si en algún momento quieres migrarlo a otro proveedor, te entregamos todo en un respaldo. No estás amarrado a nosotros." },
+  { q: "¿Atienden fuera de Chile?", a: "Por ahora trabajamos solo con profesionales en Chile, porque las integraciones con WebPay y boletas SII son específicas para Chile. Estamos preparando expansión a otros países." },
+  { q: "¿Tienen garantía?", a: "Sí. 30 días después de la entrega. Si el sistema no funciona como prometemos, te devolvemos el 100% del pago. Sin formularios ni excusas." },
 ];
 
 export const FAQ = () => {
