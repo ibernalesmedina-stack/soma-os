@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, MessageCircle, Sparkles, Heart, Activity, Stethoscope, Star, ExternalLink, Check, Sprout, Apple, Dumbbell, Instagram as InstagramIcon } from "lucide-react";
 
-const heroImg = "/paulette-hero-new.jpg";
-const consultaImg = "/paulette-perfil.jpg";
+const heroImg = "/paulette-consulta.jpg";
+const consultaImg = "/paulette-laptop.jpg";
 const runningImg = "/paulette-running.jpg";
 const mayneLogo = "/mayne-performance-logo.png";
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=elliot+nutrition+google#lrd=0x9689c39f59a34a27:0x9f6d29dd3dcbc2ca,1,,,,";
 
 const SITE_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&family=Roboto:wght@300;400;500;700&display=swap');
+
   .paulette-site {
     --en-emerald-deep: oklch(0.28 0.06 165);
     --en-emerald: oklch(0.45 0.10 165);
@@ -22,7 +24,11 @@ const SITE_STYLES = `
     --en-fg: oklch(0.20 0.04 165);
     background-color: var(--en-cream);
     color: var(--en-fg);
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Roboto', system-ui, sans-serif;
+  }
+  .paulette-site h1, .paulette-site h2, .paulette-site h3,
+  .paulette-site .en-serif {
+    font-family: 'Barlow', sans-serif !important;
   }
   @keyframes en-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
   @keyframes en-reviews-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
@@ -113,7 +119,7 @@ function Hero() {
           <span className="inline-flex items-center gap-2 rounded-full px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs uppercase tracking-[0.18em]" style={{ border: "1px solid oklch(0.75 0.12 85 / 0.3)", background: "oklch(0.75 0.12 85 / 0.1)", color: "var(--en-gold)" }}>
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Nutricionista · Presencial y Online
           </span>
-          <h1 className="mt-5 sm:mt-6 text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl xl:text-8xl sm:leading-[0.95] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h1 className="mt-5 sm:mt-6 text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl xl:text-8xl sm:leading-[0.95] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Transforma tu salud con <em style={{ color: "var(--en-gold)" }}>hábitos reales</em> y sostenibles.
           </h1>
           <p className="mt-6 sm:mt-8 max-w-xl text-base sm:text-lg leading-relaxed" style={{ color: "oklch(0.97 0.02 90 / 0.75)" }}>
@@ -160,7 +166,7 @@ function Marquee() {
         {[...items, ...items, ...items].map((it, i) => {
           const Icon = it.i;
           return (
-            <span key={i} className="text-base sm:text-xl inline-flex items-center italic font-bold" style={{ color: "var(--en-emerald-deep)", fontFamily: "Georgia, serif" }}>
+            <span key={i} className="text-base sm:text-xl inline-flex items-center italic font-bold" style={{ color: "var(--en-emerald-deep)", fontFamily: "'Barlow', sans-serif" }}>
               {it.t} <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 ml-8 sm:ml-12" strokeWidth={1.8} style={{ color: "oklch(0.28 0.06 165 / 0.5)" }} />
             </span>
           );
@@ -180,18 +186,18 @@ function About() {
           </div>
         </div>
         <div className="lg:col-span-7 order-1 lg:order-2">
-          <h2 className="text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Sobre <em style={{ color: "var(--en-emerald)" }}>mí</em>.
           </h2>
           <div className="mt-8 space-y-5 leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.8)" }}>
             <p>Soy <strong style={{ color: "var(--en-emerald-deep)" }}>Paulette Elliot</strong>, nutricionista <strong style={{ color: "var(--en-emerald-deep)" }}>titulada de la Universidad Andrés Bello</strong>, con <strong style={{ color: "var(--en-emerald-deep)" }}>Diplomado en Nutrición Aplicada a la Actividad Física y el Deporte</strong> y <strong style={{ color: "var(--en-emerald-deep)" }}>+6 años de experiencia clínica</strong>.</p>
             <p>La nutrición deportiva ha sido una de mis mayores pasiones desde muy joven. Como atleta y con más de <strong style={{ color: "var(--en-emerald-deep)" }}>15 años en el mundo del running</strong>, viví en primera persona los desafíos que enfrenta quien busca rendir más y transformar sus hábitos.</p>
             <p>Por eso mi enfoque combina <strong style={{ color: "var(--en-emerald-deep)", fontWeight: 700 }}>ciencia, educación y hábitos sostenibles</strong>, entendiendo que cada proceso es distinto.</p>
-            <p className="text-xl lg:text-2xl leading-snug pt-2 italic" style={{ color: "var(--en-emerald-deep)", fontFamily: "Georgia, serif" }}>
+            <p className="text-xl lg:text-2xl leading-snug pt-2 italic" style={{ color: "var(--en-emerald-deep)", fontFamily: "'Barlow', sans-serif" }}>
               «Aquí no se trata de hacerlo perfecto. Se trata de construir algo que sí puedas mantener.»
             </p>
           </div>
-          <p className="mt-8 text-2xl italic" style={{ color: "var(--en-emerald-deep)", fontFamily: "Georgia, serif" }}>— Paulette Elliot B.</p>
+          <p className="mt-8 text-2xl italic" style={{ color: "var(--en-emerald-deep)", fontFamily: "'Barlow', sans-serif" }}>— Paulette Elliot B.</p>
         </div>
       </div>
     </section>
@@ -208,7 +214,7 @@ function Impact() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-6 text-center">
         {stats.map((s) => (
           <div key={s.l}>
-            <div className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-gold)" }}>{s.n}</div>
+            <div className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-gold)" }}>{s.n}</div>
             <p className="mt-2 text-sm uppercase tracking-wider" style={{ color: "oklch(0.97 0.02 90 / 0.7)" }}>{s.l}</p>
           </div>
         ))}
@@ -228,7 +234,7 @@ function Services() {
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <div className="max-w-3xl mx-auto text-center">
           <span className="text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>— Servicios de nutrición</span>
-          <h2 className="mt-4 text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="mt-4 text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Tres caminos, un solo <em style={{ color: "var(--en-emerald)" }}>propósito</em>.
           </h2>
           <p className="mt-5 text-base sm:text-lg max-w-xl mx-auto" style={{ color: "var(--en-muted)" }}>Nutrición deportiva, hábitos sostenibles y salud clínica. Cada plan se adapta a tu objetivo y estilo de vida.</p>
@@ -242,7 +248,7 @@ function Services() {
                 </div>
                 <span className="text-xs tabular-nums" style={{ color: "var(--en-muted)" }}>0{i + 1}</span>
               </div>
-              <h3 className="mt-8 text-3xl" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{s.title}</h3>
+              <h3 className="mt-8 text-3xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{s.title}</h3>
               <span className="mt-2 inline-block text-xs uppercase tracking-wider font-medium" style={{ color: "var(--en-gold)" }}>{s.tag}</span>
               <p className="mt-5 leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{s.desc}</p>
             </article>
@@ -267,15 +273,15 @@ function Approach() {
         </div>
         <div>
           <span className="text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>— Cómo trabajamos</span>
-          <h2 className="mt-4 text-4xl lg:text-5xl leading-[1.1] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="mt-4 text-4xl lg:text-5xl leading-[1.1] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Un plan que <em style={{ color: "var(--en-emerald)" }}>funciona</em> en tu vida real.
           </h2>
           <div className="mt-10 space-y-8">
             {steps.map((s) => (
               <div key={s.n} className="flex gap-6 pb-8 last:border-0" style={{ borderBottom: "1px solid var(--en-border)" }}>
-                <span className="text-3xl shrink-0 font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-gold)" }}>{s.n}</span>
+                <span className="text-3xl shrink-0 font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-gold)" }}>{s.n}</span>
                 <div>
-                  <h3 className="text-2xl" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{s.t}</h3>
+                  <h3 className="text-2xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{s.t}</h3>
                   <p className="mt-2" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{s.d}</p>
                 </div>
               </div>
@@ -298,7 +304,7 @@ function Pricing() {
     <section id="planes" className="py-14 lg:py-20" style={{ background: "oklch(0.88 0.07 130)" }}>
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <div className="text-center">
-          <h2 className="text-[2.5rem] sm:text-5xl lg:text-7xl leading-[1.02] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="text-[2.5rem] sm:text-5xl lg:text-7xl leading-[1.02] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Planes de <em style={{ color: "var(--en-emerald)" }}>nutrición</em>
           </h2>
           <p className="mt-5 sm:mt-6 max-w-2xl mx-auto text-base sm:text-lg" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>
@@ -316,11 +322,11 @@ function Pricing() {
           {plans.map((p) => (
             <article key={p.title} className="rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm" style={{ background: "var(--en-cream)" }}>
               <span className="self-start text-[10px] sm:text-xs uppercase tracking-[0.18em] rounded-full px-3 sm:px-4 py-1.5" style={{ background: "oklch(0.28 0.06 165 / 0.1)", color: "var(--en-emerald-deep)" }}>{p.tag}</span>
-              <h3 className="mt-5 text-3xl sm:text-4xl" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
+              <h3 className="mt-5 text-3xl sm:text-4xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
               <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{p.desc}</p>
               <div className="mt-6">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl sm:text-5xl lg:text-6xl font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{p.price[mode]}</span>
+                  <span className="text-4xl sm:text-5xl lg:text-6xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.price[mode]}</span>
                   <span className="text-xs uppercase tracking-wider" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>CLP</span>
                 </div>
                 <p className="mt-2 text-xs uppercase tracking-[0.16em] leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>{p.duration}</p>
@@ -340,7 +346,7 @@ function Pricing() {
           ))}
         </div>
         <div className="mt-16 text-center">
-          <h3 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>¿No sabes cuál elegir?</h3>
+          <h3 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>¿No sabes cuál elegir?</h3>
           <p className="mt-3" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>Escríbeme por WhatsApp y te oriento sin compromiso.</p>
           <a href="https://wa.me/56942156610" target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
             <MessageCircle className="h-4 w-4" /> Hablar por WhatsApp
@@ -375,12 +381,12 @@ function Testimonials() {
     <section id="resenas" className="py-12 lg:py-16" style={{ background: "var(--en-cream)" }}>
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="flex flex-col items-center text-center gap-4">
-          <h2 className="text-3xl lg:text-4xl leading-[1.1] max-w-2xl text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="text-3xl lg:text-4xl leading-[1.1] max-w-2xl text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Reseñas reales de pacientes de <em style={{ color: "var(--en-emerald)" }}>Elliot Nutrition</em>.
           </h2>
           <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 rounded-full px-4 py-2 shadow-sm" style={{ background: "var(--en-card)", border: "1px solid var(--en-border)" }}>
             <GoogleIcon />
-            <span className="text-lg leading-none font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{avg}</span>
+            <span className="text-lg leading-none font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{avg}</span>
             <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5" style={{ fill: "var(--en-gold)", color: "var(--en-gold)" }} />)}</div>
             <span className="text-xs inline-flex items-center gap-1 pl-3" style={{ borderLeft: "1px solid var(--en-border)", color: "var(--en-muted)" }}>
               Ver en Google <ExternalLink className="h-3 w-3" />
@@ -395,7 +401,7 @@ function Testimonials() {
                   <div className="flex">{[...Array(r.r)].map((_, k) => <Star key={k} className="h-4 w-4" style={{ fill: "var(--en-gold)", color: "var(--en-gold)" }} />)}</div>
                   <GoogleIcon />
                 </div>
-                <blockquote className="mt-3 leading-relaxed italic flex-1 text-base" style={{ color: "oklch(0.20 0.04 165 / 0.8)", fontFamily: "Georgia, serif" }}>"{r.q}"</blockquote>
+                <blockquote className="mt-3 leading-relaxed italic flex-1 text-base" style={{ color: "oklch(0.20 0.04 165 / 0.8)", fontFamily: "'Barlow', sans-serif" }}>"{r.q}"</blockquote>
                 <figcaption className="mt-4 pt-3 flex items-center justify-between" style={{ borderTop: "1px solid var(--en-border)" }}>
                   <span className="font-medium text-sm" style={{ color: "var(--en-emerald-deep)" }}>{r.a}</span>
                   <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--en-muted)" }}>{r.t}</span>
@@ -415,7 +421,7 @@ function Partner() {
       <div className="mx-auto max-w-6xl px-6 lg:px-10 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="order-2 lg:order-1">
           <span className="inline-block text-[11px] uppercase tracking-[0.3em]" style={{ color: "var(--en-gold)" }}>Alianza</span>
-          <h2 className="mt-4 text-4xl sm:text-5xl lg:text-6xl leading-[1.05] font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="mt-4 text-4xl sm:text-5xl lg:text-6xl leading-[1.05] font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Official Partner <br /><em style={{ color: "var(--en-gold)" }}>Nutrition &amp; Performance</em>
           </h2>
           <p className="mt-6 leading-relaxed text-lg" style={{ color: "oklch(0.97 0.02 90 / 0.8)" }}>
@@ -473,7 +479,7 @@ function CTA() {
       <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-10">
         <div className="text-center">
           <span className="inline-block text-[11px] uppercase tracking-[0.3em]" style={{ color: "var(--en-emerald)" }}>Reserva</span>
-          <h2 className="mt-3 text-[2rem] sm:text-5xl lg:text-6xl leading-none font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="mt-3 text-[2rem] sm:text-5xl lg:text-6xl leading-none font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Agenda tu <em style={{ color: "var(--en-emerald)" }}>consulta</em>
           </h2>
         </div>
@@ -535,7 +541,7 @@ function CTA() {
           <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
             <div className="flex items-baseline justify-between">
               <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total</span>
-              <span className="text-3xl font-bold" style={{ fontFamily: "Georgia, serif" }}>{formatCLP(currentPlan.price)}</span>
+              <span className="text-3xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
             </div>
             <button onClick={handleSubmit} className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
               Confirmar y agendar por WhatsApp <ArrowRight className="h-4 w-4" />
@@ -568,7 +574,7 @@ function InstagramFeed() {
           <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>
             <InstagramIcon className="h-4 w-4" /> Instagram
           </span>
-          <h2 className="text-3xl lg:text-5xl leading-[1.1] text-balance max-w-2xl font-bold" style={{ fontFamily: "Georgia, serif" }}>
+          <h2 className="text-3xl lg:text-5xl leading-[1.1] text-balance max-w-2xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             sígueme en <em style={{ color: "var(--en-emerald)" }}>@{handle}</em>
           </h2>
         </div>
