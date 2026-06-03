@@ -1,16 +1,16 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, Users, MessageCircle, LineChart, CreditCard, FileText, Star, Globe, BookOpen } from "lucide-react";
+import { Globe, BookOpen, CalendarDays, CreditCard, CalendarSync, MessageCircle, Star, LineChart, Users } from "lucide-react";
 
 const features = [
-  { icon: Globe, title: "Sitio web profesional", desc: "Diseñado a tu marca, no un template. Tu negocio se ve serio desde el primer clic." },
-  { icon: CalendarDays, title: "Agenda inteligente", desc: "Tus clientes reservan online 24/7 y se sincroniza automáticamente con Google Calendar." },
-  { icon: CreditCard, title: "Cobros automáticos", desc: "WebPay y Mercado Pago integrados. Cobras al momento de la reserva, sin perseguir a nadie." },
-  { icon: MessageCircle, title: "Recordatorios automáticos", desc: "WhatsApp y email antes de cada cita. Bajas ausencias y dejas de responder confirmaciones." },
-  { icon: Star, title: "Reviews automáticos en Google", desc: "15 días después de la cita, pedimos review en tu perfil. Solo a clientes nuevos." },
-  { icon: FileText, title: "Boletas SII automáticas", desc: "Emisión electrónica al confirmar pago. Cumples con tributario sin pensarlo." },
-  { icon: Users, title: "Base de datos de clientes", desc: "Historial completo, notas, frecuencia. Para que sepas quién es quién y vuelvas a contactarlos." },
-  { icon: LineChart, title: "Panel de control", desc: "Ingresos, sesiones, clientes y métricas en tiempo real. Sabes cómo va tu negocio." },
-  { icon: BookOpen, title: "Capacitación incluida", desc: "Sesión 1-a-1 grabada para que aprendas en 20 minutos. Tu equipo también puede verla." },
+  { icon: Globe, title: "Sitio web profesional", desc: "Diseñado a tu marca. Tu negocio se ve serio desde el primer clic." },
+  { icon: BookOpen, title: "Catálogo de servicios", desc: "Precios, descripciones, duración. Todo claro antes de reservar." },
+  { icon: CalendarDays, title: "Reservas online 24/7", desc: "Tus clientes agendan solos cuando quieran. Tú duermes." },
+  { icon: CreditCard, title: "Cobros automáticos", desc: "WebPay y Mercado Pago. Pagan al reservar, sin perseguir a nadie." },
+  { icon: CalendarSync, title: "Google Calendar sincronizado", desc: "Una sola agenda. Cero conflictos de horario." },
+  { icon: MessageCircle, title: "Recordatorios automáticos", desc: "WhatsApp y email antes de cada cita. Bajan las ausencias." },
+  { icon: Star, title: "Reviews en Google", desc: "Pedimos review 15 días después de la cita. Solo a clientes nuevos." },
+  { icon: LineChart, title: "Panel de control", desc: "Ingresos, sesiones, clientes. Sabes cómo va tu negocio en tiempo real." },
+  { icon: Users, title: "Base de datos de clientes", desc: "Historial, notas, frecuencia. Sabes quién es quién y vuelves a contactarlos." },
 ];
 
 export const QueEs = () => {
@@ -26,11 +26,11 @@ export const QueEs = () => {
           className="mx-auto max-w-3xl text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Todo lo que incluye</p>
-          <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.1] text-ink sm:text-5xl lg:text-[48px]">
-            Un sistema completo, <span className="text-brand">no una herramienta más.</span>
+          <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.05] text-ink sm:text-5xl lg:text-[48px]">
+            Un sistema completo. <span className="text-brand">Sin armar nada.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-ink/80 sm:text-xl">
-            No es un software con mensualidad ni una app que tienes que aprender. Es el sistema completo de tu negocio, configurado a tu medida y listo para usar.
+            No es una app más. Es tu negocio completo, configurado a tu medida y listo para usar.
           </p>
         </motion.div>
 

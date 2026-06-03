@@ -2,11 +2,11 @@ import { motion, useReducedMotion } from "framer-motion";
 import { AlertTriangle, Check, MessageSquare, CalendarX, CreditCard, BellOff, BarChart3, CalendarCheck, CreditCard as CreditCardOk, Bell, BarChart } from "lucide-react";
 
 const rows: { iconHoy: any; hoy: string; iconSoma: any; soma: string }[] = [
-  { iconHoy: MessageSquare, hoy: "Respondes WhatsApps todo el día para confirmar horas", iconSoma: CalendarCheck, soma: "Tus clientes agendan, pagan y confirman solos" },
-  { iconHoy: CalendarX, hoy: "Anotas reservas manualmente entre apps y cuadernos", iconSoma: CalendarCheck, soma: "Una sola agenda sincronizada con Google Calendar" },
-  { iconHoy: CreditCard, hoy: "Persigues pagos que olvidaste cobrar", iconSoma: CreditCardOk, soma: "Pagan al reservar, vía WebPay, automático" },
-  { iconHoy: BellOff, hoy: "Cancelaciones de último minuto sin aviso", iconSoma: Bell, soma: "Recordatorios automáticos por WhatsApp y email" },
-  { iconHoy: BarChart3, hoy: "Pierdes tiempo coordinando agendas y seguimiento", iconSoma: BarChart, soma: "Soma sigue trabajando incluso después de la cita" },
+  { iconHoy: MessageSquare, hoy: "WhatsApp infinito respondiendo horarios", iconSoma: CalendarCheck, soma: "Tus clientes agendan solos 24/7" },
+  { iconHoy: CalendarX, hoy: "Agenda en la cabeza, en notas y en Excel", iconSoma: CalendarCheck, soma: "Una sola agenda sincronizada con Google Calendar" },
+  { iconHoy: CreditCard, hoy: "Pagos que olvidas cobrar o cobras a destiempo", iconSoma: CreditCardOk, soma: "Pagan al reservar, automático" },
+  { iconHoy: BellOff, hoy: "Cancelaciones de último minuto sin aviso", iconSoma: Bell, soma: "Recordatorios automáticos por WhatsApp y mail" },
+  { iconHoy: BarChart3, hoy: "«¿Cuánto facturé este mes?» sin idea", iconSoma: BarChart, soma: "Dashboard con ingresos, clientes y sesiones en tiempo real" },
 ];
 
 export const Problema = () => {
@@ -29,17 +29,17 @@ export const Problema = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-3xl text-center"
         >
-          <h2 className="text-balance text-4xl font-bold leading-[1.1] sm:text-5xl lg:text-[48px]">
-            Tu negocio creció.{" "}
-            <span className="text-brand">Pero tu sistema no.</span>
+          <h2 className="text-balance text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-[48px]">
+            Trabajas más de lo necesario.{" "}
+            <span className="text-brand">Y lo sabes.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink/80 sm:text-xl">
-            Cada cliente nuevo significa más trabajo administrativo para ti. No necesitas trabajar más. Necesitas un sistema que opere por ti.
+            Cada hora respondiendo WhatsApp es una hora que no estás atendiendo. Cada cliente nuevo, más tareas que no te pagan.
           </p>
         </motion.div>
 
         <div className="relative mt-12">
-          {/* Vertical divider line, animated */}
+          {/* Vertical divider line — animated */}
           <motion.div
             initial={{ scaleY: 0 }}
             whileInView={{ scaleY: 1 }}

@@ -11,12 +11,9 @@ const incluye = [
   "Agenda sincronizada con Google Calendar",
   "Recordatorios automáticos por WhatsApp y email",
   "Reviews automáticos en tu Google Business",
-  "Boletas SII electrónicas automáticas",
   "Panel de control con ingresos, clientes y métricas",
   "Base de datos completa de clientes",
-  "Capacitación 1-a-1 grabada (45 min)",
   "30 días de soporte post-entrega",
-  "Garantía 30 días: si no funciona, te devolvemos el 100%",
 ];
 
 export const Planes = () => {
@@ -33,11 +30,11 @@ export const Planes = () => {
           className="mx-auto max-w-3xl text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Inversión</p>
-          <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.1] text-ink sm:text-5xl lg:text-[48px]">
-            Un solo pago. <span className="text-brand">Sin mensualidades.</span>
+          <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.05] text-ink sm:text-5xl lg:text-[48px]">
+            Un pago. <span className="text-brand">Tuyo para siempre.</span>
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-ink/80 sm:text-xl">
-            El sistema completo es tuyo. Sin software que renovar, sin cuotas escondidas, sin sorpresas en el segundo mes.
+            Sin mensualidades. Sin sorpresas. Lo construimos, te lo entregamos, y queda funcionando.
           </p>
         </motion.div>
 
@@ -49,20 +46,19 @@ export const Planes = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="relative mx-auto mt-12 max-w-3xl"
         >
-          {/* Glow background */}
           <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[28px] bg-brand-soft/40 blur-2xl" aria-hidden />
 
           <div className="relative overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_60px_rgba(11,7,38,0.10)]">
-            {/* Header con pago */}
+            {/* Header con precio */}
             <div className="border-b border-line bg-cream-soft px-8 pt-8 pb-7 sm:px-12">
               <div className="text-center">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Sistema completo SomaOS</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Sistema SomaOS completo</p>
                 <div className="mt-4 flex items-baseline justify-center gap-2">
                   <span className="text-6xl font-bold tracking-tight text-ink sm:text-7xl">$590.000</span>
                   <span className="text-base text-ink-soft">+ IVA</span>
                 </div>
                 <p className="mt-3 text-base text-ink-soft sm:text-lg">
-                  Pago único <span className="font-semibold text-ink">50% al iniciar · 50% contra entrega</span>
+                  Pago único · <span className="font-semibold text-ink">50% al iniciar · 50% contra entrega</span>
                 </p>
                 <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand-soft px-4 py-1.5 text-sm font-semibold text-brand">
                   <ShieldCheck className="h-4 w-4" />
@@ -109,18 +105,11 @@ export const Planes = () => {
           </div>
         </motion.div>
 
-        {/* Notas finales */}
-        <div className="mx-auto mt-8 max-w-3xl text-center">
-          <p className="text-sm text-ink-soft">
-            * El dominio web (~$12.000 CLP/año) y comisiones de pasarela de pago (WebPay 2.95% por transacción)
-            son costos externos que pagas directamente a esos proveedores.
-          </p>
-          <p className="mt-6 text-sm text-ink-soft">
-            ¿Tienes dudas?{" "}
-            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-brand hover:underline">
-              <MessageCircle className="h-3.5 w-3.5" /> Conversemos por WhatsApp
-            </a>
-          </p>
+        <div className="mt-8 text-center text-sm text-ink-soft">
+          ¿Tienes dudas?{" "}
+          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-brand hover:underline">
+            <MessageCircle className="h-3.5 w-3.5" /> Conversemos por WhatsApp
+          </a>
         </div>
       </div>
     </section>

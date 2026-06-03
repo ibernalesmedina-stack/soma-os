@@ -5,14 +5,14 @@ import { MessageCircle } from "lucide-react";
 const WHATSAPP_URL = "https://wa.me/56990797847?text=Hola%20SomaOS%2C%20quiero%20conversar";
 
 const faqs = [
-  { q: "¿Necesito saber de tecnología?", a: "No. Nosotros configuramos todo. Tú solo aprendes a usarlo en una sesión 1-a-1 de 45 minutos que dejamos grabada para que la veas cuando quieras." },
-  { q: "¿Hay mensualidad o costos ocultos?", a: "No. Pagas una sola vez $590.000 + IVA y el sistema es tuyo para siempre. Los únicos costos externos son el dominio web (~$12.000/año que pagas a Nic.cl) y las comisiones de WebPay (2.95% por transacción que cobra Transbank). Esos no van a nosotros, los pagas directo a esos servicios." },
-  { q: "¿Cómo se paga?", a: "50% al iniciar (al confirmar el proyecto) y 50% contra entrega (cuando recibes el sistema funcionando). Aceptamos transferencia bancaria, WebPay y Mercado Pago. Los $590.000 + IVA se pagan en pesos chilenos." },
-  { q: "¿Cuánto demora la implementación?", a: "7 días hábiles desde que recibimos los accesos y la información que necesitamos. Algunos casos toman 10 días si esperas integraciones de terceros (ej. activación de WhatsApp Business API)." },
-  { q: "¿Qué pasa si quiero cambios después?", a: "Tienes 30 días de soporte post-entrega incluidos: ajustes de copy, precios, servicios o horarios sin costo. Cambios mayores (rediseño, nuevas funcionalidades) se cotizan aparte." },
-  { q: "¿El sistema queda a mi nombre?", a: "Sí. El sitio queda alojado a tu nombre con tu dominio. La base de datos es tuya. Si en algún momento quieres migrarlo a otro proveedor, te entregamos todo en un respaldo. No estás amarrado a nosotros." },
-  { q: "¿Atienden fuera de Chile?", a: "Por ahora trabajamos solo con profesionales en Chile, porque las integraciones con WebPay y boletas SII son específicas para Chile. Estamos preparando expansión a otros países." },
-  { q: "¿Tienen garantía?", a: "Sí. 30 días después de la entrega. Si el sistema no funciona como prometemos, te devolvemos el 100% del pago. Sin formularios ni excusas." },
+  { q: "¿Necesito saber de tecnología?", a: "No. Configuramos todo nosotros. Tú aprendes a usarlo en 20 minutos." },
+  { q: "¿Hay mensualidad o costos ocultos?", a: "No. Pagas una vez y el sistema es tuyo. Sin suscripciones, sin sorpresas." },
+  { q: "¿Cómo se paga?", a: "50% al iniciar y 50% contra entrega. Aceptamos transferencia, WebPay y Mercado Pago." },
+  { q: "¿Cuánto demora la implementación?", a: "7 días hábiles desde que recibimos los accesos y la información." },
+  { q: "¿Qué pasa si quiero cambios después?", a: "Tienes 30 días de soporte post-entrega para ajustes. Cambios mayores se cotizan aparte." },
+  { q: "¿El sistema queda a mi nombre?", a: "Sí. Todo queda a tu nombre. Si quieres migrar a otro proveedor, te entregamos todo en respaldo." },
+  { q: "¿Atienden fuera de Chile?", a: "Por ahora solo Chile, por integraciones con WebPay y SII. Estamos preparando expansión." },
+  { q: "¿Tienen garantía?", a: "Sí. 30 días post-entrega. Si no funciona como prometemos, devolvemos el 100%." },
 ];
 
 export const FAQ = () => {
@@ -27,7 +27,7 @@ export const FAQ = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="text-center text-3xl font-bold leading-[1.1] text-ink sm:text-4xl"
         >
-          Preguntas <span className="text-brand">comunes</span>
+          Preguntas <span className="text-brand">frecuentes</span>
         </motion.h2>
 
         <Accordion type="single" collapsible className="mt-8 space-y-3">
@@ -57,10 +57,10 @@ export const FAQ = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="text-4xl font-bold leading-[1.05] text-ink sm:text-5xl"
         >
-          Deja de gestionar <span className="text-brand">manualmente.</span>
+          Deja de gestionar a mano.<br/><span className="text-brand">Empieza esta semana.</span>
         </motion.h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-          Empieza a operar como un negocio real. Te respondemos por WhatsApp y armamos tu sistema esta misma semana.
+        <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-ink/80">
+          Cuéntame por WhatsApp qué tipo de negocio tienes. Te respondo personalmente, sin formularios.
         </p>
         <motion.a
           whileHover={{ y: -2 }}

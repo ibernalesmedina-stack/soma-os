@@ -25,23 +25,23 @@ export const Hero = () => {
             <span className="text-base leading-none">🇨🇱</span> Operamos en Chile
           </motion.div>
           <motion.p {...stagger(1)} className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">
-            Para profesionales independientes
+            Sistema personalizado para profesionales independientes
           </motion.p>
 
           <motion.h1
             {...stagger(2)}
-            className="mt-4 text-balance text-4xl font-bold leading-[1.1] text-ink sm:text-5xl lg:text-6xl"
+            className="mt-4 text-balance text-4xl font-bold leading-[1.05] text-ink sm:text-5xl lg:text-6xl"
           >
-            Tu negocio debería funcionar{" "}
-            <span className="text-brand">aunque tú no estés.</span>
+            Tu negocio funcionando solo,{" "}
+            <span className="text-brand">en 7 días.</span>
           </motion.h1>
 
-          <motion.p {...stagger(3)} className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed font-bold text-ink sm:text-xl">
-            Soma automatiza reservas, pagos, recordatorios y reviews para que vuelvas a enfocarte en lo que importa: <span className="underline decoration-brand decoration-2 underline-offset-4">tu trabajo.</span> Implementado a tu medida en 7 días. <span className="text-brand">Tuyo para siempre.</span>
+          <motion.p {...stagger(3)} className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-ink/80 sm:text-xl">
+            Reservas, pagos y recordatorios automáticos. Tus clientes agendan solos, pagan al instante y reciben todo en su WhatsApp. <span className="font-semibold text-ink">Tú solo atiendes.</span>
           </motion.p>
         </div>
 
-        {/* Mockup */}
+        {/* Mockup — large */}
         <motion.div
           initial={reduce ? { opacity: 0 } : { opacity: 0, x: 40, rotate: 6 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
@@ -105,7 +105,7 @@ export const Hero = () => {
               <PlayCircle className="h-4 w-4" /> Ver cómo funciona
             </a>
           </motion.div>
-          <motion.p {...stagger(5)} className="mt-6 max-w-2xl text-base text-ink/70 sm:text-lg">
+          <motion.p {...stagger(5)} className="mt-6 max-w-2xl text-sm text-ink-soft">
             Implementación en 7 días · Pago único · 30 días de garantía
           </motion.p>
         </div>

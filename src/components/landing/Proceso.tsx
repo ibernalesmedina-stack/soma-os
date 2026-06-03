@@ -3,10 +3,10 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const steps = [
-  { n: "01", title: "El cliente agenda", desc: "Tu cliente entra al sitio, elige un servicio y reserva una hora disponible." },
-  { n: "02", title: "El sistema procesa todo", desc: "La hora se bloquea automáticamente, se registra el pago y se sincroniza con tu agenda." },
-  { n: "03", title: "Se envían confirmaciones", desc: "Cliente y profesional reciben emails y recordatorios automáticos." },
-  { n: "04", title: "El seguimiento ocurre solo", desc: "Soma continúa el contacto después de la cita para mejorar asistencia, fidelización y retorno." },
+  { n: "01", title: "Reservan online", desc: "Tu cliente entra a tu sitio, elige servicio y agenda en 1 minuto." },
+  { n: "02", title: "Pagan al instante", desc: "Cobras al reservar con WebPay o Mercado Pago. Sin perseguir a nadie." },
+  { n: "03", title: "Reciben todo", desc: "Confirmación, recordatorios y dirección, todo automático por WhatsApp y email." },
+  { n: "04", title: "Vuelven solos", desc: "15 días después: pedido automático de review. Y recordatorio para volver." },
 ];
 
 export const Proceso = () => {
@@ -30,11 +30,11 @@ export const Proceso = () => {
           className="mx-auto max-w-3xl text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">Cómo funciona</p>
-          <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.1] text-ink sm:text-5xl lg:text-[48px]">
-            Automatización real, <span className="text-brand">no solo una página web.</span>
+          <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.05] text-ink sm:text-5xl lg:text-[48px]">
+            Tu cliente reserva. <span className="text-brand">El sistema hace el resto.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-ink/80 sm:text-xl">
-            Cuando alguien agenda, el sistema hace todo el trabajo. Tú solo atiendes.
+            Esto es lo que pasa cada vez que alguien quiere reservar contigo. Sin que tú tengas que hacer nada.
           </p>
         </motion.div>
 

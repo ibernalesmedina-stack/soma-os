@@ -25,10 +25,10 @@ export const MockupClienta = () => {
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">No es un template</p>
           <h2 className="mt-4 text-balance text-4xl font-bold leading-[1.05] text-ink sm:text-5xl lg:text-[56px]">
-            Configuramos todo <span className="text-brand">para tu negocio.</span>
+            Hecho a tu marca, <span className="text-brand">no a la nuestra.</span>
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-ink-soft">
-            Tu marca, tus servicios, tus horarios, tus flujos. Implementamos el sistema completo y lo dejamos funcionando para ti.
+          <p className="mt-5 text-lg leading-relaxed text-ink/80 sm:text-xl">
+            Cada SomaOS es único. Lo diseñamos contigo, no con plantillas.
           </p>
         </Reveal>
 
