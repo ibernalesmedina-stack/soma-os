@@ -1,745 +1,640 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useState, useEffect } from "react";
+import { ArrowRight, MessageCircle, Sparkles, Heart, Activity, Stethoscope, Star, ExternalLink, Check, Sprout, Apple, Dumbbell, Instagram as InstagramIcon } from "lucide-react";
+
+const heroImg = "/paulette-hero-new.jpg";
+const consultaImg = "/paulette-perfil.jpg";
+const runningImg = "/paulette-running.jpg";
+const mayneLogo = "/mayne-performance-logo.png";
+
+const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=elliot+nutrition+google#lrd=0x9689c39f59a34a27:0x9f6d29dd3dcbc2ca,1,,,,";
+
+const SITE_STYLES = `
+  .paulette-site {
+    --en-emerald-deep: oklch(0.28 0.06 165);
+    --en-emerald: oklch(0.45 0.10 165);
+    --en-gold: oklch(0.75 0.12 85);
+    --en-gold-soft: oklch(0.92 0.06 90);
+    --en-cream: oklch(0.97 0.02 90);
+    --en-card: oklch(0.99 0.01 90);
+    --en-border: oklch(0.88 0.02 90);
+    --en-muted: oklch(0.45 0.03 165);
+    --en-secondary: oklch(0.93 0.03 90);
+    --en-fg: oklch(0.20 0.04 165);
+    background-color: var(--en-cream);
+    color: var(--en-fg);
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  @keyframes en-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+  @keyframes en-reviews-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+  .en-marquee { animation: en-scroll 22s linear infinite; }
+  .en-reviews { animation: en-reviews-scroll 60s linear infinite; }
+  .en-reviews:hover { animation-play-state: paused; }
+`;
+
+const PRICES = {
+  Presencial: {
+    nuevo: [
+      { name: "Consulta Inicial", price: 42000 },
+      { name: "Plan 3 Meses", price: 110000 },
+      { name: "Plan 6 Meses", price: 200000 },
+    ],
+    control: [{ name: "Control Nutricional", price: 40000 }],
+  },
+  Online: {
+    nuevo: [
+      { name: "Consulta Inicial", price: 38000 },
+      { name: "Plan 3 Meses", price: 100000 },
+      { name: "Plan 6 Meses", price: 180000 },
+    ],
+    control: [{ name: "Control Nutricional", price: 40000 }],
+  },
+} as const;
+
+const formatCLP = (n: number) => "$" + n.toLocaleString("es-CL");
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "behold-widget": { "feed-id": string };
+      "behold-widget": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & { "feed-id"?: string }, HTMLElement>;
     }
   }
 }
 
-interface Servicio {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  price_online: number;
-  duration_min: number;
-  modality: "presencial" | "online" | "ambos";
-  featured: boolean;
-}
-
-const USER_ID = "e84c4f11-50c2-4b6e-8c4b-055bb635edcd";
-const WA_BASE = "https://wa.me/56942156610";
-const wa = (msg: string) => `${WA_BASE}?text=${encodeURIComponent(msg)}`;
-const fmtCLP = (n: number) => "$" + n.toLocaleString("es-CL");
-
-// Static plan data with features
-const PLANS_DATA = [
-  {
-    id: "1m", tag: "Primer paso", name: "Consulta Inicial",
-    desc: "Ideal si quieres empezar y dejar de improvisar.",
-    prices: { presencial: 42000, online: 38000 },
-    meta: "60 minutos · pago único", featured: false,
-    feat: ["Evaluación inicial completa", "Plan personalizado", "Seguimiento incluido", "Recomendaciones prácticas", "Seguimiento vía WhatsApp (1 mes)"],
-  },
-  {
-    id: "3m", tag: "Más elegido", name: "Plan 3 Meses",
-    desc: "Para generar cambios reales y empezar a sostenerlos.",
-    prices: { presencial: 110000, online: 100000 },
-    meta: "2 consultas · seguimiento mensual", featured: true,
-    feat: ["Evaluación inicial + plan personalizado", "Seguimientos continuos", "Ajustes según tu progreso", "Acompañamiento cercano", "Material educativo incluido"],
-  },
-  {
-    id: "6m", tag: "Transformación", name: "Plan 6 Meses",
-    desc: "Para una transformación profunda y sostenible.",
-    prices: { presencial: 200000, online: 180000 },
-    meta: "5 consultas · proceso completo", featured: false,
-    feat: ["Evaluación inicial completa", "Plan + ajustes estratégicos", "Seguimiento constante", "Acompañamiento completo", "Parámetros bioquímicos"],
-  },
-];
-
-function Wave({ from, to, h = 70 }: { from: string; to: string; h?: number }) {
+export default function SitioPaulette() {
   return (
-    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"
-      style={{ display: "block", width: "100%", height: h, background: from, marginTop: -1, marginBottom: -1, position: "relative", zIndex: 5 }}>
-      <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1380,20 1440,40 L1440,80 L0,80 Z" fill={to} />
-    </svg>
+    <>
+      <style>{SITE_STYLES}</style>
+      <main className="paulette-site min-h-screen overflow-x-hidden">
+        <Nav />
+        <Hero />
+        <Marquee />
+        <About />
+        <Impact />
+        <Services />
+        <Approach />
+        <Pricing />
+        <Testimonials />
+        <Partner />
+        <CTA />
+        <InstagramFeed />
+        <Footer />
+      </main>
+    </>
   );
 }
 
-export default function SitioPaulette() {
-  const [servicios, setServicios] = useState<Servicio[]>([]);
-  const [modo, setModo] = useState<"presencial" | "online">("presencial");
-  const [plans, setPlans] = useState(PLANS_DATA);
-
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("servicios")
-        .select("id, name, description, price, price_online, duration_min, modality, featured")
-        .eq("user_id", USER_ID).eq("active", true).order("created_at");
-      if (data && data.length > 0) {
-        setServicios(data as Servicio[]);
-        const filtered = data.filter(s => !s.name.toLowerCase().includes("control"));
-        const tags = ["Primer paso", "Más elegido", "Transformación"];
-        const mapped = filtered.map((s, i) => {
-          const onlinePrice = s.price_online > 0 ? s.price_online : Math.round(s.price * 0.92);
-          const showPresencial = s.modality === "presencial" || s.modality === "ambos";
-          const showOnline = s.modality === "online" || s.modality === "ambos";
-          return {
-            id: s.id,
-            tag: tags[Math.min(i, 2)],
-            name: s.name,
-            desc: s.description || "",
-            prices: {
-              presencial: showPresencial ? s.price : 0,
-              online: showOnline ? onlinePrice : 0,
-            },
-            modality: s.modality,
-            meta: `${s.duration_min} minutos`,
-            featured: s.featured ?? (i === 1),
-            feat: PLANS_DATA[Math.min(i, 2)]?.feat ?? [],
-          };
-        });
-        if (mapped.length > 0) setPlans(mapped as typeof PLANS_DATA);
-      }
-    };
-    load();
-    const ch = supabase.channel("paulette-s")
-      .on("postgres_changes", { event: "*", schema: "public", table: "servicios", filter: `user_id=eq.${USER_ID}` }, load)
-      .subscribe();
-
-    // Load Behold Instagram widget script
-    if (!document.querySelector('script[src="https://w.behold.so/widget.js"]')) {
-      const s = document.createElement("script");
-      s.type = "module";
-      s.src = "https://w.behold.so/widget.js";
-      document.head.appendChild(s);
-    }
-
-    return () => { supabase.removeChannel(ch); };
-  }, []);
-
-  const css = `
-    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { overflow-x: hidden; }
-    .pe { font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; background: #f6f6ea; color: #474511; }
-    .pe a { text-decoration: none; }
-    .pe button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-    .pe img { display: block; max-width: 100%; }
-    .pe-serif { font-family: 'Instrument Serif', 'Times New Roman', serif; }
-    .pe-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
-    .pe-shell { width: min(100% - clamp(20px,4vw,56px) * 2, 1320px); margin: 0 auto; }
-    .pe-shell-md { width: min(100% - clamp(20px,4vw,56px) * 2, 1100px); margin: 0 auto; }
-
-    /* NAV */
-    .pe-nav { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); background: #f6f6ea; }
-    .pe-nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 0; }
-    .pe-nav-logo { height: 115px; width: auto; }
-    .pe-nav-links { display: flex; gap: 28px; }
-    .pe-nav-links a { position: relative; padding: 6px 0; color: rgba(71,69,17,0.75); font-size: 16px; font-weight: 600; transition: color .2s; }
-    .pe-nav-links a:hover { color: #474511; }
-    .pe-nav-btn { display: inline-flex; align-items: center; gap: 10px; padding: 11px 22px; border-radius: 999px; background: #d49930; color: #f6f6ea !important; font-size: 14px; font-weight: 500; transition: background .2s; }
-    .pe-nav-btn:hover { background: #333209; }
-    @media (max-width: 760px) { .pe-nav-links { display: none; } }
-
-    /* HERO */
-    .pe-hero { background: #474511; padding: clamp(48px,7vw,96px) 0 clamp(48px,6vw,80px); overflow: hidden; }
-    .pe-hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(32px,5vw,80px); align-items: end; }
-    .pe-hero-title { font-family: 'Instrument Serif', serif; font-size: clamp(52px,8.5vw,88px); line-height: 0.94; letter-spacing: -0.035em; color: #f6f6ea; font-weight: 400; margin: 0 0 28px; }
-    .pe-hero-title em { font-style: italic; color: rgba(246,246,234,0.85); }
-    .pe-hero-sub { font-size: 17px; line-height: 1.55; max-width: 46ch; color: rgba(246,246,234,0.88); margin: 0 0 32px; }
-    .pe-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
-    .pe-btn-lime { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; background: #deeca0; color: #3b5345 !important; font-size: 14px; font-weight: 500; transition: background .2s; }
-    .pe-btn-lime:hover { background: #e8f4b2; }
-    .pe-btn-ghost-lime { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; border: 1px solid #deeca0; color: #deeca0 !important; font-size: 14px; font-weight: 500; transition: all .2s; }
-    .pe-btn-ghost-lime:hover { background: #deeca0; color: #3b5345; }
-    .pe-hero-meta { margin-top: 36px; display: flex; align-items: center; gap: 18px; font-family: 'Geist Mono', monospace; font-size: 12px; color: rgba(246,246,234,0.7); letter-spacing: 0.04em; font-weight: 600; flex-wrap: wrap; }
-    .pe-hero-sep { width: 20px; height: 1px; background: currentColor; opacity: .5; flex-shrink: 0; }
-    .pe-hero-frame { position: relative; aspect-ratio: 4/5; background: rgba(222,236,160,0.25); border-radius: 180px 180px 24px 24px; overflow: hidden; max-width: 520px; margin-left: auto; width: 100%; }
-    .pe-hero-frame img { width: 100%; height: 100%; object-fit: cover; object-position: 52% 30%; }
-    .pe-hero-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(71,69,17,0.18)); pointer-events: none; }
-    @media (max-width: 960px) { .pe-hero-grid { grid-template-columns: 1fr; } .pe-hero-frame { max-width: 420px; margin: 0 auto; } }
-
-    /* ABOUT */
-    .pe-about { background: #f6f6ea; padding: clamp(80px,10vw,140px) 0; }
-    .pe-about-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(40px,6vw,100px); align-items: start; }
-    .pe-about-img { aspect-ratio: 4/5; border-radius: 24px; overflow: hidden; background: #deeca0; }
-    .pe-about-img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
-    .pe-about-eyebrow { color: #dba22d; font-size: 15px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 28px; }
-    .pe-about h2 { font-family: 'Instrument Serif', serif; font-size: clamp(42px,5.2vw,60px); line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 32px; }
-    .pe-about h2 em { font-style: italic; opacity: .75; }
-    .pe-about p { font-size: 17px; line-height: 1.65; opacity: .85; max-width: 52ch; margin: 0 0 18px; }
-    .pe-quote { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 22px; line-height: 1.35; padding: 16px 0 0; }
-    .pe-author { margin-top: 10px; font-size: 15px; font-weight: 500; opacity: .7; }
-    .pe-cta-gold { display: inline-flex; margin-top: 28px; background: #d49930; color: #f8f3e7 !important; padding: 14px 24px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s; }
-    .pe-cta-gold:hover { background: #c08a26; }
-    @media (max-width: 960px) { .pe-about-grid { grid-template-columns: 1fr; } }
-
-    /* STATS */
-    .pe-stats { background: #deeca0; padding: 8px 0 clamp(24px,3vw,40px); }
-    .pe-stats-intro { text-align: center; margin: 0 auto clamp(20px,2.5vw,32px); display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .pe-stats-lead { font-family: 'Instrument Serif', serif; font-size: clamp(22px,2.4vw,38px); line-height: 1.15; letter-spacing: -0.02em; max-width: 22ch; font-weight: 400; }
-    .pe-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; text-align: center; align-items: center; justify-items: center; max-width: 700px; margin: 0 auto; }
-    .pe-stat-num { font-family: 'Instrument Serif', serif; font-size: clamp(48px,6vw,84px); line-height: 1; letter-spacing: -0.035em; font-weight: 400; }
-    .pe-stat-sub { font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; opacity: .8; font-weight: 600; }
-
-    /* GOALS */
-    .pe-goals { background: #f6f6ea; padding: clamp(60px,8vw,120px) 0; }
-    .pe-goals-title { font-family: 'Instrument Serif', serif; font-size: clamp(32px,4vw,50px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 auto 14px; white-space: nowrap; }
-    .pe-goals-title em { font-style: italic; opacity: .75; }
-    .pe-goals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-top: 40px; }
-    .pe-goal-card { background: #fff; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; min-height: 360px; border: 1px solid rgba(71,69,17,0.12); position: relative; overflow: visible; transition: transform .25s ease; padding-top: 56px; margin-top: 34px; }
-    .pe-goal-card:hover { transform: translateY(-4px); }
-    .pe-goal-icon { position: absolute; top: -34px; left: 50%; transform: translateX(-50%); width: 68px; height: 90px; border-radius: 999px; display: grid; place-items: center; box-shadow: 0 8px 24px -12px rgba(71,69,17,0.4); }
-    .pe-goal-icon svg { width: 32px; height: 32px; }
-    .pe-goal-title { font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1.05; margin: 6px 0 12px; text-align: center; }
-    .pe-goal-text { font-size: 16px; color: rgba(71,69,17,0.8); line-height: 1.55; text-align: center; }
-    .pe-goal-foot { margin-top: auto; padding-top: 24px; border-top: 1px dashed rgba(71,69,17,0.18); font-family: 'Geist Mono', monospace; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(71,69,17,0.7); }
-    @media (max-width: 640px) { .pe-goals-grid { grid-template-columns: 1fr; } .pe-goals-title { white-space: normal; } }
-
-    /* PLANS */
-    .pe-plans { background: #cedc8f; color: #403c01; padding: clamp(60px,8vw,100px) 0; }
-    .pe-plans-title { font-family: 'Instrument Serif', serif; font-size: clamp(32px,4vw,52px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 auto 16px; font-weight: 400; }
-    .pe-plans-title em { font-style: italic; font-size: 50px; opacity: .75; }
-    .pe-toggle { display: inline-flex; background: #474511; border-radius: 999px; padding: 6px; }
-    .pe-toggle button { padding: 10px 22px; border-radius: 999px; font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(246,246,234,0.7); transition: background .2s, color .2s; font-weight: 500; }
-    .pe-toggle button.active { background: #deeca0; color: #474511; }
-    .pe-plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
-    .pe-plan { background: #f6f6ea; color: #403c01; border: 1px solid rgba(64,60,1,0.15); border-radius: 28px; padding: 32px 28px; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
-    .pe-plan:hover { transform: translateY(-4px); box-shadow: 0 30px 60px -40px rgba(0,0,0,.2); }
-    .pe-plan.featured { background: #6f8c2a; color: #f6f6ea; border-color: transparent; transform: translateY(-8px); }
-    .pe-plan.featured:hover { transform: translateY(-10px); }
-    .pe-plan-tag { align-self: flex-start; font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; background: rgba(64,60,1,0.12); color: #403c01; margin-bottom: 24px; }
-    .pe-plan.featured .pe-plan-tag { background: #deeca0; color: #403c01; }
-    .pe-plan-name { font-family: 'Instrument Serif', serif; font-size: 38px; line-height: 1; letter-spacing: -0.02em; margin: 0; }
-    .pe-plan-desc { font-size: 14px; margin: 12px 0 24px; max-width: 28ch; line-height: 1.5; opacity: .85; }
-    .pe-plan-price { font-family: 'Instrument Serif', serif; font-size: 52px; letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; display: flex; align-items: baseline; gap: 6px; }
-    .pe-plan-price small { font-family: 'Geist Mono', monospace; font-size: 12px; opacity: .6; letter-spacing: 0.06em; }
-    .pe-plan-meta { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 24px; opacity: .7; }
-    .pe-plan-feat { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.4; }
-    .pe-plan-feat li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: start; }
-    .pe-plan-feat li::before { content: "✓"; font-family: 'Geist Mono', monospace; font-size: 12px; color: #6f8c2a; padding-top: 1px; }
-    .pe-plan.featured .pe-plan-feat li::before { color: #deeca0; }
-    .pe-plan-btn { margin-top: auto; display: inline-flex; align-items: center; justify-content: space-between; background: #403c01; color: #f6f6ea !important; padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; gap: 10px; transition: transform .15s; width: 100%; text-decoration: none; }
-    .pe-plan.featured .pe-plan-btn { background: #f6f6ea; color: #403c01 !important; }
-    .pe-plan-btn:hover { transform: translateX(2px); }
-    .pe-plans-cta { margin: 0 auto; text-align: center; max-width: 560px; padding: 36px 32px; border-radius: 24px; background: #474511; color: #f6f6ea; position: relative; overflow: hidden; }
-    .pe-wa-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px; background: #25D366; color: #fff; font-size: 14px; font-weight: 600; transition: transform .15s, background .2s; }
-    .pe-wa-btn:hover { transform: translateY(-1px); background: #1fbe5a; }
-    @media (max-width: 960px) { .pe-plans-grid { grid-template-columns: 1fr; } .pe-plan.featured { transform: none; } }
-
-    /* REVIEWS */
-    .pe-reviews { background: #f6f6ea; color: #403c01; padding: clamp(40px,5vw,64px) 0; }
-    .pe-reviews-title { font-family: 'Instrument Serif', serif; font-size: clamp(28px,3.2vw,40px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 10px; font-weight: 400; }
-    .pe-reviews-title em { font-style: italic; opacity: .7; }
-    .pe-reviews-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    .pe-review { background: #fff; border: 1px solid rgba(64,60,1,0.12); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; }
-    .pe-review-stars { font-size: 18px; margin-bottom: 10px; letter-spacing: 0.15em; color: #f7cb96; }
-    .pe-review-quote { font-family: 'Instrument Serif', serif; font-size: 13.5px; line-height: 1.55; color: #403c01; flex: 1; }
-    .pe-review-who { margin-top: auto; padding-top: 14px; display: flex; align-items: center; gap: 12px; border-top: 1px solid rgba(64,60,1,0.15); }
-    .pe-review-avatar { width: 30px; height: 30px; border-radius: 999px; background: #f7cb96; color: #403c01; display: grid; place-items: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-    @media (max-width: 900px) { .pe-reviews-grid { grid-template-columns: repeat(2,1fr); } }
-    @media (max-width: 560px) { .pe-reviews-grid { grid-template-columns: 1fr; } }
-
-    /* CLOSING */
-    .pe-closing { padding: clamp(48px,6vw,80px) 0; text-align: center; background: #474511; color: #f6f6ea; }
-    .pe-closing h2 { font-family: 'Instrument Serif', serif; font-size: clamp(26px,3.2vw,40px); line-height: 1.25; letter-spacing: -0.015em; margin: 0 auto 28px; max-width: 48ch; font-weight: 400; }
-    .pe-closing h2 em { font-style: italic; color: #dba22d; }
-    .pe-closing-btn { display: inline-flex; align-items: center; background: #dba22d; color: #474511 !important; padding: 14px 28px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background .2s; }
-    .pe-closing-btn:hover { background: #e8b13f; }
-
-    /* BOOKING */
-    .pe-booking { background: #f6f6ea; color: #474511; padding: clamp(64px,8vw,100px) 0; }
-    .pe-booking-title { font-family: 'Instrument Serif', serif; font-size: clamp(36px,4vw,50px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 10px; font-weight: 600; }
-    .pe-booking-title em { font-style: italic; color: #dba22d; }
-    .pe-booking-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    .pe-booking-card { background: #e6decd; border-radius: 22px; padding: 28px 28px 30px; border: 1px solid rgba(71,69,17,0.08); }
-    .pe-booking-card-wide { grid-column: 1 / -1; }
-    .pe-step { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #dba22d; font-weight: 600; display: block; margin-bottom: 4px; }
-    .pe-booking-card-title { font-family: 'Instrument Serif', serif; font-size: 24px; margin: 0 0 22px; font-weight: 600; }
-    .pe-label { display: block; font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(71,69,17,0.65); font-weight: 500; margin: 18px 0 8px; }
-    .pe-field { background: #f6f6ea; border-radius: 10px; border: 1px solid rgba(71,69,17,0.1); }
-    .pe-field input, .pe-field select { width: 100%; padding: 13px 16px; border: 0; background: transparent; font: inherit; color: #474511; font-size: 14px; outline: none; -webkit-appearance: none; appearance: none; }
-    .pe-field input::placeholder { color: rgba(71,69,17,0.4); }
-    .pe-field:focus-within { border-color: #474511; box-shadow: 0 0 0 3px rgba(71,69,17,0.08); }
-    .pe-booking-total { margin-top: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #f6f6ea; border-radius: 14px; padding: 22px 26px; border: 1px solid rgba(71,69,17,0.08); }
-    .pe-pay-btn { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 18px 24px; background: #474511; color: #f6f6ea; border-radius: 999px; font-family: 'Geist Mono', monospace; font-size: 13px; letter-spacing: 0.14em; font-weight: 600; cursor: pointer; border: 0; transition: background .15s; }
-    .pe-pay-btn:hover { background: #5b5818; }
-    .pe-tipo-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
-    .pe-tipo-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px; border-radius: 12px; border: 2px solid rgba(71,69,17,0.15); background: #fff; cursor: pointer; transition: all .2s; text-align: center; }
-    .pe-tipo-btn.active { border-color: #474511; background: #deeca0; }
-    .pe-booking-plans { display: grid; gap: 8px; }
-    .pe-bplan { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 10px; background: #f6f6ea; border: 1px solid rgba(71,69,17,0.1); font-size: 14px; color: #474511; cursor: pointer; transition: border-color .15s, background .15s; text-align: left; }
-    .pe-bplan.active { border-color: #474511; background: #deeca0; }
-    .pe-bplan-price { color: #dba22d; font-weight: 600; }
-    .pe-bplan.active .pe-bplan-price { color: #474511; }
-    .pe-hours { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .pe-hour { padding: 12px 10px; background: #f6f6ea; border: 1px solid rgba(71,69,17,0.1); border-radius: 10px; font-size: 13px; color: #474511; cursor: pointer; font-family: 'Geist Mono', monospace; letter-spacing: 0.04em; transition: border-color .15s, background .15s; }
-    .pe-hour.active { background: #474511; color: #deeca0; border-color: #474511; }
-    @media (max-width: 760px) { .pe-booking-row { grid-template-columns: 1fr; } .pe-booking-total { flex-direction: column; align-items: flex-start; } .pe-hours { grid-template-columns: repeat(3,1fr); gap: 6px; } }
-
-    /* INSTAGRAM */
-    .pe-ig { background: #f6f6ea; padding: clamp(60px,8vw,100px) 0 clamp(48px,6vw,80px); }
-    .pe-ig h2 { font-family: 'Instrument Serif', serif; font-size: clamp(32px,4vw,48px); color: #474511; margin-top: 12px; font-weight: 400; }
-    .pe-ig h2 em { font-style: italic; }
-
-    /* FOOTER */
-    .pe-footer { background: #dba22d; color: #f6f6ea; padding: 48px 0 28px; }
-    .pe-footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
-    .pe-footer h4 { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin: 0 0 16px; font-weight: 600; }
-    .pe-footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-    .pe-footer a { color: #f6f6ea; transition: opacity .2s; font-size: 14px; }
-    .pe-footer a:hover { opacity: .7; }
-    .pe-footer-logo { display: block; margin-bottom: 18px; filter: brightness(0) invert(1); width: 155px; }
-    .pe-footer-social { display: flex; gap: 10px; margin-top: 16px; }
-    .pe-btn-ghost-footer { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; border: 1px solid rgba(246,246,234,0.6); color: #f6f6ea !important; font-size: 12px; font-weight: 500; transition: all .2s; }
-    .pe-btn-ghost-footer:hover { background: #f6f6ea; color: #dba22d; }
-    .pe-footer-bottom { display: flex; justify-content: space-between; padding-top: 24px; border-top: 1px solid rgba(246,246,234,0.3); font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.08em; font-weight: 600; text-transform: uppercase; }
-    @media (max-width: 960px) { .pe-footer-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 560px) { .pe-footer-grid { grid-template-columns: 1fr; } }
-
-    @media (max-width: 700px) { .pe-hero-meta { flex-direction: column; align-items: flex-start; gap: 10px; } .pe-hero-sep { display: none; } }
-  `;
-
-  // Booking state
-  const [bModo, setBModo] = useState<"presencial" | "online">("presencial");
-  const [bPlan, setBPlan] = useState("1m");
-  const [bTipo, setBTipo] = useState<"nuevo" | "control">("nuevo");
-  const [bDate, setBDate] = useState(() => { const d = new Date(); return d.toISOString().slice(0, 10); });
-  const [bHour, setBHour] = useState("");
-  const [bName, setBName] = useState(""); const [bRut, setBRut] = useState("");
-  const [bEmail, setBEmail] = useState(""); const [bPhone, setBPhone] = useState("");
-  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-
-  const allPlans = [
-    { id: "ctrl", name: "Control Nutricional", prices: { presencial: 40000, online: 40000 } },
-    ...plans.map(p => ({ id: p.id, name: p.name, prices: p.prices })),
-  ];
-  const visiblePlans = allPlans.filter(p => bTipo === "control" ? p.id === "ctrl" : p.id !== "ctrl");
-  const selPlan = allPlans.find(p => p.id === bPlan) ?? allPlans[1];
-  const totalAmount = fmtCLP(selPlan.prices[bModo]);
-
-  // Fetch available slots whenever date or tipo changes
-  useEffect(() => {
-    if (!bDate) return;
-    setLoadingSlots(true);
-    setBHour("");
-    const dur = bTipo === "control" ? 30 : 60;
-    fetch(`/api/booking/slots?date=${bDate}&duration=${dur}`)
-      .then(r => r.json())
-      .then(d => { setAvailableSlots(d.slots ?? []); })
-      .catch(() => setAvailableSlots([]))
-      .finally(() => setLoadingSlots(false));
-  }, [bDate, bTipo]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bHour) return;
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const res = await fetch("/api/booking/slots", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: bName, email: bEmail, phone: bPhone, rut: bRut,
-          date: bDate, hour: bHour,
-          esControl: bTipo === "control",
-          planId: selPlan.id, serviceName: selPlan.name,
-          amount: selPlan.prices[bModo], modo: bModo,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al agendar");
-      setSubmitted(true);
-    } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : "Error al agendar");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
+function Nav() {
   return (
-    <div className="pe">
-      <style>{css}</style>
+    <header className="absolute top-0 left-0 right-0 z-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex items-center justify-between gap-3">
+        <a href="#" style={{ color: "var(--en-cream)" }} className="min-w-0">
+          <span className="font-sans text-[13px] sm:text-lg lg:text-xl font-bold tracking-[0.14em] sm:tracking-[0.18em] whitespace-nowrap">ELLIOT NUTRITION</span>
+        </a>
+        <nav className="hidden md:flex items-center gap-8 text-sm">
+          {["#sobre|Sobre mí", "#servicios|Servicios", "#enfoque|Enfoque", "#resenas|Reseñas"].map((item) => {
+            const [href, label] = item.split("|");
+            return <a key={href} href={href} style={{ color: "var(--en-gold)" }} className="hover:opacity-80 transition-opacity">{label}</a>;
+          })}
+        </nav>
+        <a href="#agenda" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap shrink-0 transition-colors" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+          Reservar <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+        </a>
+      </div>
+    </header>
+  );
+}
 
-      {/* NAV */}
-      <header className="pe-nav" id="top">
-        <div className="pe-shell pe-nav-inner">
-          <a href="#top"><img src="/logo-elliot-nutri.svg" alt="Elliot Nutri" className="pe-nav-logo" /></a>
-          <nav className="pe-nav-links">
-            <a href="#sobre">Sobre mí</a>
-            <a href="#servicios">Servicios</a>
-            <a href="#programas">Programas</a>
-            <a href="#reseñas">Reseñas</a>
-          </nav>
-          <a href="#agenda" className="pe-nav-btn">Reserva hora →</a>
+function Hero() {
+  return (
+    <section className="relative overflow-hidden pt-28 sm:pt-32 pb-14 sm:pb-16 lg:pt-40 lg:pb-20" style={{ background: "linear-gradient(180deg, oklch(0.20 0.05 165) 0%, oklch(0.28 0.06 165) 60%)", color: "var(--en-cream)" }}>
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, var(--en-gold) 1px, transparent 1px), radial-gradient(circle at 80% 70%, var(--en-gold) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 grid lg:grid-cols-12 gap-10 items-center">
+        <div className="lg:col-span-7">
+          <span className="inline-flex items-center gap-2 rounded-full px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs uppercase tracking-[0.18em]" style={{ border: "1px solid oklch(0.75 0.12 85 / 0.3)", background: "oklch(0.75 0.12 85 / 0.1)", color: "var(--en-gold)" }}>
+            <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Nutricionista · Presencial y Online
+          </span>
+          <h1 className="mt-5 sm:mt-6 text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl xl:text-8xl sm:leading-[0.95] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Transforma tu salud con <em style={{ color: "var(--en-gold)" }}>hábitos reales</em> y sostenibles.
+          </h1>
+          <p className="mt-6 sm:mt-8 max-w-xl text-base sm:text-lg leading-relaxed" style={{ color: "oklch(0.97 0.02 90 / 0.75)" }}>
+            Consulta nutricional presencial u online con Paulette Elliot. Planes de nutrición personalizados para rendimiento deportivo, composición corporal y salud clínica. Boleta válida para Isapre.
+          </p>
+          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <a href="#agenda" className="inline-flex items-center justify-center gap-2 rounded-full px-6 sm:px-7 py-3.5 text-sm font-medium transition-all hover:scale-[1.02]" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+              Reserva tu hora <ArrowRight className="h-4 w-4" />
+            </a>
+            <a href="#servicios" className="inline-flex items-center justify-center gap-2 rounded-full px-6 sm:px-7 py-3.5 text-sm font-medium transition-colors" style={{ border: "1px solid oklch(0.97 0.02 90 / 0.3)", color: "var(--en-cream)" }}>
+              Ver programas
+            </a>
+          </div>
+          <ul className="mt-10 sm:mt-14 flex flex-col gap-3 text-[11px] sm:text-xs uppercase tracking-[0.16em]" style={{ color: "oklch(0.97 0.02 90 / 0.7)" }}>
+            {["Atención personalizada", "Enfoque científico", "Acompañamiento cercano"].map((t) => (
+              <li key={t} className="flex items-center gap-3">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full shrink-0" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+                  <Check className="h-3 w-3" strokeWidth={3} />
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
         </div>
-      </header>
-
-      <Wave from="#f6f6ea" to="#474511" />
-
-      {/* HERO */}
-      <section className="pe-hero" id="hero">
-        <div className="pe-shell hero-grid" style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: "clamp(32px,5vw,80px)", alignItems: "end" }}>
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <h1 className="pe-hero-title">
-              Transforma tu<br />salud desde<br /><em>hábitos reales</em><br />y sostenibles.
-            </h1>
-            <p className="pe-hero-sub">Nutrición cercana, profesional y adaptada a tu vida. Sin extremos, sin culpa, con resultados que sí puedes mantener.</p>
-            <div className="pe-hero-ctas">
-              <a href="#agenda" className="pe-btn-lime">Reserva hora</a>
-              <a href="#programas" className="pe-btn-ghost-lime">Ver programa</a>
-            </div>
-            <div className="pe-hero-meta">
-              <span>Atención personalizada</span><span className="pe-hero-sep" />
-              <span>Enfoque realista</span><span className="pe-hero-sep" />
-              <span>Acompañamiento cercano</span>
-            </div>
-          </div>
-          <div>
-            <div className="pe-hero-frame">
-              <img src="/paulette-perfil.jpg" alt="Paulette Elliot, nutricionista" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Wave from="#474511" to="#f6f6ea" />
-
-      {/* ABOUT */}
-      <section className="pe-about" id="sobre">
-        <div className="pe-shell-md pe-about-grid">
-          <div className="pe-about-img">
-            <img src="/paulette-hero.jpg" alt="Paulette en consulta" />
-          </div>
-          <div>
-            <span className="pe-about-eyebrow">Sobre mí</span>
-            <h2>Nutrición que<br />se <em>adapta</em> a ti.</h2>
-            <p>Soy <strong>Paulette Elliot</strong>, nutricionista, y acompaño a personas que quieren mejorar su alimentación sin caer en extremos ni frustraciones.</p>
-            <p>Mi enfoque combina ciencia, educación y hábitos sostenibles, entendiendo que cada proceso es distinto, y que cada cuerpo, cada rutina y cada historia merecen una mirada propia.</p>
-            <div className="pe-quote">Aquí no se trata de hacerlo perfecto. Se trata de construir algo que <em>sí</em> puedas mantener.</div>
-            <div className="pe-author">— Paulette Elliot B.</div>
-            <a href="#agenda" className="pe-cta-gold">Agenda tu consulta</a>
+        <div className="lg:col-span-5">
+          <div className="relative overflow-hidden rounded-t-[120px] sm:rounded-t-[180px] rounded-b-3xl shadow-2xl" style={{ border: "1px solid oklch(0.75 0.12 85 / 0.2)", background: "var(--en-cream)" }}>
+            <img src={heroImg} alt="Paulette Elliot, nutricionista" className="w-full h-auto block" />
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <Wave from="#f6f6ea" to="#deeca0" />
+function Marquee() {
+  const items = [
+    { t: "Nutrición deportiva", i: Dumbbell }, { t: "Hábitos sostenibles", i: Sprout },
+    { t: "Rendimiento", i: Dumbbell }, { t: "Composición corporal", i: Apple },
+    { t: "Salud integral", i: Sprout }, { t: "Acompañamiento real", i: Apple },
+  ];
+  return (
+    <div className="py-4 sm:py-5 overflow-hidden" style={{ background: "var(--en-gold)", borderTop: "1px solid oklch(0.75 0.12 85 / 0.4)" }}>
+      <div className="flex gap-8 sm:gap-12 whitespace-nowrap en-marquee">
+        {[...items, ...items, ...items].map((it, i) => {
+          const Icon = it.i;
+          return (
+            <span key={i} className="text-base sm:text-xl inline-flex items-center italic font-bold" style={{ color: "var(--en-emerald-deep)", fontFamily: "Georgia, serif" }}>
+              {it.t} <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 ml-8 sm:ml-12" strokeWidth={1.8} style={{ color: "oklch(0.28 0.06 165 / 0.5)" }} />
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-      {/* STATS */}
-      <div className="pe-stats">
-        <div className="pe-shell">
-          <div className="pe-stats-intro">
-            <span className="pe-mono" style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", opacity: .7, fontWeight: 600 }}>Impacto</span>
-            <p className="pe-stats-lead">Pacientes acompañados en procesos <em style={{ fontStyle: "italic", opacity: .8 }}>reales</em>.</p>
+function About() {
+  return (
+    <section id="sobre" className="py-14 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 grid lg:grid-cols-12 gap-10 lg:gap-20 items-center">
+        <div className="lg:col-span-5 order-2 lg:order-1">
+          <div className="overflow-hidden rounded-2xl" style={{ background: "var(--en-cream)" }}>
+            <img src={runningImg} alt="Paulette corriendo" className="w-full h-auto block" loading="lazy" />
           </div>
-          <div className="pe-stats-row">
-            {[{ v: "+6", l: "años de experiencia" }, { v: "+3.000", l: "atenciones realizadas" }].map(s => (
-              <div key={s.v} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-                <div className="pe-stat-num">{s.v}</div>
-                <div className="pe-stat-sub">{s.l}</div>
+        </div>
+        <div className="lg:col-span-7 order-1 lg:order-2">
+          <h2 className="text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Sobre <em style={{ color: "var(--en-emerald)" }}>mí</em>.
+          </h2>
+          <div className="mt-8 space-y-5 leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.8)" }}>
+            <p>Soy <strong style={{ color: "var(--en-emerald-deep)" }}>Paulette Elliot</strong>, nutricionista <strong style={{ color: "var(--en-emerald-deep)" }}>titulada de la Universidad Andrés Bello</strong>, con <strong style={{ color: "var(--en-emerald-deep)" }}>Diplomado en Nutrición Aplicada a la Actividad Física y el Deporte</strong> y <strong style={{ color: "var(--en-emerald-deep)" }}>+6 años de experiencia clínica</strong>.</p>
+            <p>La nutrición deportiva ha sido una de mis mayores pasiones desde muy joven. Como atleta y con más de <strong style={{ color: "var(--en-emerald-deep)" }}>15 años en el mundo del running</strong>, viví en primera persona los desafíos que enfrenta quien busca rendir más y transformar sus hábitos.</p>
+            <p>Por eso mi enfoque combina <strong style={{ color: "var(--en-emerald-deep)", fontWeight: 700 }}>ciencia, educación y hábitos sostenibles</strong>, entendiendo que cada proceso es distinto.</p>
+            <p className="text-xl lg:text-2xl leading-snug pt-2 italic" style={{ color: "var(--en-emerald-deep)", fontFamily: "Georgia, serif" }}>
+              «Aquí no se trata de hacerlo perfecto. Se trata de construir algo que sí puedas mantener.»
+            </p>
+          </div>
+          <p className="mt-8 text-2xl italic" style={{ color: "var(--en-emerald-deep)", fontFamily: "Georgia, serif" }}>— Paulette Elliot B.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Impact() {
+  const stats = [
+    { n: "+3.000", l: "Atenciones realizadas" }, { n: "+15", l: "Años en el deporte" },
+    { n: "+6", l: "Años de experiencia clínica" }, { n: "100%", l: "Enfoque personalizado" },
+  ];
+  return (
+    <section className="py-14" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-6 text-center">
+        {stats.map((s) => (
+          <div key={s.l}>
+            <div className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-gold)" }}>{s.n}</div>
+            <p className="mt-2 text-sm uppercase tracking-wider" style={{ color: "oklch(0.97 0.02 90 / 0.7)" }}>{s.l}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Services() {
+  const services = [
+    { icon: Heart, title: "Hábitos y bienestar", tag: "Cambio sostenible", desc: "Para quienes quieren mejorar su relación con la comida y construir hábitos sostenibles sin obsesionarse." },
+    { icon: Activity, title: "Rendimiento deportivo", tag: "Performance", desc: "Nutrición orientada a optimizar tu rendimiento, recuperación y composición corporal si practicas deporte." },
+    { icon: Stethoscope, title: "Salud clínica", tag: "Acompañamiento médico", desc: "Apoyo nutricional para condiciones específicas con un enfoque integral, cercano y basado en evidencia." },
+  ];
+  return (
+    <section id="servicios" className="py-14 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <span className="text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>— Servicios de nutrición</span>
+          <h2 className="mt-4 text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Tres caminos, un solo <em style={{ color: "var(--en-emerald)" }}>propósito</em>.
+          </h2>
+          <p className="mt-5 text-base sm:text-lg max-w-xl mx-auto" style={{ color: "var(--en-muted)" }}>Nutrición deportiva, hábitos sostenibles y salud clínica. Cada plan se adapta a tu objetivo y estilo de vida.</p>
+        </div>
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {services.map((s, i) => (
+            <article key={s.title} className="rounded-2xl p-8 transition-all hover:-translate-y-1 hover:shadow-xl" style={{ background: "var(--en-card)", border: "1px solid var(--en-border)" }}>
+              <div className="flex items-center justify-between">
+                <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "var(--en-emerald-deep)", color: "var(--en-gold)" }}>
+                  <s.icon className="h-5 w-5" />
+                </div>
+                <span className="text-xs tabular-nums" style={{ color: "var(--en-muted)" }}>0{i + 1}</span>
+              </div>
+              <h3 className="mt-8 text-3xl" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{s.title}</h3>
+              <span className="mt-2 inline-block text-xs uppercase tracking-wider font-medium" style={{ color: "var(--en-gold)" }}>{s.tag}</span>
+              <p className="mt-5 leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{s.desc}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Approach() {
+  const steps = [
+    { n: "01", t: "Evaluación inicial", d: "Conversamos sobre tu historia, hábitos, contexto y objetivos. Sin juicios." },
+    { n: "02", t: "Plan a tu medida", d: "Diseño una estrategia realista que se ajusta a tu rutina, no al revés." },
+    { n: "03", t: "Acompañamiento", d: "Seguimiento cercano, ajustes y educación para que los cambios sean tuyos." },
+  ];
+  return (
+    <section id="enfoque" className="py-14 lg:py-20" style={{ background: "var(--en-secondary)" }}>
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 grid lg:grid-cols-2 gap-16 items-center">
+        <div className="overflow-hidden rounded-2xl" style={{ background: "var(--en-cream)" }}>
+          <img src={consultaImg} alt="Paulette en consulta" className="w-full h-auto block" loading="lazy" />
+        </div>
+        <div>
+          <span className="text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>— Cómo trabajamos</span>
+          <h2 className="mt-4 text-4xl lg:text-5xl leading-[1.1] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Un plan que <em style={{ color: "var(--en-emerald)" }}>funciona</em> en tu vida real.
+          </h2>
+          <div className="mt-10 space-y-8">
+            {steps.map((s) => (
+              <div key={s.n} className="flex gap-6 pb-8 last:border-0" style={{ borderBottom: "1px solid var(--en-border)" }}>
+                <span className="text-3xl shrink-0 font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-gold)" }}>{s.n}</span>
+                <div>
+                  <h3 className="text-2xl" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{s.t}</h3>
+                  <p className="mt-2" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{s.d}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+    </section>
+  );
+}
 
-      <Wave from="#deeca0" to="#f6f6ea" />
-
-      {/* GOALS */}
-      <section className="pe-goals" id="servicios">
-        <div className="pe-shell-md">
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <h2 className="pe-goals-title">Tres caminos, un solo <em>propósito</em></h2>
-            <p style={{ color: "rgba(71,69,17,0.75)", maxWidth: "60ch", margin: "0 auto", fontSize: 15 }}>
-              Cada persona llega con un motivo distinto. Estos son los tres grandes enfoques en los que acompaño procesos, y desde donde armamos tu plan.
-            </p>
-          </div>
-          <div className="pe-goals-grid">
-            {[
-              { bg: "#deeca0", color: "#474511", title: "Hábitos y bienestar", text: "Para quienes quieren mejorar su relación con la comida y construir hábitos sostenibles sin obsesionarse.", tag: "Cambio sostenible",
-                icon: <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="6"/><path d="M6 6 L6 14 M4 6 L8 6 M6 6 L6 3"/><path d="M26 6 L26 26"/><path d="M24 6 C24 10, 28 10, 28 6 C28 4, 26 3, 26 3 C26 3, 24 4, 24 6 Z"/></svg> },
-              { bg: "#dba22d", color: "#f6f6ea", title: "Rendimiento deportivo", text: "Nutrición orientada a optimizar tu rendimiento, recuperación y composición corporal si practicas deporte.", tag: "Performance",
-                icon: <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="7" y="14" width="2" height="4"/><rect x="25" y="12" width="4" height="8" rx="1"/><rect x="23" y="14" width="2" height="4"/><rect x="9" y="15" width="14" height="2"/></svg> },
-              { bg: "#474511", color: "#f6f6ea", title: "Clínico y de salud", text: "Para condiciones como resistencia a la insulina, hipotiroidismo, dislipidemias, embarazo y más.", tag: "Acompañamiento médico",
-                icon: <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M16 27 C 8 21, 3 16, 3 11 C 3 7, 6 4, 9.5 4 C 12 4, 14.5 5.5, 16 8 C 17.5 5.5, 20 4, 22.5 4 C 26 4, 29 7, 29 11 C 29 13, 28 15, 26.5 17"/><path d="M3 19 L10 19 L12 15 L15 23 L18 17 L20 19 L29 19"/></svg> },
-            ].map((c) => (
-              <article key={c.title} className="pe-goal-card">
-                <div className="pe-goal-icon" style={{ background: c.bg, color: c.color }}>{c.icon}</div>
-                <h3 className="pe-goal-title">{c.title}</h3>
-                <p className="pe-goal-text">{c.text}</p>
-                <div className="pe-goal-foot"><span>{c.tag}</span></div>
-              </article>
+function Pricing() {
+  const [mode, setMode] = useState<"presencial" | "online">("presencial");
+  const plans = [
+    { tag: "Primer paso", title: "Consulta Inicial", desc: "Evaluación inicial completa con plan personalizado.", price: { presencial: "$42.000", online: "$38.000" }, duration: "60 minutos", features: ["Evaluación inicial completa", "Plan personalizado", "Seguimiento incluido", "Recomendaciones prácticas", "Seguimiento vía WhatsApp (1 mes)"] },
+    { tag: "Más elegido", title: "Plan 3 Meses", desc: "Para generar cambios reales y empezar a sostenerlos.", price: { presencial: "$110.000", online: "$100.000" }, duration: "60 min primera sesión · 30 min controles", features: ["Evaluación inicial + plan personalizado", "Seguimientos continuos", "Ajustes según tu progreso", "Acompañamiento cercano", "Material educativo incluido"] },
+    { tag: "Transformación", title: "Plan 6 Meses", desc: "Para una transformación profunda y sostenible.", price: { presencial: "$200.000", online: "$180.000" }, duration: "60 min primera sesión · 30 min controles", features: ["Evaluación inicial completa", "Plan + ajustes estratégicos", "Seguimiento constante", "Acompañamiento completo", "Parámetros bioquímicos"] },
+  ];
+  return (
+    <section id="planes" className="py-14 lg:py-20" style={{ background: "oklch(0.88 0.07 130)" }}>
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
+        <div className="text-center">
+          <h2 className="text-[2.5rem] sm:text-5xl lg:text-7xl leading-[1.02] text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Planes de <em style={{ color: "var(--en-emerald)" }}>nutrición</em>
+          </h2>
+          <p className="mt-5 sm:mt-6 max-w-2xl mx-auto text-base sm:text-lg" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>
+            Presencial o online. Boleta electrónica válida para Isapre.
+          </p>
+          <div className="mt-10 inline-flex items-center rounded-full p-1.5" style={{ background: "var(--en-emerald-deep)" }}>
+            {(["presencial", "online"] as const).map((m) => (
+              <button key={m} onClick={() => setMode(m)} className="px-7 py-2.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium transition-all" style={mode === m ? { background: "var(--en-gold)", color: "var(--en-emerald-deep)" } : { color: "oklch(0.97 0.02 90 / 0.7)" }}>
+                {m === "presencial" ? "Presencial" : "Online"}
+              </button>
             ))}
           </div>
         </div>
-      </section>
+        <div className="mt-16 grid md:grid-cols-3 gap-6">
+          {plans.map((p) => (
+            <article key={p.title} className="rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm" style={{ background: "var(--en-cream)" }}>
+              <span className="self-start text-[10px] sm:text-xs uppercase tracking-[0.18em] rounded-full px-3 sm:px-4 py-1.5" style={{ background: "oklch(0.28 0.06 165 / 0.1)", color: "var(--en-emerald-deep)" }}>{p.tag}</span>
+              <h3 className="mt-5 text-3xl sm:text-4xl" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
+              <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{p.desc}</p>
+              <div className="mt-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl lg:text-6xl font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{p.price[mode]}</span>
+                  <span className="text-xs uppercase tracking-wider" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>CLP</span>
+                </div>
+                <p className="mt-2 text-xs uppercase tracking-[0.16em] leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>{p.duration}</p>
+              </div>
+              <ul className="mt-8 space-y-3 flex-1">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm" style={{ color: "oklch(0.20 0.04 165 / 0.8)" }}>
+                    <Check className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} style={{ color: "var(--en-emerald)" }} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a href="#agenda" className="mt-8 inline-flex items-center justify-between gap-2 rounded-full px-6 py-3.5 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+                Agenda tu consulta <ArrowRight className="h-4 w-4" />
+              </a>
+            </article>
+          ))}
+        </div>
+        <div className="mt-16 text-center">
+          <h3 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>¿No sabes cuál elegir?</h3>
+          <p className="mt-3" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>Escríbeme por WhatsApp y te oriento sin compromiso.</p>
+          <a href="https://wa.me/56942156610" target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+            <MessageCircle className="h-4 w-4" /> Hablar por WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-      <Wave from="#f6f6ea" to="#cedc8f" />
+function Testimonials() {
+  const reviews = [
+    { q: "Por fin entendí que no necesitaba dietas extremas. Paulette me dio herramientas que sigo usando dos años después.", a: "Camila R.", t: "Hábitos", r: 5 },
+    { q: "Mejoré mis tiempos en maratón sin sentir que vivía contando calorías. Su enfoque deportivo es real.", a: "Diego M.", t: "Running", r: 5 },
+    { q: "Cercana, profesional y empática. Me sentí escuchada desde la primera consulta.", a: "Francisca P.", t: "Bienestar", r: 5 },
+    { q: "Excelente atención. Logré bajar de peso de manera saludable y mantenerlo en el tiempo.", a: "María José L.", t: "Composición", r: 5 },
+    { q: "Como deportista amateur, me cambió la forma de comer y de rendir. 100% recomendada.", a: "Sebastián V.", t: "Rendimiento", r: 5 },
+    { q: "Súper profesional y empática. Las pautas son realistas y se adaptan a la vida diaria.", a: "Javiera A.", t: "Hábitos", r: 5 },
+    { q: "Me ayudó muchísimo con mi proceso post embarazo. Sin restricciones absurdas, todo con base científica.", a: "Antonia S.", t: "Salud", r: 5 },
+    { q: "El mejor acompañamiento que he tenido. Recomendada 100%.", a: "Cristóbal R.", t: "Rendimiento", r: 5 },
+  ];
+  const avg = (reviews.reduce((a, r) => a + r.r, 0) / reviews.length).toFixed(1);
+  const GoogleIcon = () => (
+    <svg className="h-5 w-5" viewBox="0 0 48 48">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.4l-6.5-5.5c-2 1.5-4.6 2.4-7.5 2.4-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.2 44 24 44z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.7l6.5 5.5C40.9 36 44 30.5 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+    </svg>
+  );
+  return (
+    <section id="resenas" className="py-12 lg:py-16" style={{ background: "var(--en-cream)" }}>
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="flex flex-col items-center text-center gap-4">
+          <h2 className="text-3xl lg:text-4xl leading-[1.1] max-w-2xl text-balance font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Reseñas reales de pacientes de <em style={{ color: "var(--en-emerald)" }}>Elliot Nutrition</em>.
+          </h2>
+          <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 rounded-full px-4 py-2 shadow-sm" style={{ background: "var(--en-card)", border: "1px solid var(--en-border)" }}>
+            <GoogleIcon />
+            <span className="text-lg leading-none font-bold" style={{ fontFamily: "Georgia, serif", color: "var(--en-emerald-deep)" }}>{avg}</span>
+            <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5" style={{ fill: "var(--en-gold)", color: "var(--en-gold)" }} />)}</div>
+            <span className="text-xs inline-flex items-center gap-1 pl-3" style={{ borderLeft: "1px solid var(--en-border)", color: "var(--en-muted)" }}>
+              Ver en Google <ExternalLink className="h-3 w-3" />
+            </span>
+          </a>
+        </div>
+        <div className="mt-8 -mx-6 lg:-mx-10 overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)" }}>
+          <div className="flex gap-4 w-max en-reviews">
+            {[...reviews, ...reviews].map((r, i) => (
+              <figure key={i} className="shrink-0 w-[75vw] sm:w-[320px] rounded-2xl p-5 flex flex-col text-sm" style={{ background: "var(--en-card)", border: "1px solid var(--en-border)" }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex">{[...Array(r.r)].map((_, k) => <Star key={k} className="h-4 w-4" style={{ fill: "var(--en-gold)", color: "var(--en-gold)" }} />)}</div>
+                  <GoogleIcon />
+                </div>
+                <blockquote className="mt-3 leading-relaxed italic flex-1 text-base" style={{ color: "oklch(0.20 0.04 165 / 0.8)", fontFamily: "Georgia, serif" }}>"{r.q}"</blockquote>
+                <figcaption className="mt-4 pt-3 flex items-center justify-between" style={{ borderTop: "1px solid var(--en-border)" }}>
+                  <span className="font-medium text-sm" style={{ color: "var(--en-emerald-deep)" }}>{r.a}</span>
+                  <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--en-muted)" }}>{r.t}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-      {/* PLANS */}
-      <section className="pe-plans" id="programas">
-        <div className="pe-shell-md">
-          <div style={{ textAlign: "center", marginBottom: 44 }}>
-            <h2 className="pe-plans-title">Elige el plan que mejor se <em>adapta</em> a ti</h2>
-            <p style={{ color: "rgba(64,60,1,0.75)", maxWidth: "60ch", margin: "0 auto 24px", fontSize: 15, lineHeight: 1.5 }}>
-              Cada plan se adapta a tu contexto, tu ritmo y tus objetivos. Las consultas iniciales duran 60 minutos y los controles 30 minutos. Boleta electrónica válida para Isapre.
-            </p>
-            <div className="pe-toggle">
-              {(["presencial", "online"] as const).map(m => (
-                <button key={m} className={modo === m ? "active" : ""} onClick={() => setModo(m)}>
-                  {m === "presencial" ? "Presencial" : "Online"}
+function Partner() {
+  return (
+    <section id="partner" className="py-16 lg:py-24" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+      <div className="mx-auto max-w-6xl px-6 lg:px-10 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="order-2 lg:order-1">
+          <span className="inline-block text-[11px] uppercase tracking-[0.3em]" style={{ color: "var(--en-gold)" }}>Alianza</span>
+          <h2 className="mt-4 text-4xl sm:text-5xl lg:text-6xl leading-[1.05] font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Official Partner <br /><em style={{ color: "var(--en-gold)" }}>Nutrition &amp; Performance</em>
+          </h2>
+          <p className="mt-6 leading-relaxed text-lg" style={{ color: "oklch(0.97 0.02 90 / 0.8)" }}>
+            Junto a <strong style={{ color: "var(--en-gold)" }}>Mayne Performance</strong>, mis pacientes acceden a un <strong style={{ color: "var(--en-gold)" }}>20% de descuento exclusivo</strong> en sus servicios.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm" style={{ border: "1px solid oklch(0.97 0.02 90 / 0.25)" }}>
+              <Sparkles className="h-4 w-4" /> 20% descuento exclusivo
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm" style={{ border: "1px solid oklch(0.97 0.02 90 / 0.25)" }}>
+              <Dumbbell className="h-4 w-4" /> Entrenamiento profesional
+            </span>
+          </div>
+          <a href="https://wa.me/56982202717" target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold transition-colors" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+            <MessageCircle className="h-4 w-4" /> Contactar Mayne Performance
+          </a>
+        </div>
+        <div className="order-1 lg:order-2">
+          <div className="rounded-3xl p-10 lg:p-14 flex items-center justify-center shadow-xl" style={{ background: "var(--en-cream)" }}>
+            <img src={mayneLogo} alt="Mayne Performance" className="w-full max-w-sm h-auto" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTA() {
+  const [modality, setModality] = useState<"Presencial" | "Online">("Presencial");
+  const [patient, setPatient] = useState<"nuevo" | "control">("nuevo");
+  const [planIdx, setPlanIdx] = useState(0);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [name, setName] = useState("");
+  const [rut, setRut] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const SLOTS_NUEVO = ["09:00", "10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+  const SLOTS_CONTROL = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"];
+
+  const plans = PRICES[modality][patient];
+  const currentPlan = plans[Math.min(planIdx, plans.length - 1)];
+  const slots = patient === "nuevo" ? SLOTS_NUEVO : SLOTS_CONTROL;
+
+  const handleSubmit = () => {
+    const msg = `Hola Paulette! Quiero agendar una consulta:\n- Nombre: ${name}\n- RUT: ${rut}\n- Email: ${email}\n- Teléfono: ${phone}\n- Modalidad: ${modality}\n- Plan: ${currentPlan.name} (${formatCLP(currentPlan.price)})\n- Fecha: ${date} a las ${time}`;
+    window.open(`https://wa.me/56942156610?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  const inputStyle = { border: "1px solid oklch(0.28 0.06 165 / 0.15)", background: "var(--en-card)" };
+
+  return (
+    <section id="agenda" className="py-14 sm:py-16 lg:py-24" style={{ background: "oklch(0.94 0.06 90)", color: "var(--en-emerald-deep)" }}>
+      <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-10">
+        <div className="text-center">
+          <span className="inline-block text-[11px] uppercase tracking-[0.3em]" style={{ color: "var(--en-emerald)" }}>Reserva</span>
+          <h2 className="mt-3 text-[2rem] sm:text-5xl lg:text-6xl leading-none font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            Agenda tu <em style={{ color: "var(--en-emerald)" }}>consulta</em>
+          </h2>
+        </div>
+        <div className="mt-10 space-y-7 rounded-3xl p-5 sm:p-10 shadow-sm" style={{ background: "var(--en-card)", border: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
+          <div>
+            <EnLabel>Modalidad</EnLabel>
+            <div className="mt-3 grid grid-cols-2 gap-2 p-1.5 rounded-full" style={{ background: "oklch(0.28 0.06 165 / 0.05)" }}>
+              {(["Presencial", "Online"] as const).map((m) => (
+                <button key={m} onClick={() => { setModality(m); setPlanIdx(0); }} className="py-2.5 rounded-full text-sm font-medium transition-all" style={modality === m ? { background: "var(--en-emerald-deep)", color: "var(--en-cream)" } : { color: "oklch(0.28 0.06 165 / 0.6)" }}>
+                  {m}
                 </button>
               ))}
             </div>
           </div>
-          <div className="pe-plans-grid">
-            {plans.map((p) => (
-              <article key={p.id} className={`pe-plan${p.featured ? " featured" : ""}`}>
-                <span className="pe-plan-tag">{p.tag}</span>
-                <h3 className="pe-plan-name">{p.name}</h3>
-                <p className="pe-plan-desc">{p.desc}</p>
-                <div className="pe-plan-price">
-                  {p.prices[modo] > 0 ? <>{fmtCLP(p.prices[modo])}<small>CLP</small></> : <span style={{fontSize:"0.55em",opacity:0.6}}>No disponible {modo}</span>}
-                </div>
-                <div className="pe-plan-meta">{p.meta} · {modo}</div>
-                <ul className="pe-plan-feat">{p.feat.map(f => <li key={f}>{f}</li>)}</ul>
-                <a href={wa(`Hola! Me gustaría agendar: ${p.name}`)} target="_blank" rel="noopener noreferrer" className="pe-plan-btn">
-                  <span>Agenda tu consulta</span><span>→</span>
-                </a>
-              </article>
-            ))}
-          </div>
-          <div className="pe-plans-cta">
-            <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: "clamp(26px,3vw,36px)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "0 0 8px", position: "relative" }}>¿No sabes cuál elegir?</p>
-            <p style={{ color: "rgba(246,246,234,0.85)", margin: "0 0 22px", fontSize: 15, position: "relative" }}>Escríbeme por WhatsApp y te oriento sin compromiso.</p>
-            <a href={wa("Hola! Quiero saber qué plan me conviene.")} target="_blank" rel="noopener noreferrer" className="pe-wa-btn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.52 3.48A11.8 11.8 0 0 0 12 0C5.37 0 0 5.37 0 12a11.9 11.9 0 0 0 1.64 6.03L0 24l6.18-1.62A11.9 11.9 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52ZM12 21.82a9.8 9.8 0 0 1-5-1.37l-.36-.21-3.67.96.98-3.58-.23-.37A9.8 9.8 0 1 1 21.82 12 9.84 9.84 0 0 1 12 21.82Z" /></svg>
-              Hablar por WhatsApp
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <Wave from="#cedc8f" to="#f6f6ea" />
-
-      {/* REVIEWS */}
-      <section className="pe-reviews" id="reseñas">
-        <div className="pe-shell" style={{ maxWidth: 1200 }}>
-          <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <h2 className="pe-reviews-title">Lo que dicen <em>mis pacientes</em></h2>
-            <p style={{ color: "rgba(64,60,1,0.75)", fontSize: 13.5 }}>Procesos reales, con altos y bajos. Reseñas verificadas en Google.</p>
-          </div>
-          <div className="pe-reviews-grid">
-            {[
-              { q: "En primer lugar la recepción fue muy cordial y amable, el programa está dando muy buenos resultados en cada control. Muy motivadora a seguir mejorando.", n: "Eugenio Thomas", i: "ET" },
-              { q: "Llegar a las manos de Paulette ha sido una excelente decisión. No solo me ha ayudado a mejorar mi alimentación, sino a entender y escuchar mi cuerpo.", n: "Francisca Pino", i: "FP" },
-              { q: "Desde que empecé con la Poli he notado cambios, no solo físicos, sino también en mis niveles de energía. Las pautas se adaptan a lo que me gusta comer.", n: "Doni Fernández", i: "DF" },
-              { q: "Una tremenda profesional, llevo 3 meses con ella y ya voy viendo resultados, su plan nutricional es basado 100% en mis necesidades y lo que quiero lograr.", n: "Lorena Olivares", i: "LO" },
-            ].map(r => (
-              <article key={r.n} className="pe-review">
-                <div className="pe-review-stars">★ ★ ★ ★ ★</div>
-                <p className="pe-review-quote">"{r.q}"</p>
-                <div className="pe-review-who">
-                  <div className="pe-review-avatar">{r.i}</div>
-                  <div>
-                    <div style={{ fontSize: 12.5, fontWeight: 500 }}>{r.n}</div>
-                    <div style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(64,60,1,0.55)" }}>Reseña Google · verificada</div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 20, fontFamily: "monospace", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(64,60,1,0.6)" }}>
-            <span style={{ width: 8, height: 8, borderRadius: 999, background: "#f7cb96", flexShrink: 0, display: "inline-block" }} /> Google · Reseñas verificadas
-          </div>
-        </div>
-      </section>
-
-      <Wave from="#f6f6ea" to="#474511" />
-
-      {/* CLOSING */}
-      <section className="pe-closing" id="reserva">
-        <div className="pe-shell">
-          <h2>Tu bienestar no empieza cuando todo esté perfecto,<br />empieza cuando <em>decides hacer las cosas distinto</em>.</h2>
-          <a href="#agenda" className="pe-closing-btn">Reserva ahora</a>
-        </div>
-      </section>
-
-      <Wave from="#474511" to="#f6f6ea" />
-
-      {/* BOOKING */}
-      <section className="pe-booking" id="agenda">
-        <div className="pe-shell-md">
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <h2 className="pe-booking-title">Agenda tu <em>consulta</em></h2>
-            <p style={{ color: "rgba(71,69,17,0.7)", fontSize: 15 }}>Elige el horario que mejor se adapte a ti y asegura tu espacio.</p>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="pe-booking-row">
-              {/* PASO 01 */}
-              <div className="pe-booking-card">
-                <span className="pe-step">PASO 01</span>
-                <h3 className="pe-booking-card-title">Modalidad y plan</h3>
-                <label className="pe-label">Modalidad</label>
-                <div className="pe-field">
-                  <select value={bModo} onChange={e => setBModo(e.target.value as "presencial" | "online")}>
-                    <option value="presencial">Presencial</option>
-                    <option value="online">Online</option>
-                  </select>
-                </div>
-                <label className="pe-label">Plan</label>
-                <div className="pe-booking-plans">
-                  {visiblePlans.map(p => (
-                    <button key={p.id} type="button" className={`pe-bplan${bPlan === p.id ? " active" : ""}`} onClick={() => setBPlan(p.id)}>
-                      <span>{p.name}</span>
-                      <span className="pe-bplan-price">{fmtCLP(p.prices[bModo])}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* PASO 02 */}
-              <div className="pe-booking-card">
-                <span className="pe-step">PASO 02</span>
-                <h3 className="pe-booking-card-title">Tipo de consulta y horario</h3>
-                <label className="pe-label">¿Eres paciente nuevo o de control?</label>
-                <div className="pe-tipo-wrap">
-                  {[{ id: "nuevo", icon: "🌱", name: "Paciente nuevo", dur: "60 minutos" }, { id: "control", icon: "🔄", name: "Control", dur: "30 minutos" }].map(t => (
-                    <button key={t.id} type="button" className={`pe-tipo-btn${bTipo === t.id ? " active" : ""}`} onClick={() => { setBTipo(t.id as "nuevo" | "control"); setBPlan(t.id === "control" ? "ctrl" : "1m"); }}>
-                      <span style={{ fontSize: 22 }}>{t.icon}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{t.name}</span>
-                      <span style={{ fontSize: 11, opacity: .6, fontFamily: "monospace" }}>{t.dur}</span>
-                    </button>
-                  ))}
-                </div>
-                <label className="pe-label" style={{ marginTop: 20 }}>Fecha</label>
-                <div className="pe-field"><input type="date" value={bDate} onChange={e => setBDate(e.target.value)} /></div>
-                <label className="pe-label">Hora disponible</label>
-                {loadingSlots
-                  ? <p style={{ padding: "14px 16px", borderRadius: 10, background: "#f6f6ea", fontSize: 13, color: "rgba(71,69,17,0.5)" }}>Cargando horarios...</p>
-                  : availableSlots.length === 0
-                    ? <p style={{ padding: "14px 16px", borderRadius: 10, background: "#f6f6ea", border: "1px dashed rgba(71,69,17,0.2)", fontSize: 13, color: "rgba(71,69,17,0.65)" }}>Sin horarios disponibles para este día.</p>
-                    : <div className="pe-hours">{availableSlots.map(h => <button key={h} type="button" className={`pe-hour${bHour === h ? " active" : ""}`} onClick={() => setBHour(h)}>{h}</button>)}</div>
-                }
-              </div>
+          <div>
+            <EnLabel>Tipo de consulta</EnLabel>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {([{ id: "nuevo", label: "Paciente nuevo", meta: "60 min" }, { id: "control", label: "Control", meta: "30 min" }] as const).map((opt) => (
+                <button key={opt.id} onClick={() => { setPatient(opt.id); setPlanIdx(0); setTime(""); }} className="rounded-xl p-4 text-left transition-all" style={{ border: patient === opt.id ? "1px solid var(--en-emerald)" : "1px solid oklch(0.28 0.06 165 / 0.1)", background: patient === opt.id ? "oklch(0.45 0.10 165 / 0.05)" : "transparent" }}>
+                  <span className="block text-sm font-medium">{opt.label}</span>
+                  <span className="block text-xs mt-0.5" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>{opt.meta}</span>
+                </button>
+              ))}
             </div>
-            {/* PASO 03 */}
-            <div className="pe-booking-card pe-booking-card-wide">
-              <span className="pe-step">PASO 03</span>
-              <h3 className="pe-booking-card-title">Tus datos</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px 20px", marginBottom: 18 }}>
-                {[
-                  { label: "Nombre completo", ph: "Tu nombre completo", val: bName, set: setBName },
-                  { label: "RUT", ph: "12.345.678-9", val: bRut, set: setBRut },
-                  { label: "Correo electrónico", ph: "tu@correo.com", val: bEmail, set: setBEmail },
-                  { label: "Teléfono", ph: "+56 9 1234 5678", val: bPhone, set: setBPhone },
-                ].map(f => (
-                  <div key={f.label}>
-                    <label className="pe-label">{f.label}</label>
-                    <div className="pe-field"><input type="text" placeholder={f.ph} value={f.val} onChange={e => f.set(e.target.value)} /></div>
-                  </div>
-                ))}
-              </div>
-              <div className="pe-booking-total">
-                <div>
-                  <div style={{ fontFamily: "monospace", fontSize: 10.5, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(71,69,17,0.6)", fontWeight: 500 }}>Total a pagar</div>
-                  <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 36, fontWeight: 600, lineHeight: 1 }}>{totalAmount}</div>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", fontSize: 12.5, color: "rgba(71,69,17,0.7)", lineHeight: 1.5, textAlign: "right" }}>
-                  <span>Boleta válida para Isapre</span>
-                  <span>El pago confirma tu reserva</span>
-                </div>
-              </div>
-              {submitted ? (
-                <div style={{ textAlign: "center", padding: "32px 20px", background: "#deeca0", borderRadius: 16 }}>
-                  <div style={{ fontSize: 32, marginBottom: 10 }}>✅</div>
-                  <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: 22, fontWeight: 600, marginBottom: 6 }}>¡Hora agendada!</p>
-                  <p style={{ fontSize: 14, color: "rgba(71,69,17,0.75)" }}>Tu reserva quedó confirmada para el {bDate} a las {bHour}. Te contactaremos pronto.</p>
-                </div>
-              ) : (
-                <>
-                  {submitError && <p style={{ color: "#c0392b", fontSize: 13, marginBottom: 10, textAlign: "center" }}>{submitError}</p>}
-                  <button type="submit" className="pe-pay-btn" disabled={submitting || !bHour}>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="14" rx="2" /><path d="M2 10h20" /><path d="M6 16h4" /></svg>
-                    {submitting ? "AGENDANDO..." : "CONFIRMAR Y AGENDAR"}
-                  </button>
-                  <p style={{ textAlign: "center", fontSize: 12, color: "rgba(71,69,17,0.55)", marginTop: 14 }}>Recibirás confirmación · Pago en consulta · Boleta válida para Isapre</p>
-                </>
-              )}
+          </div>
+          <div>
+            <EnLabel>Plan</EnLabel>
+            <div className="mt-3 space-y-2">
+              {plans.map((p, i) => (
+                <button key={p.name} onClick={() => setPlanIdx(i)} className="w-full flex items-center justify-between gap-4 rounded-xl px-4 py-3.5 transition-all" style={{ border: i === planIdx ? "1px solid var(--en-emerald)" : "1px solid oklch(0.28 0.06 165 / 0.1)", background: i === planIdx ? "oklch(0.45 0.10 165 / 0.05)" : "transparent" }}>
+                  <span className="text-sm font-medium">{p.name}</span>
+                  <span className="text-sm font-mono">{formatCLP(p.price)}</span>
+                </button>
+              ))}
             </div>
-          </form>
-        </div>
-      </section>
-
-      {/* INSTAGRAM */}
-      <section className="pe-ig">
-        <div className="pe-shell" style={{ textAlign: "center" }}>
-          <div style={{ marginBottom: 36 }}>
-            <span className="pe-mono" style={{ color: "#dba22d", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>Instagram</span>
-            <h2>Sígueme en <em>@elliotnutrition</em></h2>
           </div>
-          {/* Behold Instagram widget */}
-          <div style={{ marginBottom: 32, minHeight: 200 }}>
-            <behold-widget feed-id="x8PAUKU3v1tfORMVsBTv" />
-            <noscript>
-              <p style={{ textAlign: "center", color: "#474511", opacity: 0.6, fontSize: 14 }}>
-                Activa JavaScript para ver el feed de Instagram.
-              </p>
-            </noscript>
-          </div>
-          <div style={{ textAlign: "center", marginTop: 28 }}>
-            <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 999, border: "1.5px solid #474511", fontSize: 14, fontWeight: 500, color: "#474511" }}>
-              Ver perfil completo →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <Wave from="#f6f6ea" to="#dba22d" />
-
-      {/* FOOTER */}
-      <footer className="pe-footer">
-        <div className="pe-shell">
-          <div className="pe-footer-grid">
+          <div className="grid sm:grid-cols-2 gap-5">
             <div>
-              <img src="/logo-elliot.svg" alt="Elliot Nutri" className="pe-footer-logo" />
-              <p style={{ maxWidth: "32ch", lineHeight: 1.55, fontSize: 14, opacity: .9 }}>Consulta nutricional con enfoque integral, deportiva y realista.<br />Presencial en Concón, Región de Valparaíso · Online a todo el mundo.</p>
-              <div className="pe-footer-social">
-                <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noopener noreferrer" className="pe-btn-ghost-footer">Instagram ↗</a>
-                <a href={WA_BASE} target="_blank" rel="noopener noreferrer" className="pe-btn-ghost-footer">WhatsApp ↗</a>
-              </div>
+              <EnLabel>Fecha</EnLabel>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
             </div>
             <div>
-              <h4>Servicios</h4>
-              <ul>
-                <li><a href="#servicios">Hábitos y bienestar</a></li>
-                <li><a href="#servicios">Rendimiento deportivo</a></li>
-                <li><a href="#servicios">Clínico y de salud</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4>Programas</h4>
-              <ul>
-                <li><a href="#programas">Consulta Inicial</a></li>
-                <li><a href="#programas">Plan 3 Meses</a></li>
-                <li><a href="#programas">Plan 6 Meses</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4>Contacto</h4>
-              <ul>
-                <li><a href="mailto:pelliotbanados@gmail.com">pelliotbanados@gmail.com</a></li>
-                <li><a href={WA_BASE}>+56 9 4215 6610</a></li>
-                <li>Avenida Reñaca Norte 25, Concón, Chile.</li>
-              </ul>
+              <EnLabel>Hora</EnLabel>
+              <select value={time} onChange={(e) => setTime(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle}>
+                <option value="">Seleccionar</option>
+                {slots.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
           </div>
-          <div className="pe-footer-bottom">
-            <span>© 2026 Paulette Elliot · Nutricionista</span>
-            <span>Powered by SomaOS</span>
+          <div>
+            <EnLabel>Tus datos</EnLabel>
+            <div className="mt-3 grid sm:grid-cols-2 gap-3">
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre completo" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+              <input type="text" value={rut} onChange={(e) => setRut(e.target.value)} placeholder="RUT" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo electrónico" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+            </div>
+          </div>
+          <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total</span>
+              <span className="text-3xl font-bold" style={{ fontFamily: "Georgia, serif" }}>{formatCLP(currentPlan.price)}</span>
+            </div>
+            <button onClick={handleSubmit} className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+              Confirmar y agendar por WhatsApp <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </section>
+  );
+}
+
+function EnLabel({ children }: { children: React.ReactNode }) {
+  return <span className="text-[11px] uppercase tracking-[0.25em] font-medium" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>{children}</span>;
+}
+
+function InstagramFeed() {
+  const handle = "elliotnutrition";
+  useEffect(() => {
+    if (document.querySelector('script[data-behold]')) return;
+    const s = document.createElement("script");
+    s.type = "module";
+    s.src = "https://w.behold.so/widget.js";
+    s.setAttribute("data-behold", "true");
+    document.head.appendChild(s);
+  }, []);
+  return (
+    <section id="instagram" className="py-14 lg:py-20" style={{ background: "var(--en-cream)" }}>
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="flex flex-col items-center text-center gap-3">
+          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>
+            <InstagramIcon className="h-4 w-4" /> Instagram
+          </span>
+          <h2 className="text-3xl lg:text-5xl leading-[1.1] text-balance max-w-2xl font-bold" style={{ fontFamily: "Georgia, serif" }}>
+            sígueme en <em style={{ color: "var(--en-emerald)" }}>@{handle}</em>
+          </h2>
+        </div>
+        <div className="mt-10">
+          <behold-widget feed-id="x8PAUKU3v1tfORMVsBTv"></behold-widget>
+        </div>
+        <div className="mt-10 text-center">
+          <a href={`https://www.instagram.com/${handle}/`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+            <InstagramIcon className="h-4 w-4" /> Ver perfil completo
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 pt-16 pb-8">
+        <div className="grid lg:grid-cols-4 gap-12">
+          <div>
+            <span className="text-2xl font-bold tracking-[0.12em]">ELLIOT<br />NUTRITION</span>
+            <p className="mt-6 text-sm leading-relaxed" style={{ color: "oklch(0.28 0.06 165 / 0.8)" }}>
+              Consulta nutricional con enfoque integral, deportivo y realista.<br />
+              Presencial en Concón · Online a todo Chile.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm" style={{ border: "1px solid oklch(0.28 0.06 165 / 0.4)" }}>
+                Instagram <ArrowRight className="h-3.5 w-3.5 -rotate-45" />
+              </a>
+              <a href="https://wa.me/56942156610" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm" style={{ border: "1px solid oklch(0.28 0.06 165 / 0.4)" }}>
+                WhatsApp <ArrowRight className="h-3.5 w-3.5 -rotate-45" />
+              </a>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-xs uppercase tracking-[0.2em] font-semibold">Servicios</h4>
+            <ul className="mt-5 space-y-3 text-sm">
+              <li><a href="#servicios" className="hover:underline">Hábitos y bienestar</a></li>
+              <li><a href="#servicios" className="hover:underline">Rendimiento deportivo</a></li>
+              <li><a href="#servicios" className="hover:underline">Clínico y de salud</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs uppercase tracking-[0.2em] font-semibold">Programas</h4>
+            <ul className="mt-5 space-y-3 text-sm">
+              <li><a href="#planes" className="hover:underline">Consulta Inicial</a></li>
+              <li><a href="#planes" className="hover:underline">Plan 3 Meses</a></li>
+              <li><a href="#planes" className="hover:underline">Plan 6 Meses</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs uppercase tracking-[0.2em] font-semibold">Contacto</h4>
+            <ul className="mt-5 space-y-3 text-sm">
+              <li><a href="mailto:pelliotbanados@gmail.com" className="hover:underline">pelliotbanados@gmail.com</a></li>
+              <li><a href="https://wa.me/56942156610" target="_blank" rel="noopener noreferrer" className="hover:underline">+56 9 4215 6610</a></li>
+              <li>Avenida Reñaca Norte 25, Concón, Chile.</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-16 pt-6 flex flex-col sm:flex-row gap-3 items-center justify-between text-xs uppercase tracking-[0.18em]" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.2)" }}>
+          <p>© {new Date().getFullYear()} Paulette Elliot · Nutricionista</p>
+          <p style={{ opacity: 0.7 }}>Powered by Somaos</p>
+        </div>
+      </div>
+    </footer>
   );
 }
