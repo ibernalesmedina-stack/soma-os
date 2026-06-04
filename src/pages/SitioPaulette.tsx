@@ -459,6 +459,7 @@ function CTA() {
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
 
   const SLOTS_NUEVO = ["09:00", "10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
   const SLOTS_CONTROL = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"];
@@ -467,9 +468,10 @@ function CTA() {
   const currentPlan = plans[Math.min(planIdx, plans.length - 1)];
   const slots = patient === "nuevo" ? SLOTS_NUEVO : SLOTS_CONTROL;
 
-  const handleSubmit = () => {
-    const msg = `Hola Paulette! Quiero agendar una consulta:\n- Nombre: ${name}\n- RUT: ${rut}\n- Email: ${email}\n- Teléfono: ${phone}\n- Modalidad: ${modality}\n- Plan: ${currentPlan.name} (${formatCLP(currentPlan.price)})\n- Fecha: ${date} a las ${time}`;
-    window.open(`https://wa.me/56942156610?text=${encodeURIComponent(msg)}`, "_blank");
+  const handleConfirm = () => {
+    if (!name || !date || !time) return;
+    setConfirmed(true);
+    window.scrollTo({ top: document.getElementById("agenda")?.offsetTop ?? 0, behavior: "smooth" });
   };
 
   const inputStyle = { border: "1px solid oklch(0.28 0.06 165 / 0.15)", background: "var(--en-card)" };
@@ -538,43 +540,63 @@ function CTA() {
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
             </div>
           </div>
-          <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total a pagar</span>
-              <span className="text-3xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
-            </div>
-            <p className="mt-2 text-xs text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
-              Confirma tu hora por WhatsApp y luego realiza el pago por Mercado Pago.
-            </p>
-            <div className="mt-5 flex flex-col gap-3">
+          {!confirmed ? (
+            <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total</span>
+                <span className="text-3xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
+              </div>
               <button
-                onClick={handleSubmit}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors"
+                onClick={handleConfirm}
+                className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold transition-colors"
                 style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}
               >
-                <MessageCircle className="h-4 w-4" /> Confirmar hora por WhatsApp
+                Confirmar <ArrowRight className="h-4 w-4" />
               </button>
+            </div>
+          ) : (
+            <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
+              {/* Resumen */}
+              <div className="rounded-2xl p-5 mb-6" style={{ background: "oklch(0.45 0.10 165 / 0.08)", border: "1px solid var(--en-emerald)" }}>
+                <p className="text-xs uppercase tracking-[0.2em] font-semibold mb-3" style={{ color: "var(--en-emerald)" }}>Resumen de tu consulta</p>
+                <div className="space-y-1.5 text-sm" style={{ color: "var(--en-emerald-deep)" }}>
+                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Paciente</span><span className="font-medium">{name}</span></div>
+                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Plan</span><span className="font-medium">{currentPlan.name}</span></div>
+                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Modalidad</span><span className="font-medium">{modality}</span></div>
+                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Fecha</span><span className="font-medium">{date} · {time}</span></div>
+                  <div className="flex justify-between pt-2 mt-2" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.15)" }}>
+                    <span className="font-semibold">Total</span>
+                    <span className="text-xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pago con Mercado Pago */}
+              <p className="text-sm text-center mb-4 font-medium" style={{ color: "var(--en-emerald-deep)" }}>Elige cómo pagar:</p>
               <a
                 href="https://link.mercadopago.cl/elliotnutrition"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors"
+                className="w-full inline-flex items-center justify-center gap-3 rounded-full py-4 text-sm font-semibold transition-all hover:scale-[1.02]"
                 style={{ background: "#009EE3", color: "#fff" }}
               >
-                <svg className="h-5 w-5" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-                  <circle cx="24" cy="24" r="24" fill="#009EE3"/>
-                  <path d="M10 24c0-7.7 6.3-14 14-14s14 6.3 14 14" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>
-                  <circle cx="16" cy="28" r="3" fill="#fff"/>
-                  <circle cx="32" cy="28" r="3" fill="#fff"/>
-                  <path d="M16 28c0 4.4 3.6 8 8 8s8-3.6 8-8" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+                <svg className="h-5 w-20" viewBox="0 0 80 20" fill="none" aria-hidden="true">
+                  <text x="0" y="15" fontFamily="sans-serif" fontSize="13" fontWeight="bold" fill="white">Mercado Pago</text>
                 </svg>
-                Pagar {formatCLP(currentPlan.price)} con Mercado Pago
+                Pagar {formatCLP(currentPlan.price)}
               </a>
+              <p className="mt-3 text-[11px] text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
+                Ingresa el monto exacto: {formatCLP(currentPlan.price)} CLP
+              </p>
+              <button
+                onClick={() => setConfirmed(false)}
+                className="mt-4 w-full text-xs underline text-center"
+                style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}
+              >
+                ← Volver al formulario
+              </button>
             </div>
-            <p className="mt-3 text-[11px] text-center" style={{ color: "oklch(0.28 0.06 165 / 0.45)" }}>
-              Al pagar ingresa exactamente {formatCLP(currentPlan.price)} CLP — {currentPlan.name}
-            </p>
-          </div>
+          )}
         </div>
       </div>
     </section>
