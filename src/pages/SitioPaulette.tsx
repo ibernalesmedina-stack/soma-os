@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArrowRight, MessageCircle, Sparkles, Heart, Activity, Stethoscope, Star, ExternalLink, Check, Sprout, Apple, Dumbbell, Instagram as InstagramIcon } from "lucide-react";
 
 const heroImg = "/paulette-consulta.jpg";
@@ -37,24 +37,49 @@ const SITE_STYLES = `
   .en-reviews:hover { animation-play-state: paused; }
 `;
 
-const PRICES = {
-  Presencial: {
-    nuevo: [
-      { name: "Consulta Inicial", price: 42000 },
-      { name: "Plan 3 Meses", price: 110000 },
-      { name: "Plan 6 Meses", price: 200000 },
-    ],
-    control: [{ name: "Control Nutricional", price: 40000 }],
-  },
-  Online: {
-    nuevo: [
-      { name: "Consulta Inicial", price: 38000 },
-      { name: "Plan 3 Meses", price: 100000 },
-      { name: "Plan 6 Meses", price: 180000 },
-    ],
-    control: [{ name: "Control Nutricional", price: 40000 }],
-  },
-} as const;
+type Service = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  price_online: number;
+  duration_min: number;
+  modality: string;
+};
+
+type BookingPlan = { name: string; price: number; id: string; duration_min: number };
+
+function buildPrices(services: Service[]): {
+  Presencial: { nuevo: BookingPlan[]; control: BookingPlan[] };
+  Online: { nuevo: BookingPlan[]; control: BookingPlan[] };
+} {
+  const toBooking = (s: Service, online: boolean): BookingPlan => ({
+    name: s.name,
+    price: online ? s.price_online : s.price,
+    id: s.id,
+    duration_min: s.duration_min,
+  });
+  const isControl = (s: Service) => s.duration_min <= 30 || s.name.toLowerCase().includes("control");
+  const consultations = services.filter((s) => !isControl(s));
+  const controls = services.filter(isControl);
+  return {
+    Presencial: {
+      nuevo: consultations.map((s) => toBooking(s, false)),
+      control: controls.map((s) => toBooking(s, false)),
+    },
+    Online: {
+      nuevo: consultations.map((s) => toBooking(s, true)),
+      control: controls.map((s) => toBooking(s, true)),
+    },
+  };
+}
+
+const FALLBACK_SERVICES: Service[] = [
+  { id: "1", name: "Consulta Inicial", description: "Evaluación inicial completa con plan personalizado.", price: 42000, price_online: 38000, duration_min: 60, modality: "ambos" },
+  { id: "2", name: "Plan 3 Meses", description: "Para generar cambios reales.", price: 110000, price_online: 100000, duration_min: 60, modality: "ambos" },
+  { id: "3", name: "Plan 6 Meses", description: "Para una transformación profunda.", price: 200000, price_online: 180000, duration_min: 60, modality: "ambos" },
+  { id: "4", name: "Control Nutricional", description: "Seguimiento de tu proceso.", price: 40000, price_online: 40000, duration_min: 30, modality: "ambos" },
+];
 
 const formatCLP = (n: number) => "$" + n.toLocaleString("es-CL");
 
@@ -67,6 +92,15 @@ declare global {
 }
 
 export default function SitioPaulette() {
+  const [services, setServices] = useState<Service[]>(FALLBACK_SERVICES);
+
+  useEffect(() => {
+    fetch("/api/booking/slots?action=services")
+      .then((r) => r.json())
+      .then((d) => { if (d.services?.length) setServices(d.services); })
+      .catch(() => {});
+  }, []);
+
   return (
     <>
       <style>{SITE_STYLES}</style>
@@ -76,12 +110,12 @@ export default function SitioPaulette() {
         <Marquee />
         <About />
         <Impact />
-        <Services />
+        <Services services={services} />
         <Approach />
-        <Pricing />
+        <Pricing services={services} />
         <Testimonials />
         <Partner />
-        <CTA />
+        <CTA services={services} />
         <InstagramFeed />
         <Footer />
       </main>
@@ -223,12 +257,10 @@ function Impact() {
   );
 }
 
-function Services() {
-  const services = [
-    { icon: Heart, title: "Hábitos y bienestar", tag: "Cambio sostenible", desc: "Para quienes quieren mejorar su relación con la comida y construir hábitos sostenibles sin obsesionarse." },
-    { icon: Activity, title: "Rendimiento deportivo", tag: "Performance", desc: "Nutrición orientada a optimizar tu rendimiento, recuperación y composición corporal si practicas deporte." },
-    { icon: Stethoscope, title: "Salud clínica", tag: "Acompañamiento médico", desc: "Apoyo nutricional para condiciones específicas con un enfoque integral, cercano y basado en evidencia." },
-  ];
+const SERVICE_ICONS = [Heart, Activity, Stethoscope, Star];
+
+function Services({ services }: { services: Service[] }) {
+  const displayServices = services.filter(s => s.duration_min > 30).slice(0, 4);
   return (
     <section id="servicios" className="py-14 lg:py-20">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
@@ -240,19 +272,21 @@ function Services() {
           <p className="mt-5 text-base sm:text-lg max-w-xl mx-auto" style={{ color: "var(--en-muted)" }}>Nutrición deportiva, hábitos sostenibles y salud clínica. Cada plan se adapta a tu objetivo y estilo de vida.</p>
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-6">
-          {services.map((s, i) => (
-            <article key={s.title} className="rounded-2xl p-8 transition-all hover:-translate-y-1 hover:shadow-xl" style={{ background: "var(--en-card)", border: "1px solid var(--en-border)" }}>
+          {displayServices.map((s, i) => {
+            const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
+            return (
+            <article key={s.id} className="rounded-2xl p-8 transition-all hover:-translate-y-1 hover:shadow-xl" style={{ background: "var(--en-card)", border: "1px solid var(--en-border)" }}>
               <div className="flex items-center justify-between">
                 <div className="h-12 w-12 rounded-xl flex items-center justify-center" style={{ background: "var(--en-emerald-deep)", color: "var(--en-gold)" }}>
-                  <s.icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" />
                 </div>
                 <span className="text-xs tabular-nums" style={{ color: "var(--en-muted)" }}>0{i + 1}</span>
               </div>
-              <h3 className="mt-8 text-3xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{s.title}</h3>
-              <span className="mt-2 inline-block text-xs uppercase tracking-wider font-medium" style={{ color: "var(--en-gold)" }}>{s.tag}</span>
-              <p className="mt-5 leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{s.desc}</p>
+              <h3 className="mt-8 text-3xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{s.name}</h3>
+              <p className="mt-5 leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{s.description}</p>
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -293,13 +327,17 @@ function Approach() {
   );
 }
 
-function Pricing() {
+function Pricing({ services }: { services: Service[] }) {
   const [mode, setMode] = useState<"presencial" | "online">("presencial");
-  const plans = [
-    { tag: "Primer paso", title: "Consulta Inicial", desc: "Evaluación inicial completa con plan personalizado.", price: { presencial: "$42.000", online: "$38.000" }, duration: "60 minutos", features: ["Evaluación inicial completa", "Plan personalizado", "Seguimiento incluido", "Recomendaciones prácticas", "Seguimiento vía WhatsApp (1 mes)"] },
-    { tag: "Más elegido", title: "Plan 3 Meses", desc: "Para generar cambios reales y empezar a sostenerlos.", price: { presencial: "$110.000", online: "$100.000" }, duration: "60 min primera sesión · 30 min controles", features: ["Evaluación inicial + plan personalizado", "Seguimientos continuos", "Ajustes según tu progreso", "Acompañamiento cercano", "Material educativo incluido"] },
-    { tag: "Transformación", title: "Plan 6 Meses", desc: "Para una transformación profunda y sostenible.", price: { presencial: "$200.000", online: "$180.000" }, duration: "60 min primera sesión · 30 min controles", features: ["Evaluación inicial completa", "Plan + ajustes estratégicos", "Seguimiento constante", "Acompañamiento completo", "Parámetros bioquímicos"] },
-  ];
+  const plans = services
+    .filter(s => s.duration_min > 30)
+    .map(s => ({
+      id: s.id,
+      title: s.name,
+      desc: s.description,
+      price: { presencial: formatCLP(s.price), online: formatCLP(s.price_online) },
+      duration: `${s.duration_min} minutos`,
+    }));
   return (
     <section id="planes" className="py-14 lg:py-20" style={{ background: "oklch(0.88 0.07 130)" }}>
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
@@ -320,9 +358,8 @@ function Pricing() {
         </div>
         <div className="mt-16 grid md:grid-cols-3 gap-6">
           {plans.map((p) => (
-            <article key={p.title} className="rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm" style={{ background: "var(--en-cream)" }}>
-              <span className="self-start text-[10px] sm:text-xs uppercase tracking-[0.18em] rounded-full px-3 sm:px-4 py-1.5" style={{ background: "oklch(0.28 0.06 165 / 0.1)", color: "var(--en-emerald-deep)" }}>{p.tag}</span>
-              <h3 className="mt-5 text-3xl sm:text-4xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
+            <article key={p.id} className="rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm" style={{ background: "var(--en-cream)" }}>
+              <h3 className="mt-2 text-3xl sm:text-4xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
               <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{p.desc}</p>
               <div className="mt-6">
                 <div className="flex items-baseline gap-2">
@@ -449,7 +486,7 @@ function Partner() {
   );
 }
 
-function CTA() {
+function CTA({ services }: { services: Service[] }) {
   const [modality, setModality] = useState<"Presencial" | "Online">("Presencial");
   const [patient, setPatient] = useState<"nuevo" | "control">("nuevo");
   const [planIdx, setPlanIdx] = useState(0);
@@ -461,13 +498,26 @@ function CTA() {
   const [phone, setPhone] = useState("");
   const [step, setStep] = useState<"form" | "pay">("form");
   const [submitting, setSubmitting] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
 
-  const SLOTS_NUEVO = ["09:00", "10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
-  const SLOTS_CONTROL = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"];
-
+  const PRICES = buildPrices(services);
   const plans = PRICES[modality][patient];
   const currentPlan = plans[Math.min(planIdx, plans.length - 1)];
-  const slots = patient === "nuevo" ? SLOTS_NUEVO : SLOTS_CONTROL;
+
+  // Load available slots when date changes
+  useEffect(() => {
+    if (!date || !currentPlan) return;
+    fetch(`/api/booking/slots?date=${date}&duration=${currentPlan.duration_min}`)
+      .then(r => r.json())
+      .then(d => setAvailableSlots(d.slots || []))
+      .catch(() => setAvailableSlots([]));
+  }, [date, currentPlan?.duration_min]);
+
+  const slots = availableSlots.length > 0 ? availableSlots : (
+    patient === "nuevo"
+      ? ["09:00","10:00","11:00","12:00","13:00","15:00","16:00","17:00","18:00","19:00"]
+      : ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"]
+  );
 
   const handleConfirm = async () => {
     if (!name || !date || !time) return;

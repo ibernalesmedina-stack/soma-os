@@ -63,6 +63,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const USER_ID = "e84c4f11-50c2-4b6e-8c4b-055bb635edcd";
 
+  // ── GET: services list ──────────────────────────────────────────────────
+  if (req.method === "GET" && req.query.action === "services") {
+    const data = await sbGet(
+      `servicios?user_id=eq.${USER_ID}&active=eq.true&order=price.asc`
+    );
+    return res.json({ services: Array.isArray(data) ? data : [] });
+  }
+
   // ── GET: available slots ─────────────────────────────────────────────────
   if (req.method === "GET") {
     const date = req.query.date as string;
