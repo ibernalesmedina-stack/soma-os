@@ -93,7 +93,7 @@ function Nav() {
   return (
     <header className="absolute top-0 left-0 right-0 z-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex items-center justify-between gap-3">
-        <a href="#" style={{ color: "var(--en-cream)" }} className="min-w-0">
+        <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noreferrer" style={{ color: "var(--en-cream)" }} className="min-w-0">
           <span className="font-sans text-[13px] sm:text-lg lg:text-xl font-bold tracking-[0.14em] sm:tracking-[0.18em] whitespace-nowrap">ELLIOT NUTRITION</span>
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm">
@@ -634,6 +634,23 @@ function Footer() {
               <li><a href="https://wa.me/56942156610" target="_blank" rel="noopener noreferrer" className="hover:underline">+56 9 4215 6610</a></li>
               <li>Avenida Reñaca Norte 25, Concón, Chile.</li>
             </ul>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Avenida+Re%C3%B1aca+Norte+25,+Conc%C3%B3n,+Chile"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 block overflow-hidden rounded-2xl hover:shadow-md transition-shadow"
+              style={{ border: "1px solid oklch(0.28 0.06 165 / 0.2)" }}
+            >
+              <iframe
+                title="Ubicación Elliot Nutrition — Avenida Reñaca Norte 25, Concón"
+                src="https://www.google.com/maps?q=Avenida%20Re%C3%B1aca%20Norte%2025%2C%20Conc%C3%B3n%2C%20Chile&output=embed"
+                width="100%"
+                height="180"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                style={{ border: 0, display: "block", pointerEvents: "none" }}
+              />
+            </a>
           </div>
         </div>
         <div className="mt-16 pt-6 flex flex-col sm:flex-row gap-3 items-center justify-between text-xs uppercase tracking-[0.18em]" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.2)" }}>
