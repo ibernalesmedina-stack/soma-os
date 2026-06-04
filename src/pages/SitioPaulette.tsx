@@ -233,7 +233,7 @@ function Services() {
     <section id="servicios" className="py-14 lg:py-20">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <div className="max-w-3xl mx-auto text-center">
-          <span className="text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>— Servicios de nutrición</span>
+          <span className="text-sm uppercase tracking-[0.25em] font-semibold" style={{ color: "var(--en-emerald)" }}>Servicios de nutrición</span>
           <h2 className="mt-4 text-[2.25rem] sm:text-4xl lg:text-6xl leading-[1.05] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Tres caminos, un solo <em style={{ color: "var(--en-emerald)" }}>propósito</em>.
           </h2>
@@ -272,7 +272,7 @@ function Approach() {
           <img src={consultaImg} alt="Paulette en consulta" className="w-full h-auto block" loading="lazy" />
         </div>
         <div>
-          <span className="text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>— Cómo trabajamos</span>
+          <span className="text-sm uppercase tracking-[0.25em] font-semibold" style={{ color: "var(--en-emerald)" }}>Cómo trabajamos</span>
           <h2 className="mt-4 text-4xl lg:text-5xl leading-[1.1] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Un plan que <em style={{ color: "var(--en-emerald)" }}>funciona</em> en tu vida real.
           </h2>
@@ -420,7 +420,7 @@ function Partner() {
     <section id="partner" className="py-16 lg:py-24" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
       <div className="mx-auto max-w-6xl px-6 lg:px-10 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="order-2 lg:order-1">
-          <span className="inline-block text-[11px] uppercase tracking-[0.3em]" style={{ color: "var(--en-gold)" }}>Alianza</span>
+          <span className="inline-block text-sm uppercase tracking-[0.3em] font-semibold" style={{ color: "var(--en-gold)" }}>Alianza</span>
           <h2 className="mt-4 text-4xl sm:text-5xl lg:text-6xl leading-[1.05] font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Official Partner <br /><em style={{ color: "var(--en-gold)" }}>Nutrition &amp; Performance</em>
           </h2>
@@ -478,7 +478,7 @@ function CTA() {
     <section id="agenda" className="py-14 sm:py-16 lg:py-24" style={{ background: "oklch(0.94 0.06 90)", color: "var(--en-emerald-deep)" }}>
       <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-10">
         <div className="text-center">
-          <span className="inline-block text-[11px] uppercase tracking-[0.3em]" style={{ color: "var(--en-emerald)" }}>Reserva</span>
+          <span className="inline-block text-sm uppercase tracking-[0.3em] font-semibold" style={{ color: "var(--en-emerald)" }}>Reserva</span>
           <h2 className="mt-3 text-[2rem] sm:text-5xl lg:text-6xl leading-none font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
             Agenda tu <em style={{ color: "var(--en-emerald)" }}>consulta</em>
           </h2>
@@ -571,7 +571,7 @@ function InstagramFeed() {
     <section id="instagram" className="py-14 lg:py-20" style={{ background: "var(--en-cream)" }}>
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="flex flex-col items-center text-center gap-3">
-          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em]" style={{ color: "var(--en-emerald)" }}>
+          <span className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.25em] font-semibold" style={{ color: "var(--en-emerald)" }}>
             <InstagramIcon className="h-4 w-4" /> Instagram
           </span>
           <h2 className="text-3xl lg:text-5xl leading-[1.1] text-balance max-w-2xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
