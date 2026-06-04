@@ -8,6 +8,9 @@ import { PlanLocked } from "@/components/PlanLocked";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCLP, slugify } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { Receipt } from "lucide-react";
+
+const TAX_RATE = 0.1525; // 15.25% boletas de honorarios Chile
 
 type Period = "week" | "month" | "year";
 
@@ -75,6 +78,41 @@ export default function Analitica() {
         <KPI label="Pacientes nuevos" value={String(totalNuevos)} />
         <KPI label="Pacientes antiguos" value={String(totalAntiguos)} />
       </div>
+
+      {user?.tipo_negocio === "nutricionista" && totalIngreso > 0 && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
+              <Receipt className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                Estimación de impuestos — Boleta de honorarios
+              </p>
+              <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-400">
+                Retención del 15,25% sobre ingresos brutos del período seleccionado (Art. 74 N°2 LIR).
+              </p>
+              <div className="mt-3 grid grid-cols-3 gap-3">
+                <div className="rounded-lg bg-white dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wider text-amber-600 dark:text-amber-400">Ingreso bruto</p>
+                  <p className="text-base font-semibold text-amber-900 dark:text-amber-100 mt-0.5">{formatCLP(totalIngreso)}</p>
+                </div>
+                <div className="rounded-lg bg-amber-100 dark:bg-amber-900/50 border border-amber-300 dark:border-amber-600 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wider text-amber-700 dark:text-amber-300">Impuesto estimado (15,25%)</p>
+                  <p className="text-base font-semibold text-amber-900 dark:text-amber-100 mt-0.5">{formatCLP(Math.round(totalIngreso * TAX_RATE))}</p>
+                </div>
+                <div className="rounded-lg bg-white dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wider text-amber-600 dark:text-amber-400">Ingreso neto estimado</p>
+                  <p className="text-base font-semibold text-amber-900 dark:text-amber-100 mt-0.5">{formatCLP(Math.round(totalIngreso * (1 - TAX_RATE)))}</p>
+                </div>
+              </div>
+              <p className="mt-2 text-[10px] text-amber-600 dark:text-amber-500">
+                * Estimación referencial. Consulta a tu contador para el cálculo definitivo según tu situación tributaria.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="surface-card p-5">
