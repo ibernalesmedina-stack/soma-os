@@ -79,7 +79,7 @@ export default function Analitica() {
         <KPI label="Pacientes antiguos" value={String(totalAntiguos)} />
       </div>
 
-      {user?.tipo_negocio === "nutricionista" && totalIngreso > 0 && (
+      {user?.tipoNegocio === "nutricionista" && totalIngreso > 0 && (
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
