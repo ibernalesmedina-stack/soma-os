@@ -4,6 +4,10 @@ const SUPABASE_URL = "https://fwxutchyumopwvertisd.supabase.co";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN!;
+const RESEND_API_KEY = process.env.RESEND_API_KEY!;
+const SITE_URL = "https://www.elliotnutrition.com";
+const PAULETTE_EMAIL = "pelliotbanados@gmail.com";
 
 // Paulette's working hours (minutes from midnight)
 const SCHEDULE: Record<number, { start: number; end: number; break?: number }> = {
@@ -102,6 +106,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.json({ slots: available });
   }
 
+  // ── POST: create MP preference ──────────────────────────────────────────
+  if (req.method === "POST" && req.body?.action === "preference") {
+    const { name, rut, email, phone, date, hour, esControl, serviceName, amount, modo } = req.body;
+    if (!name || !date || !hour || !amount) return res.status(400).json({ error: "Datos incompletos" });
+
+    const ref = JSON.stringify({ name, rut, email, phone, date, hour, esControl, serviceName, amount, modo });
+
+    const mpRes = await fetch("https://api.mercadopago.com/checkout/preferences", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: [{ title: serviceName, quantity: 1, unit_price: Number(amount), currency_id: "CLP" }],
+        external_reference: ref,
+        back_urls: {
+          success: `${SITE_URL}/pago-exitoso`,
+          failure: `${SITE_URL}/#agenda`,
+          pending: `${SITE_URL}/pago-exitoso`,
+        },
+        auto_return: "approved",
+      }),
+    });
+
+    if (!mpRes.ok) {
+      const err = await mpRes.json();
+      console.error("MP error:", err);
+      return res.status(500).json({ error: "Error al crear preferencia de pago" });
+    }
+
+    const mpData = await mpRes.json();
+    return res.json({ init_point: mpData.init_point, sandbox_init_point: mpData.sandbox_init_point });
+  }
+
   // ── POST: create booking ─────────────────────────────────────────────────
   if (req.method === "POST") {
     const { name, email, phone, rut, date, hour, esControl, planId, serviceName, amount, modo } = req.body;
@@ -165,6 +204,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     } catch (e) {
       console.error("Calendar event failed (reservation saved):", e);
+    }
+
+    // Send emails non-blocking
+    if (RESEND_API_KEY && email) {
+      const clp = "$" + Number(amount).toLocaleString("es-CL");
+      const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+        <div style="background:oklch(0.28 0.06 165);padding:24px 32px;border-radius:12px 12px 0 0">
+          <h1 style="margin:0;color:#fff;font-size:20px">¡Reserva confirmada! ✓</h1>
+          <p style="margin:4px 0 0;color:rgba(255,255,255,.75);font-size:13px">Elliot Nutrition · Paulette Elliot, Nutricionista</p>
+        </div>
+        <div style="padding:24px 32px;background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
+          <p style="color:#374151">Hola <strong>${name}</strong>, tu pago y reserva fueron confirmados.</p>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
+            <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Plan</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${serviceName}</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Fecha</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${date} · ${hour}</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Modalidad</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${modo}</td></tr>
+            <tr><td style="padding:8px;color:#6b7280">Total pagado</td><td style="padding:8px;font-weight:600;color:#166534">${clp} CLP</td></tr>
+          </table>
+          <p style="font-size:13px;color:#6b7280">¿Necesitas reagendar? Escríbeme por <a href="https://wa.me/56942156610" style="color:oklch(0.45 0.10 165)">WhatsApp</a>.</p>
+        </div>
+      </div>`;
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: "Elliot Nutrition <noreply@somaos.app>", to: [email], subject: `✓ Reserva confirmada — ${serviceName} el ${date}`, html: clientHtml }),
+      }).catch(() => {});
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: "Elliot Nutrition <noreply@somaos.app>", to: [PAULETTE_EMAIL], subject: `Nueva reserva: ${name} — ${serviceName} el ${date}`, html: `<p><b>Paciente:</b> ${name} | <b>Plan:</b> ${serviceName} | <b>Fecha:</b> ${date} ${hour} | <b>Monto:</b> ${clp} CLP | <b>Email:</b> ${email} | <b>Tel:</b> ${phone || "-"}</p>` }),
+      }).catch(() => {});
     }
 
     return res.json({ ok: true, reservaId });

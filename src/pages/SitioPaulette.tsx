@@ -459,7 +459,7 @@ function CTA() {
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [step, setStep] = useState<"form" | "pay" | "done">("form");
+  const [step, setStep] = useState<"form" | "pay">("form");
   const [submitting, setSubmitting] = useState(false);
 
   const SLOTS_NUEVO = ["09:00", "10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
@@ -469,23 +469,16 @@ function CTA() {
   const currentPlan = plans[Math.min(planIdx, plans.length - 1)];
   const slots = patient === "nuevo" ? SLOTS_NUEVO : SLOTS_CONTROL;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!name || !date || !time) return;
-    setStep("pay");
-  };
-
-  const handlePaid = async () => {
     setSubmitting(true);
     try {
-      await fetch("/api/booking/slots", {
+      const res = await fetch("/api/booking/slots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          rut,
-          email,
-          phone,
-          date,
+          action: "preference",
+          name, rut, email, phone, date,
           hour: time,
           esControl: patient === "control",
           serviceName: currentPlan.name,
@@ -493,11 +486,18 @@ function CTA() {
           modo: modality.toLowerCase(),
         }),
       });
-    } catch (e) {
-      console.error(e);
+      const data = await res.json();
+      if (data.sandbox_init_point) {
+        window.location.href = data.sandbox_init_point;
+      } else if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        setStep("pay");
+      }
+    } catch {
+      setStep("pay");
     }
     setSubmitting(false);
-    setStep("done");
   };
 
   const inputStyle = { border: "1px solid oklch(0.28 0.06 165 / 0.15)", background: "var(--en-card)" };
@@ -572,77 +572,29 @@ function CTA() {
                 <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total</span>
                 <span className="text-3xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
               </div>
-              <button onClick={handleConfirm} className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
-                Confirmar <ArrowRight className="h-4 w-4" />
+              <button
+                onClick={handleConfirm}
+                disabled={submitting}
+                className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold transition-colors"
+                style={{ background: submitting ? "oklch(0.45 0.10 165 / 0.5)" : "var(--en-emerald-deep)", color: "var(--en-cream)" }}
+              >
+                {submitting ? "Preparando pago…" : <>Confirmar y pagar <ArrowRight className="h-4 w-4" /></>}
               </button>
+              <p className="mt-2 text-[11px] text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
+                Serás redirigida a Mercado Pago para completar el pago
+              </p>
             </div>
           )}
 
           {step === "pay" && (
             <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
-              {/* Resumen */}
-              <div className="rounded-2xl p-5 mb-5" style={{ background: "oklch(0.45 0.10 165 / 0.07)", border: "1px solid oklch(0.45 0.10 165 / 0.3)" }}>
-                <p className="text-xs uppercase tracking-[0.2em] font-semibold mb-3" style={{ color: "var(--en-emerald)" }}>Resumen</p>
-                <div className="space-y-1.5 text-sm" style={{ color: "var(--en-emerald-deep)" }}>
-                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Paciente</span><span className="font-medium">{name}</span></div>
-                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Plan</span><span className="font-medium">{currentPlan.name}</span></div>
-                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Fecha</span><span className="font-medium">{date} · {time}</span></div>
-                  <div className="flex justify-between"><span style={{ opacity: 0.7 }}>Modalidad</span><span className="font-medium">{modality}</span></div>
-                  <div className="flex justify-between pt-2 mt-2 font-semibold text-base" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.15)" }}>
-                    <span>Total</span>
-                    <span style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Paso 1: Pagar */}
-              <div className="rounded-2xl p-4 mb-3" style={{ background: "#f0f9ff", border: "1px solid #bae6fd" }}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#0369a1" }}>Paso 1 — Realiza el pago</p>
-                <a
-                  href="https://link.mercadopago.cl/elliotnutrition"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all hover:opacity-90"
-                  style={{ background: "#009EE3", color: "#fff" }}
-                >
-                  Pagar {formatCLP(currentPlan.price)} con Mercado Pago
-                </a>
-                <p className="mt-2 text-[11px] text-center" style={{ color: "#0369a1" }}>
-                  Ingresa exactamente {formatCLP(currentPlan.price)} CLP al pagar
-                </p>
-              </div>
-
-              {/* Paso 2: Confirmar */}
-              <div className="rounded-2xl p-4" style={{ background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#166534" }}>Paso 2 — Ya pagué, confirmar reserva</p>
-                <button
-                  onClick={handlePaid}
-                  disabled={submitting}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all"
-                  style={{ background: submitting ? "#86efac" : "#16a34a", color: "#fff" }}
-                >
-                  {submitting ? "Confirmando…" : "✓ Ya pagué — Confirmar mi reserva"}
-                </button>
-              </div>
-
-              <button onClick={() => setStep("form")} className="mt-4 w-full text-xs underline text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
+              <p className="text-sm text-center mb-4" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>Hubo un problema al conectar con Mercado Pago. Inténtalo de nuevo.</p>
+              <button onClick={handleConfirm} disabled={submitting} className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold" style={{ background: "#009EE3", color: "#fff" }}>
+                {submitting ? "Conectando…" : "Reintentar pago"}
+              </button>
+              <button onClick={() => setStep("form")} className="mt-3 w-full text-xs underline text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
                 ← Volver al formulario
               </button>
-            </div>
-          )}
-
-          {step === "done" && (
-            <div className="pt-6 text-center" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ background: "#dcfce7" }}>
-                <Check className="h-8 w-8" style={{ color: "#166534" }} strokeWidth={3} />
-              </div>
-              <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>¡Reserva confirmada!</h3>
-              <p className="text-sm mb-1" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>Te enviamos un email de confirmación a <strong>{email}</strong></p>
-              <p className="text-sm" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>Paulette también recibió tu reserva.</p>
-              <div className="mt-6 p-4 rounded-xl text-sm" style={{ background: "oklch(0.45 0.10 165 / 0.07)", color: "var(--en-emerald-deep)" }}>
-                <p><strong>{currentPlan.name}</strong> · {date} a las {time}</p>
-                <p style={{ opacity: 0.7 }}>{modality} · {formatCLP(currentPlan.price)} CLP</p>
-              </div>
             </div>
           )}
         </div>

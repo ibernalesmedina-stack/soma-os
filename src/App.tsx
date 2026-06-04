@@ -35,6 +35,7 @@ import AdminIntegraciones from "./pages/admin/Integraciones";
 import AdminSitioEditor from "./pages/admin/SitioEditor";
 import Sitio from "./pages/Sitio";
 import SitioPaulette from "./pages/SitioPaulette";
+import PagoExitoso from "./pages/PagoExitoso";
 import Landing from "./pages/Landing";
 import Privacidad from "./pages/Privacidad";
 import Terminos from "./pages/Terminos";
@@ -79,6 +80,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
+            <Route path="/pago-exitoso" element={<PagoExitoso />} />
             <Route path="*" element={siteElement} />
           </Routes>
         </BrowserRouter>
