@@ -93,16 +93,16 @@ function Nav() {
   return (
     <header className="absolute top-0 left-0 right-0 z-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-5 sm:py-6 flex items-center justify-between gap-3">
-        <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noreferrer" style={{ color: "var(--en-cream)" }} className="min-w-0">
+        <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noreferrer" style={{ color: "var(--en-emerald-deep)" }} className="min-w-0">
           <span className="font-sans text-[13px] sm:text-lg lg:text-xl font-bold tracking-[0.14em] sm:tracking-[0.18em] whitespace-nowrap">ELLIOT NUTRITION</span>
         </a>
         <nav className="hidden md:flex items-center gap-8">
           {["#sobre|Sobre mí", "#servicios|Servicios", "#enfoque|Enfoque", "#resenas|Reseñas"].map((item) => {
             const [href, label] = item.split("|");
-            return <a key={href} href={href} style={{ color: "var(--en-gold)", fontSize: "1rem", fontWeight: 600, letterSpacing: "0.02em" }} className="hover:opacity-80 transition-opacity">{label}</a>;
+            return <a key={href} href={href} style={{ color: "var(--en-emerald-deep)", fontSize: "1rem", fontWeight: 700, letterSpacing: "0.02em" }} className="hover:opacity-70 transition-opacity">{label}</a>;
           })}
         </nav>
-        <a href="#agenda" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap shrink-0 transition-colors" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+        <a href="#agenda" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold whitespace-nowrap shrink-0 transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
           Reservar <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </a>
       </div>
@@ -116,7 +116,7 @@ function Hero() {
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, var(--en-gold) 1px, transparent 1px), radial-gradient(circle at 80% 70%, var(--en-gold) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 grid lg:grid-cols-12 gap-10 items-center">
         <div className="lg:col-span-7">
-          <span className="inline-flex items-center gap-2 rounded-full px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs uppercase tracking-[0.18em]" style={{ border: "1px solid oklch(0.75 0.12 85 / 0.3)", background: "oklch(0.75 0.12 85 / 0.1)", color: "var(--en-gold)" }}>
+          <span className="inline-flex items-center gap-2 rounded-full px-3 sm:px-4 py-1.5 text-[10px] sm:text-sm font-semibold uppercase tracking-[0.18em]" style={{ border: "2px solid var(--en-emerald-deep)", background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> Nutricionista · Presencial y Online
           </span>
           <h1 className="mt-5 sm:mt-6 text-[2.5rem] leading-[1] sm:text-6xl lg:text-7xl xl:text-8xl sm:leading-[0.95] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
