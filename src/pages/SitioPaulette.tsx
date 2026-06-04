@@ -368,14 +368,7 @@ function Pricing({ services }: { services: Service[] }) {
                 </div>
                 <p className="mt-2 text-xs uppercase tracking-[0.16em] leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>{p.duration}</p>
               </div>
-              <ul className="mt-8 space-y-3 flex-1">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm" style={{ color: "oklch(0.20 0.04 165 / 0.8)" }}>
-                    <Check className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} style={{ color: "var(--en-emerald)" }} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
+              <div className="flex-1" />
               <a href="#agenda" className="mt-8 inline-flex items-center justify-between gap-2 rounded-full px-6 py-3.5 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
                 Agenda tu consulta <ArrowRight className="h-4 w-4" />
               </a>
