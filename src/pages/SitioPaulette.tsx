@@ -540,12 +540,40 @@ function CTA() {
           </div>
           <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
             <div className="flex items-baseline justify-between">
-              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total</span>
+              <span className="text-xs uppercase tracking-[0.2em]" style={{ color: "oklch(0.28 0.06 165 / 0.6)" }}>Total a pagar</span>
               <span className="text-3xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{formatCLP(currentPlan.price)}</span>
             </div>
-            <button onClick={handleSubmit} className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
-              Confirmar y agendar por WhatsApp <ArrowRight className="h-4 w-4" />
-            </button>
+            <p className="mt-2 text-xs text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
+              Confirma tu hora por WhatsApp y luego realiza el pago por Mercado Pago.
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                onClick={handleSubmit}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors"
+                style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}
+              >
+                <MessageCircle className="h-4 w-4" /> Confirmar hora por WhatsApp
+              </button>
+              <a
+                href="https://link.mercadopago.cl/elliotnutrition"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-medium transition-colors"
+                style={{ background: "#009EE3", color: "#fff" }}
+              >
+                <svg className="h-5 w-5" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                  <circle cx="24" cy="24" r="24" fill="#009EE3"/>
+                  <path d="M10 24c0-7.7 6.3-14 14-14s14 6.3 14 14" stroke="#fff" strokeWidth="3" strokeLinecap="round"/>
+                  <circle cx="16" cy="28" r="3" fill="#fff"/>
+                  <circle cx="32" cy="28" r="3" fill="#fff"/>
+                  <path d="M16 28c0 4.4 3.6 8 8 8s8-3.6 8-8" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+                Pagar {formatCLP(currentPlan.price)} con Mercado Pago
+              </a>
+            </div>
+            <p className="mt-3 text-[11px] text-center" style={{ color: "oklch(0.28 0.06 165 / 0.45)" }}>
+              Al pagar ingresa exactamente {formatCLP(currentPlan.price)} CLP — {currentPlan.name}
+            </p>
           </div>
         </div>
       </div>
