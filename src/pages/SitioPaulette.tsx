@@ -96,10 +96,10 @@ function Nav() {
         <a href="https://www.instagram.com/elliotnutrition/" target="_blank" rel="noreferrer" style={{ color: "var(--en-cream)" }} className="min-w-0">
           <span className="font-sans text-[13px] sm:text-lg lg:text-xl font-bold tracking-[0.14em] sm:tracking-[0.18em] whitespace-nowrap">ELLIOT NUTRITION</span>
         </a>
-        <nav className="hidden md:flex items-center gap-8 text-sm">
+        <nav className="hidden md:flex items-center gap-8">
           {["#sobre|Sobre mí", "#servicios|Servicios", "#enfoque|Enfoque", "#resenas|Reseñas"].map((item) => {
             const [href, label] = item.split("|");
-            return <a key={href} href={href} style={{ color: "var(--en-gold)" }} className="hover:opacity-80 transition-opacity">{label}</a>;
+            return <a key={href} href={href} style={{ color: "var(--en-gold)", fontSize: "1rem", fontWeight: 600, letterSpacing: "0.02em" }} className="hover:opacity-80 transition-opacity">{label}</a>;
           })}
         </nav>
         <a href="#agenda" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap shrink-0 transition-colors" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
@@ -112,7 +112,7 @@ function Nav() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden pt-28 sm:pt-32 pb-14 sm:pb-16 lg:pt-40 lg:pb-20" style={{ background: "linear-gradient(180deg, oklch(0.20 0.05 165) 0%, oklch(0.28 0.06 165) 60%)", color: "var(--en-cream)" }}>
+    <section className="relative overflow-hidden pt-28 sm:pt-32 pb-14 sm:pb-16 lg:pt-40 lg:pb-20" style={{ background: "linear-gradient(180deg, oklch(0.68 0.10 85) 0%, oklch(0.28 0.06 165) 55%)", color: "var(--en-cream)" }}>
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, var(--en-gold) 1px, transparent 1px), radial-gradient(circle at 80% 70%, var(--en-gold) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 grid lg:grid-cols-12 gap-10 items-center">
         <div className="lg:col-span-7">
