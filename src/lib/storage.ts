@@ -209,22 +209,31 @@ export const updateFicha = async (id: string, patch: Partial<ClienteFicha>) => {
 };
 
 export const importFichasCSV = async (userId: string, rows: Array<Record<string, string>>) => {
-  let added = 0; let updated = 0;
+  // Load all existing fichas once to avoid N+1 queries and detect duplicates by name OR email
+  const { data: existing } = await supabase
+    .from("fichas_clientes").select("id, client_key, email")
+    .eq("user_id", userId);
+  const byKey = new Map((existing ?? []).map((f) => [f.client_key, f]));
+  const byEmail = new Map(
+    (existing ?? []).filter((f) => f.email).map((f) => [f.email.toLowerCase().trim(), f])
+  );
+
+  let added = 0; let updated = 0; let skipped = 0;
   for (const row of rows) {
     const name = (row.clientName || row.nombre || row.name || "").trim();
     if (!name) continue;
     const key = slugify(name);
+    const emailRaw = (row.email || "").trim();
     const patch = {
-      email: row.email || null, phone: row.phone || row.telefono || null,
+      email: emailRaw || null, phone: row.phone || row.telefono || null,
       birth_date: row.birthDate || row.fechaNacimiento || null,
       address: row.address || row.direccion || null,
       notas_generales: row.notas || row.notasGenerales || null,
     };
-    const { data: existing } = await supabase
-      .from("fichas_clientes").select("id")
-      .eq("user_id", userId).eq("client_key", key).single();
-    if (existing) {
-      await supabase.from("fichas_clientes").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", existing.id);
+
+    const found = byKey.get(key) ?? (emailRaw ? byEmail.get(emailRaw.toLowerCase()) : undefined);
+    if (found) {
+      await supabase.from("fichas_clientes").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", found.id);
       updated++;
     } else {
       const now = new Date().toISOString();
@@ -232,10 +241,31 @@ export const importFichasCSV = async (userId: string, rows: Array<Record<string,
         user_id: userId, client_key: key, client_name: name,
         ...patch, created_at: now, updated_at: now,
       });
+      byKey.set(key, { id: key, client_key: key, email: emailRaw || null });
+      if (emailRaw) byEmail.set(emailRaw.toLowerCase(), { id: key, client_key: key, email: emailRaw });
       added++;
     }
   }
-  return { added, updated };
+  return { added, updated, skipped };
+};
+
+export const previewFichasCSV = async (userId: string, rows: Array<Record<string, string>>) => {
+  const { data: existing } = await supabase
+    .from("fichas_clientes").select("client_key, email")
+    .eq("user_id", userId);
+  const byKey = new Set((existing ?? []).map((f) => f.client_key));
+  const byEmail = new Set((existing ?? []).filter((f) => f.email).map((f) => f.email.toLowerCase().trim()));
+
+  let toAdd = 0; let toUpdate = 0;
+  for (const row of rows) {
+    const name = (row.clientName || row.nombre || row.name || "").trim();
+    if (!name) continue;
+    const key = slugify(name);
+    const email = (row.email || "").trim().toLowerCase();
+    if (byKey.has(key) || (email && byEmail.has(email))) toUpdate++;
+    else toAdd++;
+  }
+  return { toAdd, toUpdate };
 };
 
 // ── Notas ──────────────────────────────────────────────────────────

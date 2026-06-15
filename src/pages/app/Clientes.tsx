@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useFichas, usePagos, useReservas } from "@/lib/hooks";
-import { getOrCreateFicha, importFichasCSV, registerConsent } from "@/lib/storage";
+import { getOrCreateFicha, importFichasCSV, previewFichasCSV, registerConsent } from "@/lib/storage";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
@@ -134,6 +134,8 @@ export default function Clientes() {
   const cfg = user ? BUSINESS_CONFIG[user.tipoNegocio] : null;
   const [q, setQ] = useState("");
   const [showNew, setShowNew] = useState(false);
+  const [importPreview, setImportPreview] = useState<{ rows: Array<Record<string, string>>; toAdd: number; toUpdate: number } | null>(null);
+  const [importing, setImporting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -198,11 +200,9 @@ export default function Clientes() {
     a.click(); URL.revokeObjectURL(url);
   };
 
-  const importCSV = async (file: File) => {
-    if (!user) return;
-    const text = await file.text();
+  const parseCSV = (text: string) => {
     const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
-    if (lines.length < 2) { toast({ title: "Archivo vacío" }); return; }
+    if (lines.length < 2) return null;
     const parseLine = (l: string) => {
       const out: string[] = []; let cur = ""; let inQ = false;
       for (let i = 0; i < l.length; i++) {
@@ -214,19 +214,60 @@ export default function Clientes() {
       out.push(cur); return out;
     };
     const headers = parseLine(lines[0]).map((h) => h.trim());
-    const rows = lines.slice(1).map((l) => {
+    return lines.slice(1).map((l) => {
       const vals = parseLine(l);
       const obj: Record<string, string> = {};
       headers.forEach((h, i) => { obj[h] = vals[i] ?? ""; });
       return obj;
     });
-    const { added, updated } = await importFichasCSV(user.id, rows);
-    toast({ title: "Importación completa", description: `${added} nuevos, ${updated} actualizados` });
+  };
+
+  const importCSV = async (file: File) => {
+    if (!user) return;
+    const rows = parseCSV(await file.text());
+    if (!rows) { toast({ title: "Archivo vacío" }); return; }
+    const preview = await previewFichasCSV(user.id, rows);
+    setImportPreview({ rows, ...preview });
+  };
+
+  const confirmImport = async () => {
+    if (!user || !importPreview) return;
+    setImporting(true);
+    const { added, updated } = await importFichasCSV(user.id, importPreview.rows);
+    setImporting(false);
+    setImportPreview(null);
+    toast({ title: "Importación completa", description: `${added} nuevos agregados, ${updated} ya existían y fueron actualizados` });
     refetchFichas();
   };
 
   return (
     <>
+      <Dialog open={!!importPreview} onOpenChange={(o) => { if (!o) setImportPreview(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar importación</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="rounded-lg border bg-muted/30 divide-y text-sm">
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-muted-foreground">Pacientes nuevos a agregar</span>
+                <span className="font-semibold text-green-600">{importPreview?.toAdd ?? 0}</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-muted-foreground">Ya existen (serán actualizados)</span>
+                <span className="font-semibold text-amber-600">{importPreview?.toUpdate ?? 0}</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Los pacientes que ya existen (por nombre o email) no se duplicarán — solo se actualizarán sus datos si hay cambios.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportPreview(null)}>Cancelar</Button>
+            <Button onClick={confirmImport} disabled={importing}>
+              {importing ? "Importando…" : `Importar ${(importPreview?.toAdd ?? 0) + (importPreview?.toUpdate ?? 0)} pacientes`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <NuevoPacienteDialog
         open={showNew}
         onClose={() => setShowNew(false)}
