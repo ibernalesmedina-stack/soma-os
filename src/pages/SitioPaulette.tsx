@@ -91,7 +91,38 @@ declare global {
   }
 }
 
+function useSEO() {
+  useEffect(() => {
+    document.title = "Paulette Elliot · Nutricionista | elliotnutrition.com";
+
+    const setMeta = (attr: string, val: string, content: string) => {
+      let el = document.querySelector(`meta[${attr}="${val}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, val); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+
+    const desc = "Soy Paulette Elliot, nutricionista. Acompaño a personas que quieren mejorar su alimentación sin caer en extremos ni frustraciones. Mi enfoque combina ciencia, hábitos y bienestar real.";
+    setMeta("name", "description", desc);
+    setMeta("name", "robots", "index, follow");
+    setMeta("property", "og:title", "Paulette Elliot · Nutricionista");
+    setMeta("property", "og:description", "Nutricionista integrativa en Chile. Consultas presenciales y online. Reserva tu hora directamente.");
+    setMeta("property", "og:url", "https://www.elliotnutrition.com");
+    setMeta("property", "og:image", "https://www.elliotnutrition.com/paulette-consulta.jpg");
+    setMeta("property", "og:type", "website");
+    setMeta("property", "og:site_name", "Elliot Nutrition");
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", "Paulette Elliot · Nutricionista");
+    setMeta("name", "twitter:description", "Nutricionista integrativa en Chile. Consultas presenciales y online.");
+    setMeta("name", "twitter:image", "https://www.elliotnutrition.com/paulette-consulta.jpg");
+
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) { canonical = document.createElement("link") as HTMLLinkElement; canonical.rel = "canonical"; document.head.appendChild(canonical); }
+    canonical.href = "https://www.elliotnutrition.com";
+  }, []);
+}
+
 export default function SitioPaulette() {
+  useSEO();
   const [services, setServices] = useState<Service[]>(FALLBACK_SERVICES);
 
   useEffect(() => {

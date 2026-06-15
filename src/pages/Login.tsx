@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth-context";
-import { ArrowRight, Calendar, CreditCard, Sparkles, CheckCircle2, Users, TrendingUp, ArrowLeft } from "lucide-react";
+import { ArrowRight, Calendar, CreditCard, Sparkles, CheckCircle2, Users, TrendingUp, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const { user, login, resetPassword } = useAuth();
@@ -15,6 +15,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
   const [resetEmail, setResetEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   if (user) return <Navigate to="/app" replace />;
 
@@ -88,7 +89,13 @@ export default function Login() {
             ¿Olvidaste tu contraseña?
           </button>
         </div>
-        <Input id="password" type="password" required value={password} onChange={(e) => { setPassword(e.target.value); setError(null); }} />
+        <div className="relative">
+          <Input id="password" type={showPassword ? "text" : "password"} required value={password} onChange={(e) => { setPassword(e.target.value); setError(null); }} className="pr-10" />
+          <button type="button" onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
       <Button type="submit" className="w-full" disabled={submitting}>
