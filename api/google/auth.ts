@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
-const APP_URL = process.env.APP_URL || "https://somaos-react.vercel.app";
+const APP_URL = process.env.APP_URL || "https://www.somaos.cl";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",

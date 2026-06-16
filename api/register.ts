@@ -4,7 +4,7 @@ const SUPABASE_URL = "https://fwxutchyumopwvertisd.supabase.co";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
-const APP_URL = "https://somaos-react.vercel.app";
+const APP_URL = "https://www.somaos.cl";
 
 async function sendWelcomeEmail(to: string, name: string, businessName: string) {
   if (!RESEND_API_KEY) return;

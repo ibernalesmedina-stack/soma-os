@@ -4,7 +4,7 @@ const SUPABASE_URL = "https://fwxutchyumopwvertisd.supabase.co";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-const APP_URL = process.env.APP_URL || "https://somaos-react.vercel.app";
+const APP_URL = process.env.APP_URL || "https://www.somaos.cl";
 const REDIRECT_URI = `${APP_URL}/app/google-callback`;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

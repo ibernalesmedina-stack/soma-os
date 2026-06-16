@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const SUPABASE_URL = "https://fwxutchyumopwvertisd.supabase.co";
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const APP_URL = process.env.APP_URL || "https://somaos-react.vercel.app";
+const APP_URL = process.env.APP_URL || "https://www.somaos.cl";
 
 // Transbank endpoints
 const TBK_BASE_PROD = "https://webpay3g.transbank.cl";

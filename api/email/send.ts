@@ -4,7 +4,7 @@ const SUPABASE_URL = "https://fwxutchyumopwvertisd.supabase.co";
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const GLOBAL_RESEND_KEY = process.env.RESEND_API_KEY!;
 const SOMAOS_FROM  = "SomaOS <noreply@somaos.app>";
-const APP_URL      = process.env.APP_URL || "https://somaos-react.vercel.app";
+const APP_URL      = process.env.APP_URL || "https://www.somaos.cl";
 
 // ── Helpers ────────────────────────────────────────────────────────
 
