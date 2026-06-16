@@ -197,16 +197,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           expiry_date: integration.google_token_expiry ? new Date(integration.google_token_expiry).getTime() : undefined,
         });
         const durMin = esControl ? 30 : 60;
-        const startDt = new Date(isoDate);
-        const endDt = new Date(startDt.getTime() + durMin * 60_000);
+        const [h, m] = hour.split(":").map(Number);
+        const endH = String(Math.floor((h * 60 + m + durMin) / 60)).padStart(2, "0");
+        const endM = String((h * 60 + m + durMin) % 60).padStart(2, "0");
+        // Send local datetime without Z so Google Calendar uses timeZone: America/Santiago
         await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
           method: "POST",
           headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             summary: `${esControl ? "Control" : "Consulta"} · ${name}`,
             description: `Paciente: ${name}\nRUT: ${rut || "-"}\nEmail: ${email || "-"}\nTeléfono: ${phone || "-"}\nModalidad: ${modo}\nPlan: ${serviceName}`,
-            start: { dateTime: startDt.toISOString(), timeZone: "America/Santiago" },
-            end:   { dateTime: endDt.toISOString(),   timeZone: "America/Santiago" },
+            start: { dateTime: `${date}T${hour}:00`, timeZone: "America/Santiago" },
+            end:   { dateTime: `${date}T${endH}:${endM}:00`, timeZone: "America/Santiago" },
           }),
         });
       }
