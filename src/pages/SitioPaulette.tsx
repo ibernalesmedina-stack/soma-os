@@ -520,7 +520,7 @@ function CTA({ services }: { services: Service[] }) {
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [step, setStep] = useState<"form" | "pay">("form");
+  const [step, setStep] = useState<"form" | "success" | "error">("form");
   const [submitting, setSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
 
@@ -551,7 +551,6 @@ function CTA({ services }: { services: Service[] }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "preference",
           name, rut, email, phone, date,
           hour: time,
           esControl: patient === "control",
@@ -560,16 +559,13 @@ function CTA({ services }: { services: Service[] }) {
           modo: modality.toLowerCase(),
         }),
       });
-      const data = await res.json();
-      if (data.sandbox_init_point) {
-        window.location.href = data.sandbox_init_point;
-      } else if (data.init_point) {
-        window.location.href = data.init_point;
+      if (res.ok) {
+        setStep("success");
       } else {
-        setStep("pay");
+        setStep("error");
       }
     } catch {
-      setStep("pay");
+      setStep("error");
     }
     setSubmitting(false);
   };
@@ -648,23 +644,49 @@ function CTA({ services }: { services: Service[] }) {
               </div>
               <button
                 onClick={handleConfirm}
-                disabled={submitting}
+                disabled={submitting || !name || !date || !time}
                 className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold transition-colors"
-                style={{ background: submitting ? "oklch(0.45 0.10 165 / 0.5)" : "var(--en-emerald-deep)", color: "var(--en-cream)" }}
+                style={{ background: (submitting || !name || !date || !time) ? "oklch(0.45 0.10 165 / 0.4)" : "var(--en-emerald-deep)", color: "var(--en-cream)" }}
               >
-                {submitting ? "Preparando pago…" : <>Confirmar y pagar <ArrowRight className="h-4 w-4" /></>}
+                {submitting ? "Confirmando reserva…" : <>Confirmar reserva <ArrowRight className="h-4 w-4" /></>}
               </button>
               <p className="mt-2 text-[11px] text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
-                Serás redirigida a Mercado Pago para completar el pago
+                El pago se realiza en consulta — tu hora queda reservada al confirmar
               </p>
             </div>
           )}
 
-          {step === "pay" && (
+          {step === "success" && (
+            <div className="pt-6 text-center space-y-4" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
+              <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "oklch(0.45 0.10 165 / 0.1)" }}>
+                <Check className="h-7 w-7" style={{ color: "var(--en-emerald)" }} />
+              </div>
+              <div>
+                <p className="text-lg font-semibold" style={{ fontFamily: "'Barlow', sans-serif" }}>¡Reserva confirmada!</p>
+                <p className="mt-1 text-sm" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>
+                  Tu hora para el <strong>{date}</strong> a las <strong>{time}</strong> está reservada.
+                </p>
+                <p className="mt-1 text-sm" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>
+                  El pago de <strong>{currentPlan && formatCLP(currentPlan.price)}</strong> se realiza el día de la consulta.
+                </p>
+              </div>
+              {email && (
+                <p className="text-xs" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
+                  Te enviamos los detalles a <strong>{email}</strong>
+                </p>
+              )}
+              <button onClick={() => { setStep("form"); setName(""); setRut(""); setEmail(""); setPhone(""); setDate(""); setTime(""); }}
+                className="text-xs underline" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
+                Hacer otra reserva
+              </button>
+            </div>
+          )}
+
+          {step === "error" && (
             <div className="pt-6" style={{ borderTop: "1px solid oklch(0.28 0.06 165 / 0.1)" }}>
-              <p className="text-sm text-center mb-4" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>Hubo un problema al conectar con Mercado Pago. Inténtalo de nuevo.</p>
-              <button onClick={handleConfirm} disabled={submitting} className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold" style={{ background: "#009EE3", color: "#fff" }}>
-                {submitting ? "Conectando…" : "Reintentar pago"}
+              <p className="text-sm text-center mb-4" style={{ color: "oklch(0.28 0.06 165 / 0.7)" }}>Hubo un problema al confirmar la reserva. Inténtalo de nuevo.</p>
+              <button onClick={handleConfirm} disabled={submitting} className="w-full inline-flex items-center justify-center gap-2 rounded-full py-4 text-sm font-semibold" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+                {submitting ? "Reintentando…" : "Reintentar"}
               </button>
               <button onClick={() => setStep("form")} className="mt-3 w-full text-xs underline text-center" style={{ color: "oklch(0.28 0.06 165 / 0.5)" }}>
                 ← Volver al formulario
