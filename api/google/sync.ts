@@ -52,19 +52,30 @@ async function getValidToken(integration: Record<string, string>): Promise<strin
 }
 
 function reservaToGoogleEvent(reserva: Record<string, string | number>) {
-  const start = new Date(reserva.date as string);
-  const end = new Date(start.getTime() + 60 * 60 * 1000); // default 1h
+  // Strip timezone suffix and use local datetime string so Google Calendar
+  // interprets it as America/Santiago, not UTC
+  const localDt = (reserva.date as string).replace(/[+-]\d{2}:\d{2}$|Z$/, "").slice(0, 16);
+  const [datePart, timePart] = localDt.split("T");
+  const [h, m] = timePart.split(":").map(Number);
+  const durMin = reserva.es_control ? 30 : 60;
+  const endTotal = h * 60 + m + durMin;
+  const endTime = `${String(Math.floor(endTotal / 60)).padStart(2, "0")}:${String(endTotal % 60).padStart(2, "0")}`;
+
+  const clientName = (reserva.client_name || reserva.clientName || "") as string;
+  const serviceName = (reserva.service_name || reserva.serviceName || "") as string;
+  const tipoAtencion = (reserva.tipo_atencion || reserva.tipoAtencion || "presencial") as string;
+
   return {
-    summary: `${reserva.clientName} — ${reserva.serviceName}`,
+    summary: `${clientName} — ${serviceName}`,
     description: [
-      `Servicio: ${reserva.serviceName}`,
-      `Tipo: ${reserva.tipoAtencion || "presencial"}`,
+      `Servicio: ${serviceName}`,
+      `Tipo: ${tipoAtencion}`,
       `Estado: ${reserva.status}`,
       `Monto: $${Number(reserva.amount).toLocaleString("es-CL")}`,
       `ID SomaOS: ${reserva.id}`,
     ].join("\n"),
-    start: { dateTime: start.toISOString(), timeZone: "America/Santiago" },
-    end:   { dateTime: end.toISOString(),   timeZone: "America/Santiago" },
+    start: { dateTime: `${datePart}T${timePart}:00`, timeZone: "America/Santiago" },
+    end:   { dateTime: `${datePart}T${endTime}:00`,  timeZone: "America/Santiago" },
     extendedProperties: {
       private: { somaos_id: String(reserva.id), somaos_sync: "true" },
     },
