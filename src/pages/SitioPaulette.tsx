@@ -528,19 +528,23 @@ function CTA({ services }: { services: Service[] }) {
   const plans = PRICES[modality][patient];
   const currentPlan = plans[Math.min(planIdx, plans.length - 1)];
 
+  const isSunday = (d: string) => d ? new Date(d + "T12:00:00").getDay() === 0 : false;
+
   // Load available slots when date changes
   useEffect(() => {
-    if (!date || !currentPlan) return;
+    if (!date || !currentPlan || isSunday(date)) { setAvailableSlots([]); return; }
     fetch(`/api/booking/slots?date=${date}&duration=${currentPlan.duration_min}`)
       .then(r => r.json())
       .then(d => setAvailableSlots(d.slots || []))
       .catch(() => setAvailableSlots([]));
   }, [date, currentPlan?.duration_min]);
 
-  const slots = availableSlots.length > 0 ? availableSlots : (
-    patient === "nuevo"
-      ? ["09:00","10:00","11:00","12:00","13:00","15:00","16:00","17:00","18:00","19:00"]
-      : ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"]
+  const slots = isSunday(date) ? [] : (
+    availableSlots.length > 0 ? availableSlots : (
+      patient === "nuevo"
+        ? ["09:00","10:00","11:00","12:00","13:00","15:00","16:00","17:00","18:00","19:00"]
+        : ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"]
+    )
   );
 
   const handleConfirm = async () => {
@@ -621,10 +625,16 @@ function CTA({ services }: { services: Service[] }) {
             </div>
             <div>
               <EnLabel>Hora</EnLabel>
-              <select value={time} onChange={(e) => setTime(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle}>
-                <option value="">Seleccionar</option>
-                {slots.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              {isSunday(date) ? (
+                <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
+                  No hay atención los domingos
+                </p>
+              ) : (
+                <select value={time} onChange={(e) => setTime(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle}>
+                  <option value="">Seleccionar</option>
+                  {slots.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              )}
             </div>
           </div>
           <div>

@@ -16,7 +16,7 @@ const SCHEDULE: Record<number, { start: number; end: number; break?: number }> =
   3: { start: 540, end: 1200, break: 14 },
   4: { start: 540, end: 1200, break: 14 },
   5: { start: 540, end: 1200, break: 14 },
-  6: { start: 600, end: 840 },             // Sat 10:00–14:00
+  6: { start: 540, end: 720 },             // Sat 09:00–12:00
   // 0 = Sunday: closed
 };
 
