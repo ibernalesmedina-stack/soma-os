@@ -182,7 +182,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         date: isoDate,
         service_id: planId || (esControl ? "ctrl" : "consulta"),
         service_name: serviceName || (esControl ? "Control Nutricional" : "Consulta"),
-        status: "confirmada",
+        status: "pendiente",
         amount: amount || 0,
         tipo_atencion: modo || "presencial",
         es_control: !!esControl,
@@ -247,27 +247,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Send emails non-blocking
     if (RESEND_API_KEY && email) {
       const clp = "$" + Number(amount).toLocaleString("es-CL");
+      const confirmUrl = `https://www.elliotnutrition.com/api/booking/confirm?id=${reservaId}`;
       const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
-        <div style="background:oklch(0.28 0.06 165);padding:24px 32px;border-radius:12px 12px 0 0">
-          <h1 style="margin:0;color:#fff;font-size:20px">¡Reserva confirmada! ✓</h1>
+        <div style="background:#1a3a2a;padding:24px 32px;border-radius:12px 12px 0 0">
+          <h1 style="margin:0;color:#fff;font-size:20px">Solicitud de reserva recibida</h1>
           <p style="margin:4px 0 0;color:rgba(255,255,255,.75);font-size:13px">Elliot Nutrition · Paulette Elliot, Nutricionista</p>
         </div>
         <div style="padding:24px 32px;background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
-          <p style="color:#374151">Hola <strong>${name}</strong>, tu pago y reserva fueron confirmados.</p>
+          <p style="color:#374151">Hola <strong>${name}</strong>, recibimos tu solicitud de reserva. Para confirmar tu hora, haz click en el botón de abajo.</p>
           <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
             <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Plan</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${serviceName}</td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Fecha</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${date} · ${hour}</td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Modalidad</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${modo}</td></tr>
-            <tr><td style="padding:8px;color:#6b7280">Total pagado</td><td style="padding:8px;font-weight:600;color:#166534">${clp} CLP</td></tr>
+            <tr><td style="padding:8px;color:#6b7280">Pago</td><td style="padding:8px;font-weight:600">${clp} CLP — en consulta</td></tr>
           </table>
-          <p style="font-size:13px;color:#6b7280">¿Necesitas reagendar? Escríbeme por <a href="https://wa.me/56942156610" style="color:oklch(0.45 0.10 165)">WhatsApp</a>.</p>
+          <div style="text-align:center;margin:24px 0">
+            <a href="${confirmUrl}" style="display:inline-block;background:#1a3a2a;color:#fff;padding:14px 32px;border-radius:100px;font-weight:600;font-size:15px;text-decoration:none">Confirmar mi reserva ✓</a>
+          </div>
+          <p style="font-size:12px;color:#9ca3af;text-align:center">Si no realizaste esta solicitud, ignora este email. La hora se liberará automáticamente si no es confirmada.</p>
+          <p style="font-size:13px;color:#6b7280;margin-top:16px">¿Necesitas reagendar? Escríbeme por <a href="https://wa.me/56942156610" style="color:#1a3a2a">WhatsApp</a>.</p>
         </div>
       </div>`;
       const FROM = "Elliot Nutrition <noreply@elliotnutrition.com>";
       fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: FROM, to: [email], subject: `✓ Reserva confirmada — ${serviceName} el ${date}`, html: clientHtml }),
+        body: JSON.stringify({ from: FROM, to: [email], subject: `Confirma tu reserva — ${serviceName} el ${date}`, html: clientHtml }),
       }).then(async r => { if (!r.ok) console.error("Resend patient email failed:", await r.text()); }).catch(e => console.error("Resend patient email error:", e));
       fetch("https://api.resend.com/emails", {
         method: "POST",
