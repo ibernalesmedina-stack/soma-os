@@ -194,6 +194,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: err });
     }
 
+    // Create pago with status "pendiente" (paid at consultation)
+    await fetch(`${SUPABASE_URL}/rest/v1/pagos`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json", Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        user_id: USER_ID,
+        client_id: clientKey,
+        client_name: name,
+        date: isoDate,
+        amount: amount || 0,
+        method: null,
+        status: "pendiente",
+        reserva_id: reservaId,
+      }),
+    }).catch(() => {});
+
     // Create Google Calendar event (non-blocking on failure)
     try {
       const [integration] = await sbGet(

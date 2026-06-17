@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { addReserva } from "@/lib/storage";
+import { addReserva, addPago } from "@/lib/storage";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { sendConfirmationEmail, whatsappConfirmacionURL } from "@/lib/notifications";
@@ -86,6 +86,18 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
         tipoAtencion: form.tipoAtencion,
         esControl: form.esControl,
       });
+
+      // Create pago pendiente (paid at consultation)
+      addPago({
+        user_id: user.id,
+        client_id: slugify(form.clientName),
+        clientName: form.clientName.trim(),
+        date: dateISO,
+        amount: form.amount,
+        method: "Efectivo",
+        status: "pendiente",
+        reservaId: reserva.id,
+      }).catch(() => {});
 
       // Sync to Google Calendar (non-blocking)
       fetch("/api/google/sync", {
