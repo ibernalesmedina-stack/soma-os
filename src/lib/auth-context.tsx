@@ -19,12 +19,7 @@ interface Ctx {
 
 const AuthCtx = createContext<Ctx | null>(null);
 
-async function fetchUser(id: string, email: string, accessToken?: string): Promise<User | null> {
-  // Set session explicitly so RLS auth.uid() resolves correctly
-  if (accessToken) {
-    await supabase.auth.setSession({ access_token: accessToken, refresh_token: "" });
-  }
-
+async function fetchUser(id: string, email: string, _accessToken?: string): Promise<User | null> {
   const { data, error } = await supabase
     .from("perfiles")
     .select("*")
