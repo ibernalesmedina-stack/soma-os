@@ -64,8 +64,17 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
     setSaving(true);
     try {
       const servicio = servicios.find(s => s.id === form.serviceId)!;
-      const dateISO = `${form.date}T${form.time}:00`;
-      await addReserva({
+      // Convert Santiago local time to UTC before storing
+      const noonUTC = new Date(`${form.date}T12:00:00Z`);
+      const santiagoNoonHour = parseInt(
+        new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC)
+      );
+      const offsetMin = (santiagoNoonHour - 12) * 60;
+      const localDt = new Date(`${form.date}T${form.time}:00Z`);
+      localDt.setMinutes(localDt.getMinutes() - offsetMin);
+      const dateISO = localDt.toISOString();
+
+      const reserva = await addReserva({
         user_id: user.id,
         client_id: slugify(form.clientName),
         clientName: form.clientName.trim(),
@@ -77,6 +86,13 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
         tipoAtencion: form.tipoAtencion,
         esControl: form.esControl,
       });
+
+      // Sync to Google Calendar (non-blocking)
+      fetch("/api/google/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, reservaId: reserva.id }),
+      }).catch(() => {});
 
       // Enviar email de confirmación si el cliente tiene email
       if (form.sendEmail && form.clientEmail) {
