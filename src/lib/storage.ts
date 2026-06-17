@@ -145,6 +145,10 @@ export const addPago = async (p: Omit<Pago, "id">): Promise<Pago> => {
   return toPago(data);
 };
 
+export const updatePago = async (id: string, patch: { status?: string; method?: string; amount?: number }) => {
+  await supabase.from("pagos").update(patch).eq("id", id);
+};
+
 // ── Servicios ──────────────────────────────────────────────────────
 export const listServicios = async (userId: string): Promise<Servicio[]> => {
   const { data } = await supabase.from("servicios").select("*").eq("user_id", userId).order("created_at");
