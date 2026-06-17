@@ -263,16 +263,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           <p style="font-size:13px;color:#6b7280">¿Necesitas reagendar? Escríbeme por <a href="https://wa.me/56942156610" style="color:oklch(0.45 0.10 165)">WhatsApp</a>.</p>
         </div>
       </div>`;
+      const FROM = "Elliot Nutrition <noreply@somaos.cl>";
       fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: "Elliot Nutrition <noreply@somaos.app>", to: [email], subject: `✓ Reserva confirmada — ${serviceName} el ${date}`, html: clientHtml }),
-      }).catch(() => {});
+        body: JSON.stringify({ from: FROM, to: [email], subject: `✓ Reserva confirmada — ${serviceName} el ${date}`, html: clientHtml }),
+      }).then(async r => { if (!r.ok) console.error("Resend patient email failed:", await r.text()); }).catch(e => console.error("Resend patient email error:", e));
       fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: "Elliot Nutrition <noreply@somaos.app>", to: [PAULETTE_EMAIL], subject: `Nueva reserva: ${name} — ${serviceName} el ${date}`, html: `<p><b>Paciente:</b> ${name} | <b>Plan:</b> ${serviceName} | <b>Fecha:</b> ${date} ${hour} | <b>Monto:</b> ${clp} CLP | <b>Email:</b> ${email} | <b>Tel:</b> ${phone || "-"}</p>` }),
-      }).catch(() => {});
+        body: JSON.stringify({ from: FROM, to: [PAULETTE_EMAIL], subject: `Nueva reserva: ${name} — ${serviceName} el ${date}`, html: `<p><b>Paciente:</b> ${name} | <b>Plan:</b> ${serviceName} | <b>Fecha:</b> ${date} ${hour} | <b>Monto:</b> ${clp} CLP | <b>Email:</b> ${email} | <b>Tel:</b> ${phone || "-"}</p>` }),
+      }).then(async r => { if (!r.ok) console.error("Resend paulette email failed:", await r.text()); }).catch(e => console.error("Resend paulette email error:", e));
     }
 
     return res.json({ ok: true, reservaId });
