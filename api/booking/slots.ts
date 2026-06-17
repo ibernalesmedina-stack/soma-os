@@ -263,7 +263,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           <p style="font-size:13px;color:#6b7280">¿Necesitas reagendar? Escríbeme por <a href="https://wa.me/56942156610" style="color:oklch(0.45 0.10 165)">WhatsApp</a>.</p>
         </div>
       </div>`;
-      const FROM = "Elliot Nutrition <noreply@somaos.cl>";
+      const FROM = "Elliot Nutrition <noreply@elliotnutrition.com>";
       fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
