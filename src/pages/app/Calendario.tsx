@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useBloqueos, useReservas } from "@/lib/hooks";
-import { getIntegration } from "@/lib/storage";
-import { addBloqueo, deleteBloqueo } from "@/lib/storage";
+import { getIntegration, addBloqueo, deleteBloqueo, updateReserva } from "@/lib/storage";
 import type { Bloqueo, Reserva } from "@/lib/types";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
@@ -12,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Lock, Plus, Calendar as CalIcon, CheckCircle2, AlertCircle, Loader2, RefreshCw, Bell } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Plus, Calendar as CalIcon, CheckCircle2, AlertCircle, Loader2, RefreshCw, Bell, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { slugify } from "@/lib/format";
@@ -37,6 +36,7 @@ export default function Calendario() {
   const [syncing, setSyncing] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [googleEvents, setGoogleEvents] = useState<GoogleEvent[]>([]);
+  const [editingReserva, setEditingReserva] = useState<Reserva | null>(null);
   const [searchParams] = useSearchParams();
   const { data: reservas, refetch: refetchReservas } = useReservas();
   const { data: bloqueos, refetch: refetchBloqueos } = useBloqueos();
@@ -220,11 +220,31 @@ export default function Calendario() {
 
             {/* Filas por hora */}
             {HOURS.map((h) => (
-              <Row key={h} hour={h} days={days} weekReservas={weekReservas} weekBloqueos={weekBloqueos} googleEvents={googleEvents} allReservas={reservas} clientLabelNuevo={`${cfg.clientLabel} nuevo`} clientLabelAntiguo={`${cfg.clientLabel} antiguo`} onDeleteBloqueo={async (id) => { await deleteBloqueo(id); refetchBloqueos(); }} />
+              <Row key={h} hour={h} days={days} weekReservas={weekReservas} weekBloqueos={weekBloqueos} googleEvents={googleEvents} allReservas={reservas} clientLabelNuevo={`${cfg.clientLabel} nuevo`} clientLabelAntiguo={`${cfg.clientLabel} antiguo`} onDeleteBloqueo={async (id) => { await deleteBloqueo(id); refetchBloqueos(); }} onEditReserva={setEditingReserva} />
             ))}
           </div>
         </div>
         </div>
+
+      {editingReserva && (
+        <EditReservaDialog
+          reserva={editingReserva}
+          onClose={() => setEditingReserva(null)}
+          onSaved={async (patch) => {
+            await updateReserva(editingReserva.id, patch);
+            if (isGoogleConnected && user) {
+              fetch("/api/google/sync", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: user.id, reservaId: editingReserva.id }),
+              }).catch(() => {});
+            }
+            setEditingReserva(null);
+            refetchReservas();
+            toast({ title: "Reserva actualizada ✓" });
+          }}
+        />
+      )}
 
       {weekBloqueos.length > 0 && (
         <div className="surface-card mt-4 p-4">
@@ -256,7 +276,7 @@ function isNuevoLocal(allReservas: Reserva[], clientKey: string): boolean {
   return completedOrPast.length <= 1;
 }
 
-function Row({ hour, days, weekReservas, weekBloqueos, googleEvents, allReservas, clientLabelNuevo, clientLabelAntiguo, onDeleteBloqueo }: {
+function Row({ hour, days, weekReservas, weekBloqueos, googleEvents, allReservas, clientLabelNuevo, clientLabelAntiguo, onDeleteBloqueo, onEditReserva }: {
   hour: number; days: Date[];
   weekReservas: Reserva[];
   weekBloqueos: Bloqueo[];
@@ -264,6 +284,7 @@ function Row({ hour, days, weekReservas, weekBloqueos, googleEvents, allReservas
   allReservas: Reserva[];
   clientLabelNuevo: string; clientLabelAntiguo: string;
   onDeleteBloqueo: (id: string) => void;
+  onEditReserva: (r: Reserva) => void;
 }) {
   return (
     <>
@@ -311,20 +332,24 @@ function Row({ hour, days, weekReservas, weekBloqueos, googleEvents, allReservas
                   : "bg-primary/10 text-primary border-primary/20";
               const tag = esControl ? "Control" : nuevo ? "Nuevo" : "Antiguo";
               return (
-                <div
+                <button
                   key={r.id}
-                  className={cn("rounded-md px-1.5 py-1 text-[10px] border space-y-0.5", tone)}
-                  title={`${tag} · ${r.tipoAtencion ?? "presencial"}`}
+                  onClick={() => onEditReserva(r)}
+                  className={cn("w-full text-left rounded-md px-1.5 py-1 text-[10px] border space-y-0.5 hover:brightness-95 transition-all group", tone)}
+                  title="Clic para editar"
                 >
                   <div className="flex items-center justify-between gap-1">
                     <span className="font-medium truncate">{r.clientName}</span>
-                    <span className="text-[8px] uppercase tracking-wider mono opacity-80 shrink-0">{tag}</span>
+                    <span className="flex items-center gap-0.5">
+                      <Pencil className="h-2 w-2 opacity-0 group-hover:opacity-60 transition-opacity" />
+                      <span className="text-[8px] uppercase tracking-wider mono opacity-80 shrink-0">{tag}</span>
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-1 opacity-80">
-                    <span className="mono">{new Date(r.date).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}</span>
+                    <span className="mono">{new Date(r.date).toLocaleTimeString("es-CL", { timeZone: "America/Santiago", hour: "2-digit", minute: "2-digit" })}</span>
                     <span className="text-[8px] uppercase mono px-1 rounded bg-current/10">{r.tipoAtencion ?? "pres."}</span>
                   </div>
-                </div>
+                </button>
               );
             })}
             {googleSlot.map((e) => (
@@ -355,6 +380,90 @@ function Legend({ color, label }: { color: string; label: string }) {
       <span className={cn("size-2.5 rounded-sm", color)} />
       <span className="text-muted-foreground">{label}</span>
     </div>
+  );
+}
+
+function EditReservaDialog({ reserva, onClose, onSaved }: {
+  reserva: Reserva;
+  onClose: () => void;
+  onSaved: (patch: Partial<Reserva>) => Promise<void>;
+}) {
+  const dt = new Date(reserva.date);
+  const toLocalDate = (d: Date) => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const santiago = new Date(d.toLocaleString("en-US", { timeZone: "America/Santiago" }));
+    return `${santiago.getFullYear()}-${pad(santiago.getMonth() + 1)}-${pad(santiago.getDate())}`;
+  };
+  const toLocalTime = (d: Date) => {
+    const santiago = new Date(d.toLocaleString("en-US", { timeZone: "America/Santiago" }));
+    return `${String(santiago.getHours()).padStart(2, "0")}:${String(santiago.getMinutes()).padStart(2, "0")}`;
+  };
+
+  const [date, setDate] = useState(toLocalDate(dt));
+  const [time, setTime] = useState(toLocalTime(dt));
+  const [status, setStatus] = useState(reserva.status);
+  const [tipoAtencion, setTipoAtencion] = useState(reserva.tipoAtencion ?? "presencial");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    // Convert Santiago local time to UTC
+    const noonUTC = new Date(`${date}T12:00:00Z`);
+    const santiagoNoonHour = parseInt(
+      new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC)
+    );
+    const offsetMin = (santiagoNoonHour - 12) * 60;
+    const localDt = new Date(`${date}T${time}:00Z`);
+    localDt.setMinutes(localDt.getMinutes() - offsetMin);
+    await onSaved({ date: localDt.toISOString(), status, tipoAtencion });
+    setSaving(false);
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Editar reserva · {reserva.clientName}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="text-sm text-muted-foreground">{reserva.serviceName}</div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Fecha</Label>
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Hora</Label>
+              <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Estado</Label>
+            <select value={status} onChange={(e) => setStatus(e.target.value as Reserva["status"])}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option value="confirmada">Confirmada</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="completada">Completada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Modalidad</Label>
+            <select value={tipoAtencion} onChange={(e) => setTipoAtencion(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option value="presencial">Presencial</option>
+              <option value="online">Online</option>
+            </select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Guardando…" : "Guardar cambios"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
