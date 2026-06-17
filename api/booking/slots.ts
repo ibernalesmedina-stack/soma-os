@@ -154,7 +154,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { name, email, phone, rut, date, hour, esControl, planId, serviceName, amount, modo } = req.body;
     if (!name || !date || !hour) return res.status(400).json({ error: "Missing required fields" });
 
-    const isoDate = `${date}T${hour}:00`;
+    // Convert Santiago local time to UTC before storing
+    // (Supabase timestamptz treats bare datetime strings as UTC)
+    const noonUTC = new Date(`${date}T12:00:00Z`);
+    const santiagoNoonHour = parseInt(
+      new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC)
+    );
+    const offsetMin = (santiagoNoonHour - 12) * 60; // e.g. -240 in winter (UTC-4)
+    const localDt = new Date(`${date}T${hour}:00Z`);
+    localDt.setMinutes(localDt.getMinutes() - offsetMin);
+    const isoDate = localDt.toISOString(); // correct UTC
     const reservaId = crypto.randomUUID();
     const clientKey = (rut || name).toLowerCase().replace(/[^a-z0-9]/g, "-");
 
