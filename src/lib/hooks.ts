@@ -56,13 +56,22 @@ export const useFichas = () => {
 
   useEffect(() => {
     load();
+    // Refetch when user returns to tab (e.g. after deleting from Supabase dashboard)
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+
+    // Also try realtime if enabled in Supabase
     if (!user) return;
     const channel = supabase
       .channel("fichas_clientes_changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "fichas_clientes", filter: `user_id=eq.${user.id}` },
         () => { load(); })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      supabase.removeChannel(channel);
+    };
   }, [load, user]);
 
   return { data, loading, refetch: load };
