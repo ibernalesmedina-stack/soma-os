@@ -77,13 +77,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const dur = parseInt(req.query.duration as string) || 60;
     if (!date) return res.status(400).json({ error: "Missing date" });
 
-    // Block same-day bookings — require at least 24h in advance
-    const now = Date.now();
-    const dateMidnightUTC = new Date(`${date}T00:00:00Z`).getTime();
-    if (dateMidnightUTC - now < 24 * 60 * 60 * 1000) {
-      return res.json({ slots: [], reason: "too_soon" });
-    }
-
     const candidates = allSlots(date, dur);
     if (candidates.length === 0) return res.json({ slots: [] });
 
@@ -125,9 +118,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    const now = Date.now();
     const available = candidates.filter(slot => {
       const slotStart = toUTC(slot);
       const slotEnd = new Date(slotStart.getTime() + dur * 60_000);
+      // Require at least 24h in advance per slot
+      if (slotStart.getTime() - now < 24 * 60 * 60 * 1000) return false;
       return !occupied.some(o => slotStart < o.end && slotEnd > o.start);
     });
 

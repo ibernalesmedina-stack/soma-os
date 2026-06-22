@@ -524,7 +524,6 @@ function CTA({ services }: { services: Service[] }) {
   const [submitting, setSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [slotsLoaded, setSlotsLoaded] = useState(false);
-  const [tooSoon, setTooSoon] = useState(false);
 
   const PRICES = buildPrices(services);
   const plans = PRICES[modality][patient];
@@ -547,11 +546,7 @@ function CTA({ services }: { services: Service[] }) {
     setSlotsLoaded(false);
     fetch(`/api/booking/slots?date=${date}&duration=${currentPlan.duration_min}`)
       .then(r => r.json())
-      .then(d => {
-        setTooSoon(d.reason === "too_soon");
-        setAvailableSlots(d.slots || []);
-        setSlotsLoaded(true);
-      })
+      .then(d => { setAvailableSlots(d.slots || []); setSlotsLoaded(true); })
       .catch(() => { setAvailableSlots([]); setSlotsLoaded(true); });
   }, [date, currentPlan?.duration_min]);
 
@@ -638,10 +633,6 @@ function CTA({ services }: { services: Service[] }) {
               {isSunday(date) ? (
                 <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
                   No hay atención los domingos
-                </p>
-              ) : tooSoon ? (
-                <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
-                  Las reservas deben hacerse con al menos 24 horas de anticipación
                 </p>
               ) : slotsLoaded && slots.length === 0 && date ? (
                 <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
