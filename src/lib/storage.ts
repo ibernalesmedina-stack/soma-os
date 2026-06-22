@@ -38,7 +38,7 @@ const toServicio = (r: any): Servicio => ({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toFicha = (r: any): ClienteFicha => ({
   id: r.id, user_id: r.user_id, clientKey: r.client_key,
-  clientName: r.client_name, email: r.email, phone: r.phone,
+  clientName: r.client_name, email: r.email, phone: r.phone, rut: r.rut,
   birthDate: r.birth_date, address: r.address, occupation: r.occupation,
   emergencyContact: r.emergency_contact, motivoConsulta: r.motivo_consulta,
   tipoAtencion: r.tipo_atencion, antecedentesMedicos: r.antecedentes_medicos,
@@ -192,7 +192,7 @@ export const getOrCreateFicha = async (userId: string, clientName: string): Prom
 
 export const updateFicha = async (id: string, patch: Partial<ClienteFicha>) => {
   await supabase.from("fichas_clientes").update({
-    client_name: patch.clientName, email: patch.email, phone: patch.phone,
+    client_name: patch.clientName, email: patch.email, phone: patch.phone, rut: patch.rut,
     birth_date: patch.birthDate, address: patch.address, occupation: patch.occupation,
     emergency_contact: patch.emergencyContact, motivo_consulta: patch.motivoConsulta,
     tipo_atencion: patch.tipoAtencion, antecedentes_medicos: patch.antecedentesMedicos,

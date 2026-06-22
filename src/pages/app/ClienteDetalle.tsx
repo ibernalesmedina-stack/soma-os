@@ -330,6 +330,9 @@ function NutricionistaView({ ficha, onChange, progreso, setProgreso, notas, setN
         </div>
         <Section title="Datos">
           <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Email"><Input type="email" value={ficha.email ?? ""} onChange={e => onChange("email", e.target.value)} /></Field>
+            <Field label="Teléfono"><Input value={ficha.phone ?? ""} onChange={e => onChange("phone", e.target.value)} /></Field>
+            <Field label="RUT"><Input value={ficha.rut ?? ""} onChange={e => onChange("rut", e.target.value)} /></Field>
             <Field label="Edad"><Input value={ficha.edad ?? ""} onChange={e => onChange("edad", e.target.value)} /></Field>
             <Field label="Altura (cm)"><Input value={ficha.altura ?? ""} onChange={e => onChange("altura", e.target.value)} /></Field>
             <Field label="Peso inicial (kg)"><Input value={ficha.pesoInicial ?? ""} onChange={e => onChange("pesoInicial", e.target.value)} /></Field>

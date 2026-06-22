@@ -123,6 +123,7 @@ export interface ClienteFicha {
   clientName: string;
   email?: string;
   phone?: string;
+  rut?: string;
   birthDate?: string;
   address?: string;
   occupation?: string;
