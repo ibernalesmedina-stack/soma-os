@@ -121,12 +121,13 @@ export const addReserva = async (r: Omit<Reserva, "id">): Promise<Reserva> => {
 };
 
 export const updateReserva = async (id: string, patch: Partial<Reserva>) => {
-  await supabase.from("reservas").update({
+  const { error } = await supabase.from("reservas").update({
     client_name: patch.clientName, date: patch.date,
     service_id: patch.serviceId, service_name: patch.serviceName,
     status: patch.status, amount: patch.amount,
     tipo_atencion: patch.tipoAtencion, es_control: patch.esControl,
   }).eq("id", id);
+  if (error) throw new Error(error.message);
 };
 
 // ── Pagos ──────────────────────────────────────────────────────────

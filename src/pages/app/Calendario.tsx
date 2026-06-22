@@ -419,16 +419,21 @@ function EditReservaDialog({ reserva, userId, onClose, onSaved }: {
 
   const handleSave = async () => {
     setSaving(true);
-    // Convert Santiago local time to UTC
-    const noonUTC = new Date(`${date}T12:00:00Z`);
-    const santiagoNoonHour = parseInt(
-      new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC)
-    );
-    const offsetMin = (santiagoNoonHour - 12) * 60;
-    const localDt = new Date(`${date}T${time}:00Z`);
-    localDt.setMinutes(localDt.getMinutes() - offsetMin);
-    await onSaved({ date: localDt.toISOString(), status, tipoAtencion });
-    setSaving(false);
+    try {
+      // Convert Santiago local time to UTC
+      const noonUTC = new Date(`${date}T12:00:00Z`);
+      const santiagoNoonHour = parseInt(
+        new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC)
+      );
+      const offsetMin = (santiagoNoonHour - 12) * 60;
+      const localDt = new Date(`${date}T${time}:00Z`);
+      localDt.setMinutes(localDt.getMinutes() - offsetMin);
+      await onSaved({ date: localDt.toISOString(), status, tipoAtencion });
+    } catch {
+      toast({ title: "Error al guardar la reserva", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
