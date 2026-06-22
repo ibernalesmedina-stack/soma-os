@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth-context";
 import { useBloqueos, useReservas } from "@/lib/hooks";
-import { getIntegration, addBloqueo, deleteBloqueo, updateReserva } from "@/lib/storage";
+import { getIntegration, addBloqueo, deleteBloqueo, updateReserva, listFichas } from "@/lib/storage";
 import type { Bloqueo, Reserva } from "@/lib/types";
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { PageHeader } from "@/components/PageHeader";
@@ -229,6 +229,7 @@ export default function Calendario() {
       {editingReserva && (
         <EditReservaDialog
           reserva={editingReserva}
+          userId={user?.id ?? ""}
           onClose={() => setEditingReserva(null)}
           onSaved={async (patch) => {
             await updateReserva(editingReserva.id, patch);
@@ -383,11 +384,22 @@ function Legend({ color, label }: { color: string; label: string }) {
   );
 }
 
-function EditReservaDialog({ reserva, onClose, onSaved }: {
+function EditReservaDialog({ reserva, userId, onClose, onSaved }: {
   reserva: Reserva;
+  userId: string;
   onClose: () => void;
   onSaved: (patch: Partial<Reserva>) => Promise<void>;
 }) {
+  const [ficha, setFicha] = useState<{ email?: string; phone?: string; rut?: string } | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    listFichas(userId).then(fichas => {
+      const f = fichas.find(f => f.clientKey === reserva.client_id || f.clientKey === slugify(reserva.clientName));
+      if (f) setFicha({ email: f.email, phone: f.phone, rut: f.rut });
+    }).catch(() => {});
+  }, [userId, reserva.client_id, reserva.clientName]);
+
   const dt = new Date(reserva.date);
   const toLocalDate = (d: Date) => {
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -427,6 +439,13 @@ function EditReservaDialog({ reserva, onClose, onSaved }: {
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="text-sm text-muted-foreground">{reserva.serviceName}</div>
+          {(ficha?.email || ficha?.phone || ficha?.rut) && (
+            <div className="rounded-lg bg-muted/40 px-3 py-2.5 text-xs space-y-1">
+              {ficha.email && <div><span className="text-muted-foreground">Email: </span>{ficha.email}</div>}
+              {ficha.phone && <div><span className="text-muted-foreground">Teléfono: </span>{ficha.phone}</div>}
+              {ficha.rut && <div><span className="text-muted-foreground">RUT: </span>{ficha.rut}</div>}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs">Fecha</Label>
