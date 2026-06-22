@@ -109,7 +109,7 @@ export function whatsappConfirmacionURL(
     `Tu cita en *${businessName}* ha sido confirmada:`,
     `📅 *${formatDateES(reserva.date)}*`,
     `💆 *${reserva.serviceName}*`,
-    `${reserva.tipoAtencion === "online" ? "🖥️ Online" : "📍 Presencial"}`,
+    `${reserva.tipoAtencion === "online" ? "🖥️ Online" : "📍 Presencial — Reñaca Norte #25, piso 2, oficina 202, Viña del Mar\nhttps://maps.app.goo.gl/YhBUtEkynEhdAKid9?g_st=ipc"}`,
     `💰 ${formatCLP(reserva.amount)}`,
     ``,
     `¡Te esperamos! 🙌`,
