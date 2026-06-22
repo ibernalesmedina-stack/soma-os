@@ -542,7 +542,7 @@ function CTA({ services }: { services: Service[] }) {
   // Load available slots when date changes
   useEffect(() => {
     if (!date || !currentPlan || isSunday(date)) {
-      setAvailableSlots([]); setSlotsLoaded(false); setTooSoon(false); return;
+      setAvailableSlots([]); setSlotsLoaded(false); return;
     }
     setSlotsLoaded(false);
     fetch(`/api/booking/slots?date=${date}&duration=${currentPlan.duration_min}`)
