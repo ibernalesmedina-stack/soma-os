@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useReservas, useServicios } from "@/lib/hooks";
+import { useFichas, useReservas, useServicios } from "@/lib/hooks";
 import type { Reserva } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
@@ -240,12 +240,14 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
 export default function Reservas() {
   const { user } = useAuth();
   const { data: all, refetch } = useReservas();
+  const { data: fichas } = useFichas();
   const [view, setView] = useState<"list" | "calendar">("list");
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [showNew, setShowNew] = useState(false);
-  // WhatsApp number del profesional (para enviar recordatorios a clientes)
-  const waNumber = user?.phone?.replace(/\D/g, "") ?? "";
+
+  // Build a map from clientKey → phone for quick lookup
+  const phoneByKey = Object.fromEntries(fichas.map(f => [f.clientKey, f.phone]).filter(([, p]) => p));
 
   const filtered = all.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
@@ -318,16 +320,20 @@ export default function Reservas() {
                     <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
                     <td className="px-4 py-3 text-right mono">{formatCLP(r.amount)}</td>
                     <td className="px-4 py-3 text-right">
-                      {waNumber && r.status !== "cancelada" && (
-                        <a
-                          href={whatsappConfirmacionURL(r, waNumber, user?.businessName)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Enviar confirmación por WhatsApp"
-                          className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-green-50 text-green-600 transition-colors"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </a>
+                      {(() => {
+                        const clientPhone = phoneByKey[slugify(r.clientName)]?.replace(/\D/g, "");
+                        return clientPhone && r.status !== "cancelada" ? (
+                          <a
+                            href={whatsappConfirmacionURL(r, clientPhone, user?.businessName)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={`WhatsApp a ${r.clientName}`}
+                            className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-green-50 text-green-600 transition-colors"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </a>
+                        ) : null;
+                      })()}
                       )}
                     </td>
                   </tr>
