@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { addReserva, addPago } from "@/lib/storage";
+import { addReserva, addPago, updateFicha, getOrCreateFicha } from "@/lib/storage";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { sendConfirmationEmail, whatsappConfirmacionURL } from "@/lib/notifications";
@@ -31,6 +31,7 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
   const [form, setForm] = useState({
     clientName: "",
     clientEmail: "",
+    clientRut: "",
     serviceId: "",
     date: today,
     time: "09:00",
@@ -106,6 +107,17 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
         body: JSON.stringify({ userId: user.id, reservaId: reserva.id }),
       }).catch(() => {});
 
+      // Save contact info to patient ficha
+      if (form.clientEmail || form.clientRut) {
+        getOrCreateFicha(user.id, form.clientName.trim()).then(ficha =>
+          updateFicha(ficha.id, {
+            user_id: user.id, clientKey: ficha.clientKey,
+            email: form.clientEmail || undefined,
+            rut: form.clientRut || undefined,
+          })
+        ).catch(() => {});
+      }
+
       // Enviar email de confirmación si el cliente tiene email
       if (form.sendEmail && form.clientEmail) {
         sendConfirmationEmail(
@@ -118,7 +130,7 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
       toast({ title: "Reserva creada ✓", description: form.sendEmail && form.clientEmail ? "Email de confirmación enviado." : undefined });
       onCreated();
       onClose();
-      setForm({ clientName: "", clientEmail: "", serviceId: "", date: today, time: "09:00", tipoAtencion: "presencial", status: "confirmada", amount: 0, esControl: false, sendEmail: true });
+      setForm({ clientName: "", clientEmail: "", clientRut: "", serviceId: "", date: today, time: "09:00", tipoAtencion: "presencial", status: "confirmada", amount: 0, esControl: false, sendEmail: true });
     } catch (e) {
       toast({ title: "Error al crear la reserva", variant: "destructive" });
     } finally {
@@ -132,14 +144,18 @@ function NuevaReservaDialog({ open, onClose, onCreated }: { open: boolean; onClo
         <DialogHeader><DialogTitle>Nueva reserva</DialogTitle></DialogHeader>
         <div className="grid gap-4 py-2">
           {/* Cliente */}
+          <div className="grid gap-1.5">
+            <Label>Cliente</Label>
+            <Input placeholder="Nombre completo" value={form.clientName} onChange={e => set("clientName", e.target.value)} />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
-              <Label>Cliente</Label>
-              <Input placeholder="Nombre completo" value={form.clientName} onChange={e => set("clientName", e.target.value)} />
+              <Label>Email <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+              <Input type="email" placeholder="cliente@email.com" value={form.clientEmail} onChange={e => set("clientEmail", e.target.value)} />
             </div>
             <div className="grid gap-1.5">
-              <Label>Email del cliente <span className="text-muted-foreground font-normal">(opcional)</span></Label>
-              <Input type="email" placeholder="cliente@email.com" value={form.clientEmail} onChange={e => set("clientEmail", e.target.value)} />
+              <Label>RUT <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+              <Input placeholder="12.345.678-9" value={form.clientRut} onChange={e => set("clientRut", e.target.value)} />
             </div>
           </div>
 
