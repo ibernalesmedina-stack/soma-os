@@ -222,6 +222,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: err });
     }
 
+    // Upsert patient record in fichas_clientes so data shows in the dashboard
+    await fetch(`${SUPABASE_URL}/rest/v1/fichas_clientes`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        user_id: USER_ID,
+        client_key: clientKey,
+        client_name: name,
+        email: email || null,
+        phone: phone || null,
+        rut: rut || null,
+      }),
+    }).catch(() => {});
+
     // Create pago with status "pendiente" (paid at consultation)
     await fetch(`${SUPABASE_URL}/rest/v1/pagos`, {
       method: "POST",

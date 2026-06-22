@@ -520,6 +520,7 @@ function CTA({ services }: { services: Service[] }) {
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("+56");
   const [step, setStep] = useState<"form" | "success" | "error">("form");
   const [submitting, setSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
@@ -560,7 +561,7 @@ function CTA({ services }: { services: Service[] }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name, rut, email, phone, date,
+          name, rut, email, phone: phone ? `${countryCode}${phone}` : "", date,
           hour: time,
           esControl: patient === "control",
           serviceName: currentPlan.name,
@@ -652,7 +653,21 @@ function CTA({ services }: { services: Service[] }) {
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre completo" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
               <input type="text" value={rut} onChange={(e) => setRut(e.target.value)} placeholder="RUT" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo electrónico" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+              <div className="flex gap-2">
+                <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)} className="rounded-xl px-3 py-3 text-sm outline-none shrink-0" style={inputStyle}>
+                  <option value="+56">🇨🇱 +56</option>
+                  <option value="+54">🇦🇷 +54</option>
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+51">🇵🇪 +51</option>
+                  <option value="+52">🇲🇽 +52</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+55">🇧🇷 +55</option>
+                  <option value="+598">🇺🇾 +598</option>
+                  <option value="+593">🇪🇨 +593</option>
+                </select>
+                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+              </div>
             </div>
           </div>
           {step === "form" && (
