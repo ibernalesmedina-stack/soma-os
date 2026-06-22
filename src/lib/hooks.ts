@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth-context";
+import { supabase } from "./supabase";
 import {
   listAutomations, listBloqueos, listFichas, listNotas,
   listPagos, listProgreso, listRegistros, listReservas, listServicios, getUsers,
@@ -40,7 +41,32 @@ export function useAdminUsers() {
 }
 export const usePagos = () => useData<Pago>(listPagos);
 export const useServicios = () => useData<Servicio>(listServicios);
-export const useFichas = () => useData<ClienteFicha>(listFichas);
+export const useFichas = () => {
+  const { user } = useAuth();
+  const [data, setData] = useState<ClienteFicha[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!user) { setData([]); setLoading(false); return; }
+    setLoading(true);
+    const result = await listFichas(user.id);
+    setData(result);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    load();
+    if (!user) return;
+    const channel = supabase
+      .channel("fichas_clientes_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "fichas_clientes", filter: `user_id=eq.${user.id}` },
+        () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [load, user]);
+
+  return { data, loading, refetch: load };
+};
 export const useAutomations = () => useData<Automation>(listAutomations);
 export const useRegistros = () => useData<Registro>(listRegistros);
 export const useBloqueos = () => useData<Bloqueo>(listBloqueos);
