@@ -77,25 +77,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const dur = parseInt(req.query.duration as string) || 60;
     if (!date) return res.status(400).json({ error: "Missing date" });
 
+    // Block same-day bookings — require at least 24h in advance
+    const now = Date.now();
+    const dateMidnightUTC = new Date(`${date}T00:00:00Z`).getTime();
+    if (dateMidnightUTC - now < 24 * 60 * 60 * 1000) {
+      return res.json({ slots: [], reason: "too_soon" });
+    }
+
     const candidates = allSlots(date, dur);
     if (candidates.length === 0) return res.json({ slots: [] });
 
-    // Fetch existing reservas that day
-    const reservas = await sbGet(
-      `reservas?user_id=eq.${USER_ID}&date=gte.${date}T00:00:00&date=lt.${date}T23:59:59&status=neq.cancelada&select=date,esControl`,
+    // Compute Santiago UTC offset for this date (handles DST)
+    const noonUTC = new Date(`${date}T12:00:00Z`);
+    const santiagoNoonHour = parseInt(
+      new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC),
     );
+    const offsetMin = (santiagoNoonHour - 12) * 60; // e.g. -240 = UTC-4
 
-    // Fetch bloqueos overlapping that day
-    const bloqueos = await sbGet(
-      `bloqueos?user_id=eq.${USER_ID}&start=lte.${date}T23:59:59&end=gte.${date}T00:00:00&select=start,end`,
-    );
+    // Helper: convert Santiago local HH:MM on `date` → UTC Date
+    const toUTC = (hhmm: string) => {
+      const [h, m] = hhmm.split(":").map(Number);
+      const ms = new Date(`${date}T00:00:00Z`).getTime() + (h * 60 + m - offsetMin) * 60_000;
+      return new Date(ms);
+    };
 
-    // Build occupied windows
+    // Query reservas for a wider window to catch UTC offsets crossing midnight
+    const prevDate = new Date(new Date(`${date}T00:00:00Z`).getTime() - 12 * 3600_000).toISOString().slice(0, 10);
+    const nextDate = new Date(new Date(`${date}T00:00:00Z`).getTime() + 36 * 3600_000).toISOString().slice(0, 10);
+
+    const [reservas, bloqueos] = await Promise.all([
+      sbGet(`reservas?user_id=eq.${USER_ID}&date=gte.${prevDate}T00:00:00Z&date=lt.${nextDate}T00:00:00Z&status=neq.cancelada&select=date,es_control`),
+      sbGet(`bloqueos?user_id=eq.${USER_ID}&start=lte.${date}T23:59:59&end=gte.${date}T00:00:00&select=start,end`),
+    ]);
+
+    // Build occupied windows (all in UTC)
     const occupied: { start: Date; end: Date }[] = [];
     if (Array.isArray(reservas)) {
       for (const r of reservas) {
         const s = new Date(r.date);
-        const durR = r.esControl ? 30 : 60;
+        const durR = r.es_control ? 30 : 60;
         occupied.push({ start: s, end: new Date(s.getTime() + durR * 60_000) });
       }
     }
@@ -106,7 +126,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const available = candidates.filter(slot => {
-      const slotStart = new Date(`${date}T${slot}:00`);
+      const slotStart = toUTC(slot);
       const slotEnd = new Date(slotStart.getTime() + dur * 60_000);
       return !occupied.some(o => slotStart < o.end && slotEnd > o.start);
     });
@@ -152,6 +172,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // ── POST: create booking ─────────────────────────────────────────────────
   if (req.method === "POST") {
     const { name, email, phone, rut, date, hour, esControl, planId, serviceName, amount, modo } = req.body;
+
+    // Validate at least 24h in advance
+    if (date && hour) {
+      const noonUTC2 = new Date(`${date}T12:00:00Z`);
+      const snHour = parseInt(new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC2));
+      const off = (snHour - 12) * 60;
+      const [bh, bm] = (hour as string).split(":").map(Number);
+      const bookingUTC = new Date(`${date}T00:00:00Z`).getTime() + (bh * 60 + bm - off) * 60_000;
+      if (bookingUTC - Date.now() < 24 * 60 * 60 * 1000) {
+        return res.status(400).json({ error: "Las reservas deben realizarse con al menos 24 horas de anticipación." });
+      }
+    }
     if (!name || !date || !hour) return res.status(400).json({ error: "Missing required fields" });
 
     // Convert Santiago local time to UTC before storing

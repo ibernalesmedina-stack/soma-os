@@ -523,6 +523,8 @@ function CTA({ services }: { services: Service[] }) {
   const [step, setStep] = useState<"form" | "success" | "error">("form");
   const [submitting, setSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [slotsLoaded, setSlotsLoaded] = useState(false);
+  const [tooSoon, setTooSoon] = useState(false);
 
   const PRICES = buildPrices(services);
   const plans = PRICES[modality][patient];
@@ -530,21 +532,30 @@ function CTA({ services }: { services: Service[] }) {
 
   const isSunday = (d: string) => d ? new Date(d + "T12:00:00").getDay() === 0 : false;
 
+  // Minimum date: tomorrow (no same-day bookings)
+  const minDate = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  })();
+
   // Load available slots when date changes
   useEffect(() => {
-    if (!date || !currentPlan || isSunday(date)) { setAvailableSlots([]); return; }
+    if (!date || !currentPlan || isSunday(date)) {
+      setAvailableSlots([]); setSlotsLoaded(false); setTooSoon(false); return;
+    }
+    setSlotsLoaded(false);
     fetch(`/api/booking/slots?date=${date}&duration=${currentPlan.duration_min}`)
       .then(r => r.json())
-      .then(d => setAvailableSlots(d.slots || []))
-      .catch(() => setAvailableSlots([]));
+      .then(d => {
+        setTooSoon(d.reason === "too_soon");
+        setAvailableSlots(d.slots || []);
+        setSlotsLoaded(true);
+      })
+      .catch(() => { setAvailableSlots([]); setSlotsLoaded(true); });
   }, [date, currentPlan?.duration_min]);
 
-  const slots = isSunday(date) ? [] : (
-    availableSlots.length > 0 ? availableSlots : (
-      patient === "nuevo"
-        ? ["09:00","10:00","11:00","12:00","13:00","15:00","16:00","17:00","18:00","19:00"]
-        : ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"]
-    )
+  const slots = isSunday(date) ? [] : availableSlots;
   );
 
   const handleConfirm = async () => {
@@ -621,13 +632,21 @@ function CTA({ services }: { services: Service[] }) {
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <EnLabel>Fecha</EnLabel>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
+              <input type="date" value={date} min={minDate} onChange={(e) => { setDate(e.target.value); setTime(""); }} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
             </div>
             <div>
               <EnLabel>Hora</EnLabel>
               {isSunday(date) ? (
                 <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
                   No hay atención los domingos
+                </p>
+              ) : tooSoon ? (
+                <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
+                  Las reservas deben hacerse con al menos 24 horas de anticipación
+                </p>
+              ) : slotsLoaded && slots.length === 0 && date ? (
+                <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "oklch(0.28 0.06 165 / 0.05)", border: "1px solid oklch(0.28 0.06 165 / 0.15)", color: "oklch(0.28 0.06 165 / 0.6)" }}>
+                  No hay horas disponibles para este día
                 </p>
               ) : (
                 <select value={time} onChange={(e) => setTime(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle}>
