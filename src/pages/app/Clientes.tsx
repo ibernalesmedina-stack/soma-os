@@ -20,23 +20,25 @@ function NuevoPacienteDialog({ open, onClose, onCreated, clientLabel, userId }: 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [rut, setRut] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [occupation, setOccupation] = useState("");
   const [notas, setNotas] = useState("");
   const [consent, setConsent] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const reset = () => { setNombre(""); setEmail(""); setPhone(""); setBirthDate(""); setOccupation(""); setNotas(""); setConsent(false); };
+  const reset = () => { setNombre(""); setEmail(""); setPhone(""); setRut(""); setBirthDate(""); setOccupation(""); setNotas(""); setConsent(false); };
 
   const handleSubmit = async () => {
     if (!nombre.trim()) return toast({ title: "Ingresa el nombre del paciente", variant: "destructive" });
     setSaving(true);
     try {
       const ficha = await getOrCreateFicha(userId, nombre.trim());
-      if (email || phone || birthDate || occupation || notas) {
+      if (email || phone || rut || birthDate || occupation || notas) {
         const { updateFicha } = await import("@/lib/storage");
         await updateFicha(ficha.id, {
-          email: email || undefined, phone: phone || undefined,
+          user_id: userId, clientKey: ficha.clientKey,
+          email: email || undefined, phone: phone || undefined, rut: rut || undefined,
           birthDate: birthDate || undefined, occupation: occupation || undefined,
           notasGenerales: notas || undefined,
         });
@@ -74,6 +76,10 @@ function NuevoPacienteDialog({ open, onClose, onCreated, clientLabel, userId }: 
               <Label>Teléfono <span className="text-muted-foreground font-normal text-xs">(opcional)</span></Label>
               <Input placeholder="+56 9 …" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
+          </div>
+          <div className="grid gap-1.5">
+            <Label>RUT <span className="text-muted-foreground font-normal text-xs">(opcional)</span></Label>
+            <Input placeholder="Ej: 12.345.678-9" value={rut} onChange={(e) => setRut(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">

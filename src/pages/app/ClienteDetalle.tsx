@@ -86,7 +86,7 @@ export default function ClienteDetalle() {
   const onChange = (k: keyof ClienteFicha, v: string) => setFicha((f) => f ? { ...f, [k]: v } : f);
   const onSave = async () => {
     if (!ficha) return;
-    await updateFicha(ficha.id, ficha);
+    await updateFicha(ficha.id, { ...ficha, user_id: user.id, clientKey: ficha.clientKey });
     toast({ title: "Ficha guardada" });
   };
 

@@ -191,7 +191,7 @@ export const getOrCreateFicha = async (userId: string, clientName: string): Prom
 };
 
 export const updateFicha = async (id: string, patch: Partial<ClienteFicha>) => {
-  await supabase.from("fichas_clientes").update({
+  const row = {
     client_name: patch.clientName, email: patch.email, phone: patch.phone, rut: patch.rut,
     birth_date: patch.birthDate, address: patch.address, occupation: patch.occupation,
     emergency_contact: patch.emergencyContact, motivo_consulta: patch.motivoConsulta,
@@ -209,7 +209,14 @@ export const updateFicha = async (id: string, patch: Partial<ClienteFicha>) => {
     diagnostico: patch.diagnostico, proxima_accion: patch.proximaAccion,
     dental: patch.dental, recomendaciones: patch.recomendaciones,
     updated_at: new Date().toISOString(),
-  }).eq("id", id);
+  };
+  // Prefer filtering by user_id + client_key (always reliable) over UUID id
+  if (patch.user_id && patch.clientKey) {
+    await supabase.from("fichas_clientes").update(row)
+      .eq("user_id", patch.user_id).eq("client_key", patch.clientKey);
+  } else {
+    await supabase.from("fichas_clientes").update(row).eq("id", id);
+  }
 };
 
 export const importFichasCSV = async (userId: string, rows: Array<Record<string, string>>) => {
