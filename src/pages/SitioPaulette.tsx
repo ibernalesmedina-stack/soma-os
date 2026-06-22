@@ -556,7 +556,6 @@ function CTA({ services }: { services: Service[] }) {
   }, [date, currentPlan?.duration_min]);
 
   const slots = isSunday(date) ? [] : availableSlots;
-  );
 
   const handleConfirm = async () => {
     if (!name || !date || !time) return;
