@@ -109,7 +109,9 @@ export function whatsappConfirmacionURL(
     `Tu cita en *${businessName}* ha sido confirmada:`,
     `📅 *${formatDateES(reserva.date)}*`,
     `💆 *${reserva.serviceName}*`,
-    `${reserva.tipoAtencion === "online" ? "🖥️ Online" : "📍 Presencial — Reñaca Norte #25, piso 2, oficina 202, Viña del Mar\nhttps://maps.app.goo.gl/YhBUtEkynEhdAKid9?g_st=ipc"}`,
+    reserva.tipoAtencion === "online"
+      ? `🖥️ Online`
+      : `📍 Presencial\nReñaca Norte #25, piso 2, oficina 202, Viña del Mar\nhttps://maps.app.goo.gl/YhBUtEkynEhdAKid9?g_st=ipc`,
     `💰 ${formatCLP(reserva.amount)}`,
     ``,
     `¡Te esperamos! 🙌`,
@@ -127,12 +129,15 @@ export function whatsappRecordatorioURL(
   whatsappNumber: string,
   businessName = "Tu profesional",
 ): string {
+  const lugar = reserva.tipoAtencion === "online"
+    ? "Online 🖥️"
+    : "Presencial 📍\nReñaca Norte #25, piso 2, oficina 202, Viña del Mar\nhttps://maps.app.goo.gl/YhBUtEkynEhdAKid9?g_st=ipc";
   const msg = [
     `Hola ${reserva.clientName} 👋`,
     ``,
     `Te recordamos tu cita de mañana en *${businessName}*:`,
     `📅 *${formatDateES(reserva.date)}*`,
-    `💆 *${reserva.serviceName}* — ${reserva.tipoAtencion === "online" ? "Online 🖥️" : "Presencial 📍"}`,
+    `💆 *${reserva.serviceName}* — ${lugar}`,
     ``,
     `Si necesitas reagendar, avísanos con anticipación. ¡Nos vemos pronto! 😊`,
   ].join("\n");
