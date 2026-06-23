@@ -67,7 +67,19 @@ export default function Pagos() {
                     </td>
                     <td className="px-4 py-3 mono text-xs">{formatDateTime(p.date)}</td>
                     <td className="px-4 py-3 text-muted-foreground">{p.method || "—"}</td>
-                    <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={async () => {
+                          const next = p.status === "pagado" ? "pendiente" : "pagado";
+                          await updatePago(p.id, { status: next });
+                          refetch();
+                        }}
+                        title="Click para cambiar estado"
+                        className="cursor-pointer hover:opacity-70 transition-opacity"
+                      >
+                        <StatusBadge status={p.status} />
+                      </button>
+                    </td>
                     <td className="px-4 py-3 text-right mono">{formatCLP(p.amount)}</td>
                     <td className="px-4 py-3 text-right">
                       <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditing(p)}>
