@@ -264,14 +264,14 @@ async function runCron(): Promise<{ processed: number; sent: number; errors: num
     const apiKey = resend_api_key || GLOBAL_RESEND_KEY;
     if (!apiKey) continue;
 
-    const from = resend_api_key && resend_email
-      ? `Notificaciones <${resend_email}>`
-      : SOMAOS_FROM;
-    const replyTo = resend_email || undefined;
-
     const profile = await getClientProfile(user_id);
     const businessName = profile?.business_name || profile?.name || "Tu profesional";
     const phone = profile?.phone || profile?.whatsapp_number || "";
+
+    const from = resend_email
+      ? `${businessName} <${resend_email}>`
+      : SOMAOS_FROM;
+    const replyTo = resend_email || undefined;
 
     // ── A. Recordatorio 24h ─────────────────────────────────────────
     const in20h = new Date(now.getTime() + 20 * 3600000).toISOString();
