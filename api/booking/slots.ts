@@ -290,8 +290,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.error("Calendar event failed (reservation saved):", e);
     }
 
-    // Send emails non-blocking
-    if (RESEND_API_KEY && email) {
+    // Send confirmation emails
+    const emailStatus: { client?: string; admin?: string; error?: string } = {};
+
+    if (!RESEND_API_KEY) {
+      emailStatus.error = "RESEND_API_KEY not set";
+      console.error("Email skipped: RESEND_API_KEY env var is not configured");
+    } else if (!email) {
+      emailStatus.error = "no client email provided";
+    } else {
       const clp = "$" + Number(amount).toLocaleString("es-CL");
       const confirmUrl = `https://www.elliotnutrition.com/api/booking/confirm?id=${reservaId}`;
       const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
@@ -315,19 +322,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         </div>
       </div>`;
       const FROM = "Elliot Nutrition <noreply@elliotnutrition.com>";
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: FROM, to: [email], subject: `Confirma tu reserva — ${serviceName} el ${date}`, html: clientHtml }),
-      }).then(async r => { if (!r.ok) console.error("Resend patient email failed:", await r.text()); }).catch(e => console.error("Resend patient email error:", e));
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: FROM, to: [PAULETTE_EMAIL], subject: `Nueva reserva: ${name} — ${serviceName} el ${date}`, html: `<p><b>Paciente:</b> ${name} | <b>Plan:</b> ${serviceName} | <b>Fecha:</b> ${date} ${hour} | <b>Monto:</b> ${clp} CLP | <b>Email:</b> ${email} | <b>Tel:</b> ${phone || "-"}</p>` }),
-      }).then(async r => { if (!r.ok) console.error("Resend paulette email failed:", await r.text()); }).catch(e => console.error("Resend paulette email error:", e));
+
+      try {
+        const r1 = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ from: FROM, to: [email], subject: `Confirma tu reserva — ${serviceName} el ${date}`, html: clientHtml }),
+        });
+        if (r1.ok) {
+          emailStatus.client = "sent";
+        } else {
+          const err = await r1.text();
+          emailStatus.client = `failed: ${err}`;
+          console.error("Resend client email failed:", err);
+        }
+      } catch (e) {
+        emailStatus.client = `error: ${String(e)}`;
+        console.error("Resend client email error:", e);
+      }
+
+      try {
+        const r2 = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ from: FROM, to: [PAULETTE_EMAIL], subject: `Nueva reserva: ${name} — ${serviceName} el ${date}`, html: `<p><b>Paciente:</b> ${name} | <b>Plan:</b> ${serviceName} | <b>Fecha:</b> ${date} ${hour} | <b>Monto:</b> ${clp} CLP | <b>Email:</b> ${email} | <b>Tel:</b> ${phone || "-"}</p>` }),
+        });
+        if (r2.ok) {
+          emailStatus.admin = "sent";
+        } else {
+          const err = await r2.text();
+          emailStatus.admin = `failed: ${err}`;
+          console.error("Resend admin email failed:", err);
+        }
+      } catch (e) {
+        emailStatus.admin = `error: ${String(e)}`;
+        console.error("Resend admin email error:", e);
+      }
     }
 
-    return res.json({ ok: true, reservaId });
+    return res.json({ ok: true, reservaId, emailStatus });
   }
 
   return res.status(405).end();
