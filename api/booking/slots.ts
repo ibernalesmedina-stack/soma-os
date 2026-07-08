@@ -299,28 +299,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else if (!email) {
       emailStatus.error = "no client email provided";
     } else {
-      const clp = "$" + Number(amount).toLocaleString("es-CL");
+      const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(Number(amount));
       const confirmUrl = `https://www.elliotnutrition.com/api/booking/confirm?id=${reservaId}`;
-      const clientHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
-        <div style="background:#1a3a2a;padding:24px 32px;border-radius:12px 12px 0 0">
-          <h1 style="margin:0;color:#fff;font-size:20px">Solicitud de reserva recibida</h1>
-          <p style="margin:4px 0 0;color:rgba(255,255,255,.75);font-size:13px">Elliot Nutrition · Paulette Elliot, Nutricionista</p>
-        </div>
-        <div style="padding:24px 32px;background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px">
-          <p style="color:#374151">Hola <strong>${name}</strong>, recibimos tu solicitud de reserva. Para confirmar tu hora, haz click en el botón de abajo.</p>
-          <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
-            <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Plan</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${serviceName}</td></tr>
-            <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Fecha</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${date} · ${hour}</td></tr>
-            <tr><td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">Modalidad</td><td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:600">${modo}</td></tr>
-            <tr><td style="padding:8px;color:#6b7280">Pago</td><td style="padding:8px;font-weight:600">${clp} CLP — en consulta</td></tr>
-          </table>
-          <div style="text-align:center;margin:24px 0">
-            <a href="${confirmUrl}" style="display:inline-block;background:#1a3a2a;color:#fff;padding:14px 32px;border-radius:100px;font-weight:600;font-size:15px;text-decoration:none">Confirmar mi reserva ✓</a>
-          </div>
-          <p style="font-size:12px;color:#9ca3af;text-align:center">Si no realizaste esta solicitud, ignora este email. La hora se liberará automáticamente si no es confirmada.</p>
-          <p style="font-size:13px;color:#6b7280;margin-top:16px">¿Necesitas reagendar? Escríbeme por <a href="https://wa.me/56942156610" style="color:#1a3a2a">WhatsApp</a>.</p>
-        </div>
-      </div>`;
+      const fechaFormateada = new Date(`${date}T${hour}:00`).toLocaleString("es-CL", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+      });
+      const esPresencial = (modo || "presencial") !== "online";
+      const direccion = esPresencial
+        ? `<div style="margin-top:12px;padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:13px;color:#166534;">
+            📍 <strong>Dirección:</strong> Reñaca Norte #25, piso 2, oficina 202, Viña del Mar<br>
+            <a href="https://maps.app.goo.gl/YhBUtEkynEhdAKid9?g_st=ipc" style="color:#166534;font-size:12px;">Ver en Google Maps →</a>
+           </div>`
+        : `<div style="margin-top:12px;padding:12px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:13px;color:#1e40af;">
+            🖥️ <strong>Modalidad online</strong> — Recibirás el enlace de videollamada antes de la sesión.
+           </div>`;
+      const clientHtml = `<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{margin:0;padding:0;background:#f4f4f2;font-family:'Helvetica Neue',Arial,sans-serif;}
+  .wrap{max-width:560px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .header{background:#1a3a2a;padding:28px 32px 24px;}
+  .header h1{margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.3px;}
+  .header p{margin:5px 0 0;color:rgba(255,255,255,.65);font-size:13px;}
+  .body{padding:28px 32px;}
+  .card{background:#f9f9f7;border:1px solid #e5e5e0;border-radius:10px;overflow:hidden;margin:18px 0;}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid #e5e5e0;font-size:14px;}
+  .row:last-child{border-bottom:none;}
+  .label{color:#6b7280;}
+  .value{font-weight:600;color:#111827;text-align:right;}
+  .btn{display:inline-block;background:#1a3a2a;color:#fff;padding:15px 36px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:-.2px;}
+  .footer{padding:18px 32px;border-top:1px solid #ececec;font-size:12px;color:#9ca3af;text-align:center;}
+</style>
+</head>
+<body><div class="wrap">
+  <div class="header">
+    <h1>Solicitud de reserva recibida</h1>
+    <p>Elliot Nutrition · Paulette Elliot, Nutricionista</p>
+  </div>
+  <div class="body">
+    <p style="font-size:15px;color:#374151;margin-top:0;line-height:1.6;">
+      Hola <strong>${name}</strong> 👋<br>
+      Recibimos tu solicitud. <strong>Confirma tu hora haciendo click en el botón de abajo</strong> — hasta que confirmes, el horario no quedará reservado.
+    </p>
+    <div class="card">
+      <div class="row"><span class="label">Plan</span><span class="value">${serviceName}</span></div>
+      <div class="row"><span class="label">Fecha y hora</span><span class="value" style="text-transform:capitalize;">${fechaFormateada}</span></div>
+      <div class="row"><span class="label">Modalidad</span><span class="value">${esPresencial ? "📍 Presencial" : "🖥️ Online"}</span></div>
+      <div class="row"><span class="label">Pago</span><span class="value">${clp} — en consulta</span></div>
+    </div>
+    ${direccion}
+    <div style="text-align:center;margin:28px 0 20px;">
+      <a href="${confirmUrl}" class="btn">Confirmar mi reserva ✓</a>
+    </div>
+    <p style="font-size:12px;color:#9ca3af;text-align:center;margin:0;">
+      Si no realizaste esta solicitud, ignora este email.<br>La hora quedará liberada automáticamente.
+    </p>
+    <p style="font-size:13px;color:#6b7280;margin-top:20px;border-top:1px solid #f0f0ee;padding-top:16px;">
+      ¿Necesitas cambiar la hora? Escríbeme por <a href="https://wa.me/56942156610" style="color:#1a3a2a;font-weight:600;">WhatsApp</a>.
+    </p>
+  </div>
+  <div class="footer">Elliot Nutrition · noreply@elliotnutrition.com · <a href="https://www.elliotnutrition.com" style="color:#9ca3af;">elliotnutrition.com</a></div>
+</div></body></html>`;
       const FROM = "Elliot Nutrition <noreply@elliotnutrition.com>";
 
       try {

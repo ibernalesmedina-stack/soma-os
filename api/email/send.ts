@@ -97,18 +97,28 @@ function templateConfirmacion(r: ReservaData) {
 
 function templateRecordatorio(r: ReservaData) {
   const bc = r.tipoAtencion === "online" ? "badge-o" : "badge-p";
+  const esPresencial = r.tipoAtencion !== "online";
+  const lugarBlock = esPresencial
+    ? `<div style="margin:16px 0;padding:14px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:13px;color:#166534;line-height:1.6;">
+        📍 <strong>Dirección:</strong> Reñaca Norte #25, piso 2, oficina 202, Viña del Mar<br>
+        <a href="https://maps.app.goo.gl/YhBUtEkynEhdAKid9?g_st=ipc" style="color:#166534;font-size:12px;">Ver en Google Maps →</a>
+       </div>`
+    : `<div style="margin:16px 0;padding:14px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:13px;color:#1e40af;">
+        🖥️ <strong>Sesión online</strong> — Asegúrate de tener buena conexión a internet.
+       </div>`;
   return {
     subject: `⏰ Recordatorio: tu cita es mañana — ${r.serviceName}`,
     html: baseLayout(`
-  <div class="header" style="background:#0ea5e9;"><h1>Recordatorio de cita</h1><p>Tu sesión es mañana — ¡te esperamos!</p></div>
+  <div class="header" style="background:#0ea5e9;"><h1>Tu cita es mañana</h1><p>${r.businessName ?? "Tu profesional"} — ¡te esperamos!</p></div>
   <div class="body">
-    <p style="font-size:15px;color:#374151;margin-top:0">Hola <strong>${r.clientName}</strong>, este es tu recordatorio para mañana.</p>
+    <p style="font-size:15px;color:#374151;margin-top:0">Hola <strong>${r.clientName}</strong> 👋 Este es tu recordatorio para mañana.</p>
     <div class="card">
       <div class="row"><span class="label">Servicio</span><span class="value">${r.serviceName}</span></div>
       <div class="row"><span class="label">Fecha y hora</span><span class="value">${formatDateES(r.date)}</span></div>
       <div class="row"><span class="label">Modalidad</span><span class="value"><span class="badge ${bc}">${r.tipoAtencion === "online" ? "🖥 Online" : "📍 Presencial"}</span></span></div>
     </div>
-    ${r.phone ? `<p style="font-size:13px;color:#6b7280">¿Necesitas cancelar? Contáctanos al <strong>${r.phone}</strong> con anticipación.</p>` : ""}
+    ${lugarBlock}
+    ${r.phone ? `<p style="font-size:13px;color:#6b7280">¿Necesitas cancelar o reagendar? Escríbenos al <strong>${r.phone}</strong> con anticipación.</p>` : ""}
   </div>
   <div class="footer">Enviado por ${r.businessName ?? "SomaOS"}</div>
   `, "#0ea5e9"),
