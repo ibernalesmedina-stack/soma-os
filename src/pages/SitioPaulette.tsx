@@ -416,10 +416,10 @@ function Pricing({ services }: { services: Service[] }) {
           </div>
         </div>
 
-        <div className="mt-16 grid md:grid-cols-3 gap-6 items-start">
+        <div className="mt-20 grid md:grid-cols-3 gap-6 items-stretch">
           {plans.map((p) =>
             p.popular ? (
-              <article key={p.id} className="en-popular-card relative rounded-3xl p-7 sm:p-9 flex flex-col shadow-2xl md:-mt-6 md:-mb-6" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+              <article key={p.id} className="en-popular-card relative rounded-3xl p-7 sm:p-9 flex flex-col shadow-2xl md:mt-4" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-lg" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
                     ⭐ El más elegido
