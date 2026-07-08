@@ -324,11 +324,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   .header p{margin:5px 0 0;color:rgba(255,255,255,.65);font-size:13px;}
   .body{padding:28px 32px;}
   .card{background:#f9f9f7;border:1px solid #e5e5e0;border-radius:10px;overflow:hidden;margin:18px 0;}
-  .row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid #e5e5e0;font-size:14px;}
+  .row{padding:13px 16px;border-bottom:1px solid #e5e5e0;}
   .row:last-child{border-bottom:none;}
-  .label{color:#6b7280;}
-  .value{font-weight:600;color:#111827;text-align:right;}
-  .btn{display:inline-block;background:#1a3a2a;color:#fff;padding:15px 36px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:-.2px;}
+  .label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:3px;}
+  .value{display:block;font-size:15px;font-weight:600;color:#111827;}
+  .btn{display:inline-block;background:#c9a84c;color:#fff;padding:15px 36px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:-.2px;}
   .footer{padding:18px 32px;border-top:1px solid #ececec;font-size:12px;color:#9ca3af;text-align:center;}
 </style>
 </head>
