@@ -358,6 +358,30 @@ function Approach() {
   );
 }
 
+const PLAN_FEATURES: Record<string, string[]> = {
+  "Consulta Inicial": [
+    "Evaluación nutricional completa",
+    "Plan alimentario personalizado",
+    "Análisis de composición corporal",
+    "Metas claras desde el día 1",
+  ],
+  "Plan 3 Meses": [
+    "3 consultas de seguimiento",
+    "Ajuste mensual del plan",
+    "Soporte por WhatsApp entre sesiones",
+    "Análisis de progreso continuo",
+    "Boleta válida para Isapre",
+  ],
+  "Plan 6 Meses": [
+    "6 consultas de seguimiento",
+    "Ajuste mensual del plan",
+    "Soporte prioritario por WhatsApp",
+    "Análisis de progreso continuo",
+    "Boleta válida para Isapre",
+    "Ideal para cambios profundos y duraderos",
+  ],
+};
+
 function Pricing({ services }: { services: Service[] }) {
   const [mode, setMode] = useState<"presencial" | "online">("presencial");
   const plans = services
@@ -368,9 +392,11 @@ function Pricing({ services }: { services: Service[] }) {
       desc: s.description,
       price: { presencial: formatCLP(s.price), online: formatCLP(s.price_online) },
       duration: `${s.duration_min} minutos`,
+      popular: s.name.toLowerCase().includes("3"),
+      features: PLAN_FEATURES[s.name] ?? [],
     }));
   return (
-    <section id="planes" className="py-14 lg:py-20" style={{ background: "oklch(0.88 0.07 130)" }}>
+    <section id="planes" className="py-14 lg:py-24" style={{ background: "oklch(0.88 0.07 130)" }}>
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10">
         <div className="text-center">
           <h2 className="text-[2.5rem] sm:text-5xl lg:text-7xl leading-[1.02] text-balance font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>
@@ -387,25 +413,70 @@ function Pricing({ services }: { services: Service[] }) {
             ))}
           </div>
         </div>
-        <div className="mt-16 grid md:grid-cols-3 gap-6">
-          {plans.map((p) => (
-            <article key={p.id} className="rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm" style={{ background: "var(--en-cream)" }}>
-              <h3 className="mt-2 text-3xl sm:text-4xl" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
-              <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{p.desc}</p>
-              <div className="mt-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl sm:text-5xl lg:text-6xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.price[mode]}</span>
-                  <span className="text-xs uppercase tracking-wider" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>CLP</span>
+
+        <div className="mt-16 grid md:grid-cols-3 gap-6 items-start">
+          {plans.map((p) =>
+            p.popular ? (
+              <article key={p.id} className="relative rounded-3xl p-7 sm:p-9 flex flex-col shadow-2xl md:-mt-4 md:-mb-4" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-lg" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+                    ⭐ El más elegido
+                  </span>
                 </div>
-                <p className="mt-2 text-xs uppercase tracking-[0.16em] leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>{p.duration}</p>
-              </div>
-              <div className="flex-1" />
-              <a href="#agenda" className="mt-8 inline-flex items-center justify-between gap-2 rounded-full px-6 py-3.5 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
-                Agenda tu consulta <ArrowRight className="h-4 w-4" />
-              </a>
-            </article>
-          ))}
+                <h3 className="mt-4 text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-gold)" }}>{p.title}</h3>
+                <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: "oklch(0.97 0.02 90 / 0.75)" }}>{p.desc}</p>
+                <div className="mt-6">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl sm:text-5xl lg:text-6xl font-bold" style={{ fontFamily: "'Barlow', sans-serif" }}>{p.price[mode]}</span>
+                    <span className="text-xs uppercase tracking-wider" style={{ color: "oklch(0.97 0.02 90 / 0.6)" }}>CLP</span>
+                  </div>
+                  <p className="mt-1.5 text-xs uppercase tracking-[0.16em]" style={{ color: "oklch(0.97 0.02 90 / 0.55)" }}>{p.duration}</p>
+                </div>
+                {p.features.length > 0 && (
+                  <ul className="mt-7 space-y-2.5">
+                    {p.features.map(f => (
+                      <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: "oklch(0.97 0.02 90 / 0.9)" }}>
+                        <span className="flex-shrink-0 h-4 w-4 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="flex-1" />
+                <a href="#agenda" className="mt-8 inline-flex items-center justify-between gap-2 rounded-full px-6 py-4 text-sm font-bold transition-all hover:opacity-90" style={{ background: "var(--en-gold)", color: "var(--en-emerald-deep)" }}>
+                  Quiero este plan <ArrowRight className="h-4 w-4" />
+                </a>
+              </article>
+            ) : (
+              <article key={p.id} className="rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm" style={{ background: "var(--en-cream)" }}>
+                <h3 className="mt-2 text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.title}</h3>
+                <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>{p.desc}</p>
+                <div className="mt-6">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl sm:text-5xl lg:text-6xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>{p.price[mode]}</span>
+                    <span className="text-xs uppercase tracking-wider" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>CLP</span>
+                  </div>
+                  <p className="mt-2 text-xs uppercase tracking-[0.16em]" style={{ color: "oklch(0.20 0.04 165 / 0.6)" }}>{p.duration}</p>
+                </div>
+                {p.features.length > 0 && (
+                  <ul className="mt-7 space-y-2.5">
+                    {p.features.map(f => (
+                      <li key={f} className="flex items-center gap-2.5 text-sm" style={{ color: "oklch(0.20 0.04 165 / 0.75)" }}>
+                        <span className="flex-shrink-0 h-4 w-4 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: "oklch(0.45 0.10 165 / 0.15)", color: "var(--en-emerald-deep)" }}>✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="flex-1" />
+                <a href="#agenda" className="mt-8 inline-flex items-center justify-between gap-2 rounded-full px-6 py-3.5 text-sm font-medium transition-colors" style={{ background: "var(--en-emerald-deep)", color: "var(--en-cream)" }}>
+                  Agenda tu consulta <ArrowRight className="h-4 w-4" />
+                </a>
+              </article>
+            )
+          )}
         </div>
+
         <div className="mt-16 text-center">
           <h3 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: "'Barlow', sans-serif", color: "var(--en-emerald-deep)" }}>¿No sabes cuál elegir?</h3>
           <p className="mt-3" style={{ color: "oklch(0.20 0.04 165 / 0.7)" }}>Escríbeme por WhatsApp y te oriento sin compromiso.</p>
