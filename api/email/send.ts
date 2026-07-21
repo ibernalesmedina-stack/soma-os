@@ -29,6 +29,7 @@ async function sb(path: string, opts?: RequestInit) {
 
 function formatDateES(iso: string) {
   return new Date(iso).toLocaleString("es-CL", {
+    timeZone: "America/Santiago",
     weekday: "long", day: "numeric", month: "long",
     year: "numeric", hour: "2-digit", minute: "2-digit",
   });
