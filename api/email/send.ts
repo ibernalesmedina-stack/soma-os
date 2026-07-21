@@ -71,9 +71,12 @@ function baseLayout(content: string, accentColor = "#7C3AED") {
 // ── Templates ───────────────────────────────────────────────────────
 
 interface ReservaData {
+  id?: string;
   clientName: string; serviceName: string; date: string;
   tipoAtencion: string; amount: number; businessName?: string; phone?: string;
 }
+
+const CANCEL_BASE_URL = "https://www.elliotnutrition.com/api/booking/cancel";
 
 function templateConfirmacion(r: ReservaData) {
   const bc = r.tipoAtencion === "online" ? "badge-o" : "badge-p";
@@ -119,7 +122,8 @@ function templateRecordatorio(r: ReservaData) {
       <div class="row"><span class="label">Modalidad</span><span class="value"><span class="badge ${bc}">${r.tipoAtencion === "online" ? "🖥 Online" : "📍 Presencial"}</span></span></div>
     </div>
     ${lugarBlock}
-    ${r.phone ? `<p style="font-size:13px;color:#6b7280">¿Necesitas cancelar o reagendar? Escríbenos al <strong>${r.phone}</strong> con anticipación.</p>` : ""}
+    ${r.phone ? `<p style="font-size:13px;color:#6b7280">¿Necesitas reagendar? Escríbenos al <strong>${r.phone}</strong> con anticipación.</p>` : ""}
+    ${r.id ? `<p style="text-align:center;margin-top:20px;"><a href="${CANCEL_BASE_URL}?id=${r.id}" style="color:#b91c1c;font-size:13px;text-decoration:underline;">Cancelar mi hora</a></p>` : ""}
   </div>
   <div class="footer">Enviado por ${r.businessName ?? "SomaOS"}</div>
   `, "#0ea5e9"),
@@ -302,6 +306,7 @@ async function runCron(): Promise<{ processed: number; sent: number; errors: num
         if (!toEmail) continue;
 
         const t = templateRecordatorio({
+          id: reserva.id,
           clientName: reserva.client_name, serviceName: reserva.service_name,
           date: reserva.date, tipoAtencion: reserva.tipo_atencion,
           amount: reserva.amount, businessName, phone,

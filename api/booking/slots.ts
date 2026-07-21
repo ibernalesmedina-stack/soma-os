@@ -301,6 +301,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       const clp = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(Number(amount));
       const confirmUrl = `https://www.elliotnutrition.com/api/booking/confirm?id=${reservaId}`;
+      const cancelUrl = `https://www.elliotnutrition.com/api/booking/cancel?id=${reservaId}`;
       const fechaFormateada = new Date(`${date}T${hour}:00`).toLocaleString("es-CL", {
         weekday: "long", day: "numeric", month: "long", year: "numeric",
         hour: "2-digit", minute: "2-digit",
@@ -354,6 +355,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     </div>
     <p style="font-size:12px;color:#9ca3af;text-align:center;margin:0;">
       Si no realizaste esta solicitud, ignora este email.<br>La hora quedará liberada automáticamente.
+    </p>
+    <p style="text-align:center;margin:14px 0 0;">
+      <a href="${cancelUrl}" style="color:#b91c1c;font-size:13px;text-decoration:underline;">Cancelar esta hora</a>
     </p>
     <p style="font-size:13px;color:#6b7280;margin-top:20px;border-top:1px solid #f0f0ee;padding-top:16px;">
       ¿Necesitas cambiar la hora? Escríbeme por <a href="https://wa.me/56942156610" style="color:#1a3a2a;font-weight:600;">WhatsApp</a>.
