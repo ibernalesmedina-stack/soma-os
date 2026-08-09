@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowRight, MessageCircle, Sparkles, Star, ExternalLink, Check,
+  ArrowRight, Sparkles, Star, ExternalLink, Check,
   Syringe, Droplet, Sun, Gem, Zap, SmilePlus, ShieldCheck, Scissors, Wrench,
   Instagram as InstagramIcon,
 } from "lucide-react";
@@ -39,6 +39,19 @@ const SITE_STYLES = `
     50% { transform: translateY(-5px); box-shadow: 0 24px 48px rgba(184,155,106,0.46); }
   }
   @keyframes pc-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes pc-waRipple {
+    0%   { box-shadow: 0 10px 28px rgba(37,211,102,0.5), 0 0 0 0 rgba(37,211,102,0.55); }
+    70%  { box-shadow: 0 10px 28px rgba(37,211,102,0.5), 0 0 0 16px rgba(37,211,102,0); }
+    100% { box-shadow: 0 10px 28px rgba(37,211,102,0.5), 0 0 0 0 rgba(37,211,102,0); }
+  }
+  @keyframes pc-waBounce {
+    0%, 82%, 100% { transform: translateY(0); }
+    88% { transform: translateY(-7px); }
+    94% { transform: translateY(0); }
+    97% { transform: translateY(-3px); }
+  }
+  .pc-wa-btn { animation: pc-waRipple 2.4s ease-out infinite, pc-waBounce 3.2s ease-in-out infinite; }
+  .pc-wa-btn:hover { animation-play-state: paused; }
   .pc-cta-pulse { animation: pc-ctaPulse 3.4s ease-in-out infinite; }
   .pc-marquee { animation: pc-marquee 42s linear infinite; }
   .pc-marquee:hover { animation-play-state: paused; }
@@ -718,10 +731,12 @@ function WhatsAppButton() {
     <a
       href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Dra. Paola, tengo una consulta.")}`}
       target="_blank" rel="noreferrer"
-      className="fixed z-[70] inline-flex items-center gap-2 rounded-full transition-all hover:-translate-y-1"
-      style={{ right: "clamp(16px,2.4vw,34px)", bottom: "clamp(20px,4vh,40px)", background: "#B89B6A", color: "#fff", padding: "15px 22px", boxShadow: "0 14px 34px rgba(184,155,106,0.4)" }}
+      className="pc-wa-btn fixed z-[70] inline-flex items-center gap-2 rounded-full transition-transform hover:-translate-y-1 hover:scale-105"
+      style={{ right: "clamp(16px,2.4vw,34px)", bottom: "clamp(20px,4vh,40px)", background: "#25D366", color: "#fff", padding: "15px 22px" }}
     >
-      <MessageCircle className="h-[19px] w-[19px]" strokeWidth={1.7} />
+      <svg viewBox="0 0 24 24" className="h-[19px] w-[19px]" fill="currentColor">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.2h.01c5.46 0 9.9-4.45 9.9-9.91S17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.11.11-1.79-.11a16 16 0 0 1-1.63-.6c-2.87-1.24-4.74-4.15-4.88-4.35-.14-.19-1.17-1.56-1.17-2.98s.72-2.1 1-2.4c.24-.24.53-.3.71-.3l.5.01c.16 0 .38-.06.6.46.24.57.79 1.98.86 2.12.07.14.12.31.02.5-.09.19-.14.31-.28.47-.14.17-.29.37-.42.5-.14.14-.29.29-.12.57.16.28.72 1.19 1.55 1.93 1.07.95 1.97 1.25 2.25 1.39.28.14.44.12.6-.07.16-.19.69-.8.88-1.08.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.54.33.07.12.07.68-.17 1.35Z" />
+      </svg>
       <span className="text-xs font-bold uppercase" style={{ letterSpacing: "0.14em" }}>WhatsApp</span>
     </a>
   );
