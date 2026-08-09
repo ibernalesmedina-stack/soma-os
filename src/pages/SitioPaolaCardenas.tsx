@@ -225,15 +225,15 @@ function Filosofia() {
   );
 }
 
-type Categoria = { title: string; desc: string; items: { name: string; sub: string; desc: string; icon: typeof Star }[] };
+type Categoria = { title: string; desc: string; items: { name: string; sub: string; desc: string; icon: typeof Star; img?: string }[] };
 
 const CATEGORIAS: Categoria[] = [
   {
     title: "Medicina estética",
     desc: "Tratamientos diseñados para armonizar el rostro, revitalizar la piel y potenciar la belleza natural mediante procedimientos seguros, personalizados y mínimamente invasivos.",
     items: [
-      { name: "Peeling químico", sub: "Renovación y luminosidad de la piel", desc: "Exfoliación controlada que renueva las capas superficiales de la piel, mejora la textura, atenúa manchas y devuelve luminosidad de forma progresiva y natural.", icon: Sun },
-      { name: "Mesoterapia", sub: "Hidratación profunda y firmeza", desc: "Microinyecciones de activos, vitaminas y ácido hialurónico que hidratan en profundidad, mejoran la firmeza y revitalizan el aspecto general del rostro.", icon: Droplet },
+      { name: "Peeling químico", sub: "Renovación y luminosidad de la piel", desc: "Exfoliación controlada que renueva las capas superficiales de la piel, mejora la textura, atenúa manchas y devuelve luminosidad de forma progresiva y natural.", icon: Sun, img: "/tratamiento-peeling.jpg" },
+      { name: "Mesoterapia", sub: "Hidratación profunda y firmeza", desc: "Microinyecciones de activos, vitaminas y ácido hialurónico que hidratan en profundidad, mejoran la firmeza y revitalizan el aspecto general del rostro.", icon: Droplet, img: "/tratamiento-mesoterapia.jpg" },
       { name: "Bioestimuladores faciales", sub: "Colágeno propio, resultado progresivo", desc: "Estimulan la producción natural de colágeno, mejorando densidad, firmeza y calidad de la piel con un resultado gradual que se ve genuinamente tuyo.", icon: Sparkles },
       { name: "Ácido hialurónico", sub: "Volumen y armonía facial", desc: "Relleno de alta calidad para restaurar volúmenes, definir contornos y armonizar proporciones del rostro, siempre respetando tus rasgos.", icon: Gem },
       { name: "Toxina botulínica", sub: "Expresión relajada y natural", desc: "Suaviza líneas de expresión y previene su profundización, manteniendo un rostro descansado, con movimiento y expresión natural.", icon: Syringe },
@@ -278,9 +278,13 @@ function Tratamientos() {
               const Icon = it.icon;
               return (
                 <article key={it.name} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#2E3135" }}>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-40 group-hover:opacity-20 transition-opacity">
-                    <Icon className="h-24 w-24" style={{ color: "#E3D3B4" }} strokeWidth={1} />
-                  </div>
+                  {it.img ? (
+                    <img src={it.img} alt={it.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-40 group-hover:opacity-20 transition-opacity">
+                      <Icon className="h-24 w-24" style={{ color: "#E3D3B4" }} strokeWidth={1} />
+                    </div>
+                  )}
                   <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
                   <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(46,49,53,0.88) 0%, rgba(46,49,53,0.15) 52%, rgba(46,49,53,0.05) 100%)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
