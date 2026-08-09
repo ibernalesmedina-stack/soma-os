@@ -70,6 +70,11 @@ const SITE_STYLES = `
   .pc-marquee:hover { animation-play-state: paused; }
   .pc-reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
   .pc-reveal.pc-in { opacity: 1; transform: translateY(0); }
+  @media (min-width: 768px) {
+    .pc-resultados-grid { height: clamp(520px,78vh,820px); }
+    .pc-resultados-grid > div { aspect-ratio: auto !important; margin-top: 0 !important; }
+    .pc-resultados-grid > div > div { aspect-ratio: auto !important; }
+  }
 `;
 
 function useReveal() {
@@ -191,7 +196,7 @@ function Hero() {
       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(114,127,137,0.34) 100%)" }} />
       <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(48px,9vh,104px)" }}>
         <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Estética · Rehabilitación oral</p>
-        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(44px,8vw,132px)", lineHeight: 0.94, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
+        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(58px,8vw,132px)", lineHeight: 0.96, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
           No solo<br />restauramos sonrisas.<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>Devolvemos confianza.</em>
         </h1>
         <div className="mt-8 flex flex-wrap gap-4">
@@ -214,7 +219,7 @@ function Filosofia() {
         <Reveal className="lg:col-span-6 flex flex-col" style={{ gap: "clamp(22px,3vh,32px)" }}>
           <div>
             <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: "clamp(16px,2vh,24px)" }}>Mi filosofía</p>
-            <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(32px,4.4vw,72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}>
+            <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(40px,4.4vw,72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}>
               Una odontología centrada en las <em style={{ color: "#8C7B62", fontStyle: "italic" }}>personas</em>
             </h2>
           </div>
@@ -279,7 +284,7 @@ const CATEGORIAS: Categoria[] = [
 function Tratamientos() {
   return (
     <section id="tratamientos" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) 0 clamp(110px,16vh,220px)" }}>
-      <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(26px,3.4vw,54px)", textTransform: "uppercase", letterSpacing: "-0.01em", color: "#322C28" }}>
+      <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(32px,3.4vw,54px)", textTransform: "uppercase", letterSpacing: "-0.01em", color: "#322C28" }}>
         Nuestros tratamientos
       </h2>
       {CATEGORIAS.map((cat, ci) => (
@@ -301,12 +306,12 @@ function Tratamientos() {
                     <div>
                       <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
                       <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
-                      <div className="mt-5 flex items-center justify-between">
+                      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
                           <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: 22 }}>Consultar</span>
                         </div>
-                        <a href="#agenda" className="rounded-full font-medium uppercase" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
+                        <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
                           Agendar
                         </a>
                       </div>
@@ -325,12 +330,12 @@ function Tratamientos() {
                   <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(114,127,137,0.93)", backdropFilter: "blur(6px)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
                     <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
-                    <div className="mt-5 flex items-center justify-between">
+                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
                         <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: 22 }}>Consultar</span>
                       </div>
-                      <a href="#agenda" className="rounded-full font-medium uppercase" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
+                      <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
                         Agendar
                       </a>
                     </div>
@@ -351,21 +356,21 @@ const testimonioVideo = "/paola-testimonio.mp4";
 
 function AntesDespues() {
   return (
-    <section id="resultados" style={{ background: "#f0ebe5", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) clamp(90px,13vh,170px)" }}>
+    <section id="resultados" style={{ background: "#f0ebe5", padding: "clamp(24px,4vh,60px) clamp(20px,5vw,72px) clamp(70px,10vh,140px)" }}>
       <div className="text-center py-10">
-        <h2 style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(22px,2.6vw,42px)", textTransform: "uppercase", color: "#322C28" }}>Antes y después</h2>
+        <h2 style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(30px,2.6vw,42px)", textTransform: "uppercase", color: "#322C28" }}>Antes y después</h2>
         <p className="mt-2" style={{ color: "#8C8378", fontSize: "clamp(13px,1.05vw,16px)" }}>de nuestros pacientes</p>
       </div>
-      <div className="mx-auto grid md:grid-cols-2 items-stretch" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)", height: "clamp(520px,78vh,820px)" }}>
-        <div className="relative grid grid-rows-3 h-full" style={{ gap: "clamp(10px,1.2vw,16px)", minHeight: 0 }}>
+      <div className="mx-auto grid md:grid-cols-2 items-stretch pc-resultados-grid" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)" }}>
+        <div className="relative grid grid-rows-3 gap-3 h-full">
           {testimonioImgs.map((src, i) => (
-            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ minHeight: 0 }}>
+            <div key={src} className="relative rounded-2xl overflow-hidden h-full" style={{ aspectRatio: "4/3" }}>
               <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
             </div>
           ))}
           <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(114,127,137,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
         </div>
-        <div className="relative rounded-2xl overflow-hidden h-full" style={{ minHeight: 0 }}>
+        <div className="relative rounded-2xl overflow-hidden mt-4 md:mt-0 h-full" style={{ aspectRatio: "3/4" }}>
           <video src={testimonioVideo} className="w-full h-full object-cover block" autoPlay muted loop playsInline controls />
           <span className="absolute top-4 left-4 rounded-full" style={{ padding: "6px 16px", background: "rgba(184,155,106,0.9)", color: "#fff", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Después</span>
         </div>
@@ -437,7 +442,7 @@ function Testimonios() {
   return (
     <section id="testimonios" style={{ position: "relative", background: "#f0ebe5", padding: "clamp(110px,17vh,220px) clamp(20px,5vw,72px)", overflow: "hidden" }}>
       <div style={{ position: "relative", zIndex: 2 }}>
-        <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(26px,3.4vw,54px)", letterSpacing: "-0.01em", color: "#322C28" }}>Reseñas reales de pacientes</h2>
+        <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(32px,3.4vw,54px)", letterSpacing: "-0.01em", color: "#322C28" }}>Reseñas reales de pacientes</h2>
         <div className="mt-8 flex justify-center">
           <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-4 rounded-full" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.18)", padding: "13px 26px" }}>
             <span style={{ fontWeight: 600, fontSize: 22 }}>5,0</span>
