@@ -9,6 +9,7 @@ const heroImg = "/paola-hero.png";
 const ctaImg = "/paola-cta.png";
 const beforeImg = "/paola-before.png";
 const afterImg = "/paola-after.png";
+const portraitImg = "/paola-portrait.jpg";
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=dra+paola+cardenas+fica";
 const WHATSAPP_NUMBER = "56971252179";
@@ -370,8 +371,8 @@ function QuienSoy() {
   return (
     <section id="dra" ref={ref} style={{ background: "#2E3135", color: "#F4F2EE", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
       <div className="mx-auto max-w-7xl grid lg:grid-cols-12 items-start gap-10">
-        <div className="lg:col-span-5 rounded-2xl overflow-hidden flex items-center justify-center" style={{ aspectRatio: "4/5", background: "linear-gradient(160deg, #3a3d42, #22242a)" }}>
-          <span className="pc-serif" style={{ fontSize: "clamp(60px,8vw,110px)", color: "rgba(244,242,238,0.18)" }}>PC</span>
+        <div className="lg:col-span-5 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/5" }}>
+          <img src={portraitImg} alt="Dra. Paola Cárdenas Fica" className="w-full h-full object-cover" loading="lazy" />
         </div>
         <div className="lg:col-span-7">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: 30 }}>Quién soy</p>
