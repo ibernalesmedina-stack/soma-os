@@ -5,6 +5,19 @@ import {
   Instagram as InstagramIcon,
 } from "lucide-react";
 
+type IconProps = { className?: string; style?: React.CSSProperties; strokeWidth?: number | string };
+
+function ToothImplantIcon({ className, style, strokeWidth = 1.4 }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+      <path d="M12 2.2c-2.6 0-4.7 1.7-5.5 4.1-.7 2-.5 4.1.1 6.5.6 2.2 1.2 4.5 1.9 6.5.3.9 1.6.9 1.9 0l.9-2.7c.2-.6 1-.6 1.2 0l.9 2.7c.3.9 1.6.9 1.9 0 .7-2 1.3-4.3 1.9-6.5.6-2.4.8-4.5.1-6.5C16.7 3.9 14.6 2.2 12 2.2Z" />
+      <line x1="12" y1="17.5" x2="12" y2="21.6" />
+      <line x1="10.4" y1="18.6" x2="13.6" y2="18.6" />
+      <line x1="10.4" y1="20.2" x2="13.6" y2="20.2" />
+    </svg>
+  );
+}
+
 const heroImg = "/paola-hero.png";
 const ctaImg = "/paola-cta.png";
 const portraitImg = "/paola-portrait.jpg";
@@ -225,7 +238,7 @@ function Filosofia() {
   );
 }
 
-type Categoria = { title: string; desc: string; items: { name: string; sub: string; desc: string; icon: typeof Star; img?: string }[] };
+type Categoria = { title: string; desc: string; items: { name: string; sub: string; desc: string; icon: React.ComponentType<IconProps>; img?: string }[] };
 
 const CATEGORIAS: Categoria[] = [
   {
@@ -243,20 +256,20 @@ const CATEGORIAS: Categoria[] = [
     title: "Odontología general",
     desc: "Cuidamos la salud de tu sonrisa con tratamientos preventivos y restauradores que combinan funcionalidad, estética y bienestar.",
     items: [
-      { name: "Limpieza dental", sub: "Salud que se ve y se siente", desc: "Remoción profesional de placa y sarro, pulido y revisión completa para mantener encías sanas y prevenir problemas mayores.", icon: ShieldCheck },
+      { name: "Limpieza dental", sub: "Salud que se ve y se siente", desc: "Remoción profesional de placa y sarro, pulido y revisión completa para mantener encías sanas y prevenir problemas mayores.", icon: ShieldCheck, img: "/tratamiento-limpieza.jpg" },
       { name: "Blanqueamiento", sub: "Tonos más claros, sin dañar", desc: "Protocolo profesional que aclara varios tonos el esmalte de forma segura y controlada, con seguimiento personalizado.", icon: Zap, img: "/tratamiento-blanqueamiento.jpg" },
-      { name: "Restauraciones", sub: "Estética y función devueltas", desc: "Reparación de piezas dañadas con materiales estéticos de alta resistencia que replican el color y la anatomía natural del diente.", icon: SmilePlus },
+      { name: "Restauraciones", sub: "Estética y función devueltas", desc: "Reparación de piezas dañadas con materiales estéticos de alta resistencia que replican el color y la anatomía natural del diente.", icon: SmilePlus, img: "/tratamiento-restauraciones.jpg" },
       { name: "Extracciones", sub: "Procedimiento seguro y cuidado", desc: "Extracción realizada con técnica atraumática, anestesia adecuada y acompañamiento en todo el proceso de recuperación.", icon: Scissors, img: "/tratamiento-extracciones.jpg" },
-      { name: "Prótesis dentales", sub: "Recuperar la mordida y la sonrisa", desc: "Prótesis fijas o removibles diseñadas a medida para devolver función masticatoria, soporte facial y estética.", icon: Wrench },
+      { name: "Prótesis dentales", sub: "Recuperar la mordida y la sonrisa", desc: "Prótesis fijas o removibles diseñadas a medida para devolver función masticatoria, soporte facial y estética.", icon: Wrench, img: "/tratamiento-protesis.jpg" },
     ],
   },
   {
     title: "Implantología",
     desc: "Recuperamos la funcionalidad y la estética de tu sonrisa mediante implantes dentales de alta precisión, devolviendo seguridad y calidad de vida.",
     items: [
-      { name: "Implante unitario", sub: "Una pieza, resultado natural", desc: "Reposición de una pieza perdida mediante un implante de titanio y corona personalizada, indistinguible de tus dientes naturales.", icon: Gem },
-      { name: "Implantes múltiples", sub: "Rehabilitación por sectores", desc: "Solución para varias piezas ausentes, planificada digitalmente para devolver función masticatoria y estética de forma integral.", icon: SmilePlus },
-      { name: "Rehabilitación completa", sub: "Toda la sonrisa, en un plan", desc: "Tratamiento integral que restaura la arcada completa, recuperando mordida, soporte facial y confianza al hablar y sonreír.", icon: ShieldCheck },
+      { name: "Implante unitario", sub: "Una pieza, resultado natural", desc: "Reposición de una pieza perdida mediante un implante de titanio y corona personalizada, indistinguible de tus dientes naturales.", icon: ToothImplantIcon },
+      { name: "Implantes múltiples", sub: "Rehabilitación por sectores", desc: "Solución para varias piezas ausentes, planificada digitalmente para devolver función masticatoria y estética de forma integral.", icon: ToothImplantIcon },
+      { name: "Rehabilitación completa", sub: "Toda la sonrisa, en un plan", desc: "Tratamiento integral que restaura la arcada completa, recuperando mordida, soporte facial y confianza al hablar y sonreír.", icon: ToothImplantIcon },
     ],
   },
 ];
@@ -296,7 +309,7 @@ function Tratamientos() {
                     <div className="mt-5 flex items-center justify-between">
                       <div>
                         <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
-                        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(24px,2vw,30px)" }}>Consultar</span>
+                        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: 22 }}>Consultar</span>
                       </div>
                       <a href="#agenda" className="rounded-full font-medium uppercase" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
                         Agendar
