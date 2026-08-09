@@ -7,8 +7,6 @@ import {
 
 const heroImg = "/paola-hero.png";
 const ctaImg = "/paola-cta.png";
-const beforeImg = "/paola-before.png";
-const afterImg = "/paola-after.png";
 const portraitImg = "/paola-portrait.jpg";
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=dra+paola+cardenas+fica";
@@ -311,42 +309,28 @@ function Tratamientos() {
   );
 }
 
+const testimonioImgs = ["/paola-testimonio-1.jpg", "/paola-testimonio-2.jpg", "/paola-testimonio-3.jpg"];
+const testimonioVideo = "/paola-testimonio.mp4";
+
 function AntesDespues() {
-  const [pos, setPos] = useState(50);
-  const dragging = useRef(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-
-  const updateFromClientX = (clientX: number) => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const p = ((clientX - rect.left) / rect.width) * 100;
-    setPos(Math.min(98, Math.max(2, p)));
-  };
-
   return (
-    <section id="resultados" style={{ background: "#F8F6F2" }}>
+    <section id="resultados" style={{ background: "#F8F6F2", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) clamp(90px,13vh,170px)" }}>
       <div className="text-center py-10">
         <h2 style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(22px,2.6vw,42px)", textTransform: "uppercase", color: "#322C28" }}>Antes y después</h2>
         <p className="mt-2" style={{ color: "#8C8378", fontSize: "clamp(13px,1.05vw,16px)" }}>de nuestros pacientes</p>
       </div>
-      <div
-        ref={wrapRef}
-        className="relative w-full overflow-hidden select-none"
-        style={{ height: "clamp(420px,82vh,860px)", cursor: "ew-resize", touchAction: "none" }}
-        onPointerDown={(e) => { dragging.current = true; updateFromClientX(e.clientX); }}
-        onPointerMove={(e) => { if (dragging.current) updateFromClientX(e.clientX); }}
-        onPointerUp={() => (dragging.current = false)}
-        onPointerLeave={() => (dragging.current = false)}
-      >
-        <img src={afterImg} alt="Después" className="absolute inset-0 w-full h-full object-cover" />
-        <img src={beforeImg} alt="Antes" className="absolute inset-0 w-full h-full object-cover" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
-        <span className="absolute top-6 left-6 text-[10px]" style={{ letterSpacing: "0.3em", color: "rgba(248,246,242,0.85)" }}>ANTES</span>
-        <span className="absolute top-6 right-6 text-[10px]" style={{ letterSpacing: "0.3em", color: "rgba(248,246,242,0.85)" }}>DESPUÉS</span>
-        <div className="absolute top-0 bottom-0" style={{ left: `${pos}%`, width: "1px", background: "rgba(248,246,242,0.85)" }}>
-          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full flex items-center justify-center" style={{ width: 62, height: 62, border: "1px solid rgba(248,246,242,0.85)", background: "rgba(248,246,242,0.12)", backdropFilter: "blur(6px)", color: "#F8F6F2" }}>
-            ← →
-          </div>
+      <div className="mx-auto grid md:grid-cols-2 items-stretch" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)", height: "clamp(520px,78vh,820px)" }}>
+        <div className="relative grid grid-rows-3 h-full" style={{ gap: "clamp(10px,1.2vw,16px)", minHeight: 0 }}>
+          {testimonioImgs.map((src, i) => (
+            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ minHeight: 0 }}>
+              <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
+            </div>
+          ))}
+          <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(46,49,53,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
+        </div>
+        <div className="relative rounded-2xl overflow-hidden h-full" style={{ minHeight: 0 }}>
+          <video src={testimonioVideo} className="w-full h-full object-cover block" autoPlay muted loop playsInline controls />
+          <span className="absolute top-4 left-4 rounded-full" style={{ padding: "6px 16px", background: "rgba(184,155,106,0.9)", color: "#fff", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Después</span>
         </div>
       </div>
     </section>
