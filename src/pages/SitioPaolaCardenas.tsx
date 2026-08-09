@@ -306,12 +306,12 @@ function Tratamientos() {
                     <div>
                       <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
                       <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
-                      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-5 flex items-center justify-between gap-2">
                         <div>
                           <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
-                          <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: 22 }}>Consultar</span>
+                          <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>Consultar</span>
                         </div>
-                        <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
+                        <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,13px)" }}>
                           Agendar
                         </a>
                       </div>
@@ -330,12 +330,12 @@ function Tratamientos() {
                   <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(114,127,137,0.93)", backdropFilter: "blur(6px)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
                     <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
-                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mt-5 flex items-center justify-between gap-2">
                       <div>
                         <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
-                        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: 22 }}>Consultar</span>
+                        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>Consultar</span>
                       </div>
-                      <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
+                      <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,13px)" }}>
                         Agendar
                       </a>
                     </div>
