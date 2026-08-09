@@ -29,13 +29,13 @@ const SITE_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
   .pc-site {
-    --pc-bg: #F8F6F2;
-    --pc-bg-alt: #EAE5DE;
+    --pc-bg: #f0ebe5;
+    --pc-bg-alt: #f0ebe5;
     --pc-text: #322C28;
     --pc-text-muted: #5A5148;
     --pc-text-subtle: #8C8378;
     --pc-text-alt: #8C7B62;
-    --pc-dark: #2E3135;
+    --pc-dark: #727f89;
     --pc-on-dark: #F4F2EE;
     --pc-accent: #B89B6A;
     --pc-accent-hover: #A6884F;
@@ -156,7 +156,7 @@ function Nav() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-transform duration-700"
-      style={{ background: "#F8F6F2", borderBottom: "1px solid rgba(50,44,40,0.1)", color: "#322C28", transform: hidden ? "translateY(-115%)" : "translateY(0)" }}
+      style={{ background: "#f0ebe5", borderBottom: "1px solid rgba(50,44,40,0.1)", color: "#322C28", transform: hidden ? "translateY(-115%)" : "translateY(0)" }}
     >
       <div className="flex items-center justify-between gap-3" style={{ padding: "18px clamp(20px,5vw,72px)" }}>
         <a href="#top" className="pc-serif whitespace-nowrap" style={{ color: "#322C28", fontWeight: 700, fontSize: "clamp(13px,1.3vw,20px)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
@@ -164,7 +164,7 @@ function Nav() {
         </a>
         <nav className="hidden md:flex items-center" style={{ gap: "clamp(6px,1.1vw,20px)", fontSize: "clamp(10px,0.85vw,12px)", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
           {[["#filosofia", "Filosofía"], ["#tratamientos", "Tratamientos"], ["#dra", "Quién soy"]].map(([href, label]) => (
-            <a key={href} href={href} className="rounded-full transition-all hover:bg-[#322C28] hover:text-[#F8F6F2]"
+            <a key={href} href={href} className="rounded-full transition-all hover:bg-[#322C28] hover:text-[#f0ebe5]"
               style={{ padding: "11px clamp(13px,1.3vw,20px)", border: "1px solid rgba(50,44,40,0.3)", background: "transparent", color: "#322C28", whiteSpace: "nowrap" }}>
               {label}
             </a>
@@ -184,12 +184,12 @@ function Nav() {
 
 function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden" style={{ minHeight: "640px", height: "100vh", background: "#2E3135" }}>
+    <section id="top" className="relative overflow-hidden" style={{ minHeight: "640px", height: "100vh", background: "#727f89" }}>
       <img src={heroImg} alt="Dra. Paola Cárdenas Fica" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "62% 34%", filter: "grayscale(0.2) brightness(0.82) sepia(0.08)" }} />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(46,49,53,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(46,49,53,0.34) 100%)" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(114,127,137,0.34) 100%)" }} />
       <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(48px,9vh,104px)" }}>
         <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Estética · Rehabilitación oral</p>
-        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(44px,8vw,132px)", lineHeight: 0.94, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(46,49,53,0.4)" }}>
+        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(44px,8vw,132px)", lineHeight: 0.94, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
           No solo<br />restauramos sonrisas.<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>Devolvemos confianza.</em>
         </h1>
         <div className="mt-8 flex flex-wrap gap-4">
@@ -207,7 +207,7 @@ function Hero() {
 
 function Filosofia() {
   return (
-    <section id="filosofia" style={{ background: "#F8F6F2", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,220px)" }}>
+    <section id="filosofia" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,220px)" }}>
       <div className="grid lg:grid-cols-12 items-center" style={{ gap: "clamp(24px,4vw,64px)" }}>
         <Reveal className="lg:col-span-6 flex flex-col" style={{ gap: "clamp(22px,3vh,32px)" }}>
           <div>
@@ -231,7 +231,7 @@ function Filosofia() {
           </div>
         </Reveal>
         <Reveal delay={120} className="lg:col-span-6">
-          <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4", background: "linear-gradient(135deg, #2E3135, #5A5148)" }} />
+          <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4", background: "linear-gradient(135deg, #727f89, #5A5148)" }} />
         </Reveal>
       </div>
     </section>
@@ -276,7 +276,7 @@ const CATEGORIAS: Categoria[] = [
 
 function Tratamientos() {
   return (
-    <section id="tratamientos" style={{ background: "#EAE5DE", padding: "clamp(100px,15vh,200px) 0 clamp(110px,16vh,220px)" }}>
+    <section id="tratamientos" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) 0 clamp(110px,16vh,220px)" }}>
       <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(26px,3.4vw,54px)", textTransform: "uppercase", letterSpacing: "-0.01em", color: "#322C28" }}>
         Nuestros tratamientos
       </h2>
@@ -289,16 +289,16 @@ function Tratamientos() {
           <div className="mt-10 flex justify-center overflow-x-auto px-6" style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none" }}>
             {cat.items.map((it, i) => {
               return (
-                <article key={it.name} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#2E3135" }}>
+                <article key={it.name} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89" }}>
                   {it.img && (
                     <img src={it.img} alt={it.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   )}
                   <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
-                  <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(46,49,53,0.88) 0%, rgba(46,49,53,0.15) 52%, rgba(46,49,53,0.05) 100%)" }}>
+                  <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(114,127,137,0.15) 52%, rgba(114,127,137,0.05) 100%)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
                     <p className="mt-1.5" style={{ color: "rgba(244,242,238,0.75)", fontSize: "clamp(14px,1.15vw,16px)" }}>{it.sub}</p>
                   </div>
-                  <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(46,49,53,0.93)", backdropFilter: "blur(6px)" }}>
+                  <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(114,127,137,0.93)", backdropFilter: "blur(6px)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
                     <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
                     <div className="mt-5 flex items-center justify-between">
@@ -326,7 +326,7 @@ const testimonioVideo = "/paola-testimonio.mp4";
 
 function AntesDespues() {
   return (
-    <section id="resultados" style={{ background: "#F8F6F2", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) clamp(90px,13vh,170px)" }}>
+    <section id="resultados" style={{ background: "#f0ebe5", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) clamp(90px,13vh,170px)" }}>
       <div className="text-center py-10">
         <h2 style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(22px,2.6vw,42px)", textTransform: "uppercase", color: "#322C28" }}>Antes y después</h2>
         <p className="mt-2" style={{ color: "#8C8378", fontSize: "clamp(13px,1.05vw,16px)" }}>de nuestros pacientes</p>
@@ -338,7 +338,7 @@ function AntesDespues() {
               <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
             </div>
           ))}
-          <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(46,49,53,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
+          <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(114,127,137,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
         </div>
         <div className="relative rounded-2xl overflow-hidden h-full" style={{ minHeight: 0 }}>
           <video src={testimonioVideo} className="w-full h-full object-cover block" autoPlay muted loop playsInline controls />
@@ -369,7 +369,7 @@ function QuienSoy() {
   }, [visible]);
 
   return (
-    <section id="dra" ref={ref} style={{ background: "#2E3135", color: "#F4F2EE", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
+    <section id="dra" ref={ref} style={{ background: "#727f89", color: "#F4F2EE", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
       <div className="grid lg:grid-cols-12 items-start gap-10">
         <div className="lg:col-span-5 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/5" }}>
           <img src={portraitImg} alt="Dra. Paola Cárdenas Fica" className="w-full h-full object-cover" loading="lazy" />
@@ -410,7 +410,7 @@ const REVIEWS = [
 
 function Testimonios() {
   return (
-    <section id="testimonios" style={{ position: "relative", background: "#EAE5DE", padding: "clamp(110px,17vh,220px) clamp(20px,5vw,72px)", overflow: "hidden" }}>
+    <section id="testimonios" style={{ position: "relative", background: "#f0ebe5", padding: "clamp(110px,17vh,220px) clamp(20px,5vw,72px)", overflow: "hidden" }}>
       <div style={{ position: "relative", zIndex: 2 }}>
         <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(26px,3.4vw,54px)", letterSpacing: "-0.01em", color: "#322C28" }}>Reseñas reales de pacientes</h2>
         <div className="mt-8 flex justify-center">
@@ -532,12 +532,12 @@ function BookingSection() {
     setSubmitting(false);
   };
 
-  const selectStyle = { border: "1px solid rgba(50,44,40,0.2)", borderRadius: 12, background: "#F8F6F2", color: "#322C28", padding: "16px 18px", fontSize: 15, width: "100%" };
+  const selectStyle = { border: "1px solid rgba(50,44,40,0.2)", borderRadius: 12, background: "#f0ebe5", color: "#322C28", padding: "16px 18px", fontSize: 15, width: "100%" };
   const ready = !!(name && rut && phone && email && date && time);
   const dayLabel = days.find((d) => d.id === date)?.label;
 
   return (
-    <section id="agenda" className="mt-24" style={{ background: "#F8F6F2", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,210px)" }}>
+    <section id="agenda" className="mt-24" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,210px)" }}>
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
         <div className="text-center">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Reserva</p>
@@ -605,7 +605,7 @@ function BookingSection() {
           {step === "error" && (
             <div className="pt-7 text-center space-y-3">
               <p className="text-sm" style={{ color: "#5A5148" }}>Hubo un problema al confirmar la reserva. Inténtalo de nuevo o escríbenos por WhatsApp.</p>
-              <button onClick={handleConfirm} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#2E3135", color: "#fff" }}>Reintentar</button>
+              <button onClick={handleConfirm} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#727f89", color: "#fff" }}>Reintentar</button>
             </div>
           )}
         </div>
@@ -616,9 +616,9 @@ function BookingSection() {
 
 function Cierre() {
   return (
-    <section id="cierre" className="relative overflow-hidden" style={{ height: "clamp(560px,96vh,980px)", background: "#2E3135" }}>
+    <section id="cierre" className="relative overflow-hidden" style={{ height: "clamp(560px,96vh,980px)", background: "#727f89" }}>
       <img src={ctaImg} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "52% 40%", filter: "grayscale(0.18) brightness(0.86)" }} />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(46,49,53,0.55), rgba(46,49,53,0.8))" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(114,127,137,0.55), rgba(114,127,137,0.8))" }} />
       <div className="relative h-full flex flex-col items-center justify-center text-center px-6">
         <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(38px,6.4vw,110px)", maxWidth: "16ch", color: "#F4F2EE" }}>
           La confianza comienza con una <em style={{ fontStyle: "italic", color: "#E3D3B4" }}>conversación.</em>
@@ -650,12 +650,12 @@ function FAQ() {
   const [listOpen, setListOpen] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" style={{ background: "#EAE5DE", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
+    <section id="faq" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
       <div className="mx-auto text-center" style={{ maxWidth: 1000 }}>
         <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Preguntas frecuentes</p>
         <h2 className="pc-serif mt-4" style={{ fontWeight: 300, fontSize: "clamp(30px,4.4vw,68px)" }}>Todo lo que necesitas saber antes de tu cita</h2>
         <div className="mt-10 flex justify-center">
-          <button onClick={() => setListOpen((v) => !v)} className="inline-flex items-center rounded-full transition-colors hover:bg-[#322C28] hover:text-[#F8F6F2]"
+          <button onClick={() => setListOpen((v) => !v)} className="inline-flex items-center rounded-full transition-colors hover:bg-[#322C28] hover:text-[#f0ebe5]"
             style={{ gap: 14, padding: "16px 32px", border: "1px solid rgba(50,44,40,0.3)", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#322C28" }}>
             <span>{listOpen ? "Ocultar preguntas" : "Ver preguntas"}</span>
             <span style={{ fontSize: 15, lineHeight: 1, transition: "transform .6s cubic-bezier(.16,1,.3,1)", transform: listOpen ? "rotate(180deg)" : "none" }}>↓</span>
@@ -683,7 +683,7 @@ function FAQ() {
 
 function Footer() {
   return (
-    <footer style={{ background: "#F8F6F2", borderTop: "1px solid rgba(50,44,40,0.12)", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) 36px" }}>
+    <footer style={{ background: "#f0ebe5", borderTop: "1px solid rgba(50,44,40,0.12)", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) 36px" }}>
       <div className="flex flex-wrap justify-between" style={{ gap: "clamp(36px,6vw,90px)" }}>
         <div>
           <p className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(28px,3.4vw,52px)" }}>Dra. Paola<br />Cárdenas Fica</p>
