@@ -271,7 +271,7 @@ function Tratamientos() {
         <div key={cat.title} style={{ marginTop: "clamp(60px,9vh,110px)" }}>
           <div className="mx-auto text-center px-6" style={{ maxWidth: "1100px" }}>
             <h3 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(30px,3.6vw,60px)" }}>{cat.title}</h3>
-            <p className="mx-auto mt-4" style={{ maxWidth: "58ch", color: "#5A5148" }}>{cat.desc}</p>
+            <p className="mx-auto mt-4" style={{ maxWidth: "58ch", color: "#5A5148", fontSize: "clamp(16px,1.2vw,19px)", lineHeight: 1.6 }}>{cat.desc}</p>
           </div>
           <div className="mt-10 flex overflow-x-auto px-6" style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none" }}>
             {cat.items.map((it, i) => {
@@ -281,20 +281,20 @@ function Tratamientos() {
                   <div className="absolute inset-0 flex items-center justify-center opacity-40 group-hover:opacity-20 transition-opacity">
                     <Icon className="h-24 w-24" style={{ color: "#E3D3B4" }} strokeWidth={1} />
                   </div>
-                  <span className="absolute top-4 left-4 text-[11px]" style={{ letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
+                  <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
                   <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(46,49,53,0.88) 0%, rgba(46,49,53,0.15) 52%, rgba(46,49,53,0.05) 100%)" }}>
-                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(17px,1.35vw,22px)" }}>{it.name}</h4>
-                    <p className="text-xs mt-1" style={{ color: "rgba(244,242,238,0.72)" }}>{it.sub}</p>
+                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
+                    <p className="mt-1.5" style={{ color: "rgba(244,242,238,0.75)", fontSize: "clamp(14px,1.15vw,16px)" }}>{it.sub}</p>
                   </div>
                   <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(46,49,53,0.93)", backdropFilter: "blur(6px)" }}>
-                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(17px,1.35vw,22px)" }}>{it.name}</h4>
-                    <p className="text-[13px] mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.78)" }}>{it.desc}</p>
+                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
+                    <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
                     <div className="mt-5 flex items-center justify-between">
                       <div>
-                        <span className="block text-[10px]" style={{ letterSpacing: "0.24em", color: "rgba(244,242,238,0.55)" }}>PRECIO</span>
-                        <span className="block text-2xl font-semibold" style={{ color: "#E3D3B4" }}>Consultar</span>
+                        <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
+                        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(24px,2vw,30px)" }}>Consultar</span>
                       </div>
-                      <a href="#agenda" className="rounded-full text-[11px] font-medium uppercase" style={{ padding: "10px 18px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em" }}>
+                      <a href="#agenda" className="rounded-full font-medium uppercase" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", letterSpacing: "0.2em", fontSize: 13 }}>
                         Agendar
                       </a>
                     </div>
