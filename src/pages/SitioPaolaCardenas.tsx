@@ -132,24 +132,25 @@ function Nav() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-transform duration-700"
-      style={{ background: "#2E3135", borderBottom: "1px solid rgba(244,242,238,0.12)", transform: hidden ? "translateY(-115%)" : "translateY(0)" }}
+      style={{ background: "#F8F6F2", borderBottom: "1px solid rgba(50,44,40,0.1)", color: "#322C28", transform: hidden ? "translateY(-115%)" : "translateY(0)" }}
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-10 py-4 flex items-center justify-between gap-3">
-        <a href="#top" className="pc-serif whitespace-nowrap" style={{ color: "#F4F2EE", fontWeight: 700, fontSize: "clamp(13px,1.3vw,20px)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+        <a href="#top" className="pc-serif whitespace-nowrap" style={{ color: "#322C28", fontWeight: 700, fontSize: "clamp(13px,1.3vw,20px)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
           Dra. Paola Cárdenas Fica
         </a>
-        <nav className="hidden md:flex items-center" style={{ gap: "clamp(6px,1.1vw,20px)" }}>
+        <nav className="hidden md:flex items-center" style={{ gap: "clamp(6px,1.1vw,20px)", fontSize: "clamp(10px,0.85vw,12px)", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
           {[["#filosofia", "Filosofía"], ["#tratamientos", "Tratamientos"], ["#dra", "Quién soy"]].map(([href, label]) => (
-            <a key={href} href={href} className="rounded-full transition-all hover:-translate-y-0.5"
-              style={{ padding: "10px clamp(11px,1.2vw,18px)", border: "1px solid rgba(244,242,238,0.55)", background: "rgba(244,242,238,0.06)", color: "#F4F2EE", fontSize: "clamp(10px,0.85vw,12px)", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            <a key={href} href={href} className="rounded-full transition-all hover:bg-[#322C28] hover:text-[#F8F6F2]"
+              style={{ padding: "11px clamp(13px,1.3vw,20px)", border: "1px solid rgba(50,44,40,0.3)", background: "transparent", color: "#322C28", whiteSpace: "nowrap" }}>
               {label}
             </a>
           ))}
-          <a href="#agenda" className="pc-cta-pulse rounded-full whitespace-nowrap" style={{ background: "#B89B6A", color: "#fff", padding: "12px clamp(16px,1.8vw,26px)", fontSize: "clamp(10px,0.85vw,12px)", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
+          <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="pc-cta-pulse rounded-full whitespace-nowrap"
+            style={{ padding: "13px clamp(18px,2vw,30px)", border: "1px solid #B89B6A", background: "#B89B6A", color: "#fff", fontWeight: 500 }}>
             Agendar hora
           </a>
         </nav>
-        <a href="#agenda" className="md:hidden rounded-full whitespace-nowrap" style={{ background: "#B89B6A", color: "#fff", padding: "10px 18px", fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
+        <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="md:hidden rounded-full whitespace-nowrap" style={{ background: "#B89B6A", color: "#fff", padding: "10px 18px", fontSize: "11px", fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase" }}>
           Agendar
         </a>
       </div>
@@ -633,24 +634,34 @@ const FAQS = [
 ];
 
 function FAQ() {
+  const [listOpen, setListOpen] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   return (
     <section id="faq" style={{ background: "#EAE5DE", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
       <div className="mx-auto text-center" style={{ maxWidth: 1000 }}>
         <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Preguntas frecuentes</p>
         <h2 className="pc-serif mt-4" style={{ fontWeight: 300, fontSize: "clamp(30px,4.4vw,68px)" }}>Todo lo que necesitas saber antes de tu cita</h2>
-        <div className="mt-14 text-left">
-          {FAQS.map((f, i) => (
-            <div key={f.q} style={{ borderBottom: "1px solid rgba(50,44,40,0.16)" }}>
-              <button onClick={() => setOpen(open === i ? null : i)} className="w-full flex items-center justify-center gap-4 text-center" style={{ padding: "clamp(22px,3vh,30px) 0", fontWeight: 500, fontSize: "clamp(16px,1.4vw,21px)", color: "#322C28" }}>
-                {f.q}
-                <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 34, height: 34, border: "1px solid rgba(50,44,40,0.25)", color: "#B89B6A", transform: open === i ? "rotate(135deg)" : "none" }}>+</span>
-              </button>
-              {open === i && (
-                <p className="text-center mx-auto pb-8" style={{ maxWidth: "70ch", color: "#5A5148", lineHeight: 1.8 }}>{f.a}</p>
-              )}
-            </div>
-          ))}
+        <div className="mt-10 flex justify-center">
+          <button onClick={() => setListOpen((v) => !v)} className="inline-flex items-center rounded-full transition-colors hover:bg-[#322C28] hover:text-[#F8F6F2]"
+            style={{ gap: 14, padding: "16px 32px", border: "1px solid rgba(50,44,40,0.3)", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#322C28" }}>
+            <span>{listOpen ? "Ocultar preguntas" : "Ver preguntas"}</span>
+            <span style={{ fontSize: 15, lineHeight: 1, transition: "transform .6s cubic-bezier(.16,1,.3,1)", transform: listOpen ? "rotate(180deg)" : "none" }}>↓</span>
+          </button>
+        </div>
+        <div style={{ overflow: "hidden", maxHeight: listOpen ? 3000 : 0, opacity: listOpen ? 1 : 0, transition: "max-height .7s cubic-bezier(.16,1,.3,1), opacity .5s" }}>
+          <div className="mt-14 text-left">
+            {FAQS.map((f, i) => (
+              <div key={f.q} style={{ borderBottom: "1px solid rgba(50,44,40,0.16)" }}>
+                <button onClick={() => setOpen(open === i ? null : i)} className="w-full flex items-center justify-center gap-4 text-center" style={{ padding: "clamp(22px,3vh,30px) 0", fontWeight: 500, fontSize: "clamp(16px,1.4vw,21px)", color: "#322C28" }}>
+                  {f.q}
+                  <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 34, height: 34, border: "1px solid rgba(50,44,40,0.25)", color: "#B89B6A", transform: open === i ? "rotate(135deg)" : "none" }}>+</span>
+                </button>
+                {open === i && (
+                  <p className="text-center mx-auto pb-8" style={{ maxWidth: "70ch", color: "#5A5148", lineHeight: 1.8 }}>{f.a}</p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
