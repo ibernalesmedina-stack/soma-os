@@ -445,11 +445,52 @@ function Testimonios({ services }: { services: Service[] }) {
   );
 }
 
-function EnLabel({ children }: { children: React.ReactNode }) {
-  return <span className="text-[11px] uppercase font-medium" style={{ letterSpacing: "0.25em", color: "#8C8378" }}>{children}</span>;
+function bookingDays(): { id: string; label: string }[] {
+  const out: { id: string; label: string }[] = [];
+  const names = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+  const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  while (out.length < 6) {
+    if (d.getDay() === 2 || d.getDay() === 4) {
+      out.push({
+        id: d.toISOString().slice(0, 10),
+        label: names[d.getDay()].replace(/^./, (c) => c.toUpperCase()) + " " + d.getDate() + " " + months[d.getMonth()],
+      });
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+function AccordionStep({
+  num, title, valueLabel, open, onToggle, children,
+}: { num: string; title: string; valueLabel?: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
+  return (
+    <div style={{ borderBottom: "1px solid rgba(50,44,40,0.12)" }}>
+      <button onClick={onToggle} className="w-full flex items-center justify-between gap-4" style={{ padding: "22px 4px" }}>
+        <span className="flex items-center gap-4">
+          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", color: "#B89B6A" }}>{num}</span>
+          <span style={{ fontSize: "clamp(17px,1.5vw,22px)", fontWeight: 600, letterSpacing: "-0.005em", color: "#322C28", textTransform: "uppercase" }}>{title}</span>
+        </span>
+        <span className="flex items-center gap-4">
+          {valueLabel && <span style={{ fontSize: "clamp(14px,1.2vw,17px)", fontWeight: 500, color: "#B89B6A" }}>{valueLabel}</span>}
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.2em", color: "#B89B6A", textTransform: "uppercase" }}>
+            {open ? "Ocultar" : "Desplegar"}
+          </span>
+          <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 30, height: 30, border: "1px solid rgba(50,44,40,0.25)", fontSize: 14, color: "#322C28", transform: open ? "rotate(180deg)" : "none" }}>↓</span>
+        </span>
+      </button>
+      <div style={{ overflow: "hidden", maxHeight: open ? 400 : 0, opacity: open ? 1 : 0, transition: "max-height .55s cubic-bezier(.16,1,.3,1), opacity .4s" }}>
+        <div style={{ padding: "4px 4px 24px" }}>{children}</div>
+      </div>
+    </div>
+  );
 }
 
 function BookingSection({ services }: { services: Service[] }) {
+  const days = bookingDays();
+  const [openStep, setOpenStep] = useState<"day" | "hour" | "contact" | null>(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [name, setName] = useState("");
@@ -462,11 +503,8 @@ function BookingSection({ services }: { services: Service[] }) {
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoaded, setSlotsLoaded] = useState(false);
 
-  const isValidDay = (d: string) => { if (!d) return true; const dow = new Date(d + "T12:00:00").getDay(); return dow === 2 || dow === 4; };
-  const minDate = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
-
   useEffect(() => {
-    if (!date || !isValidDay(date)) { setSlots([]); setSlotsLoaded(false); return; }
+    if (!date) { setSlots([]); setSlotsLoaded(false); return; }
     setSlotsLoaded(false);
     fetch(`/api/booking/slots-paola?date=${date}`)
       .then((r) => r.json())
@@ -490,15 +528,16 @@ function BookingSection({ services }: { services: Service[] }) {
     setSubmitting(false);
   };
 
-  const inputStyle = { border: "1px solid rgba(50,44,40,0.2)", background: "#F8F6F2" };
+  const selectStyle = { border: "1px solid rgba(50,44,40,0.2)", borderRadius: 12, background: "#F8F6F2", color: "#322C28", padding: "16px 18px", fontSize: 15, width: "100%" };
   const ready = !!(name && rut && phone && email && date && time);
+  const dayLabel = days.find((d) => d.id === date)?.label;
 
   return (
-    <section id="agenda" className="mt-24" style={{ background: "#F8F6F2", padding: "clamp(80px,12vh,160px) 0" }}>
-      <div className="max-w-3xl mx-auto px-5">
+    <section id="agenda" className="mt-24" style={{ background: "#F8F6F2", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,210px)" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
         <div className="text-center">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Reserva</p>
-          <h2 className="pc-serif mt-3" style={{ fontWeight: 300, fontSize: "clamp(32px,4.6vw,72px)", lineHeight: 1.04 }}>
+          <h2 className="pc-serif mt-3" style={{ fontWeight: 300, fontSize: "clamp(32px,4.6vw,72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}>
             Agenda tu evaluación <span style={{ fontStyle: "italic", color: "#B89B6A" }}>100% online</span>
           </h2>
           <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148" }}>Martes y jueves · bloques de 40 minutos entre 10:00 y 16:00.</p>
@@ -508,46 +547,44 @@ function BookingSection({ services }: { services: Service[] }) {
           <p className="text-center text-xs mt-3" style={{ color: "#8C8378" }}>{services[0].description}</p>
         )}
 
-        <div className="mt-10 space-y-6 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <EnLabel>Día de la evaluación</EnLabel>
-              <input type="date" value={date} min={minDate} onChange={(e) => { setDate(e.target.value); setTime(""); }} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
-              {!isValidDay(date) && date && <p className="text-xs mt-2" style={{ color: "#b91c1c" }}>Solo atendemos martes y jueves.</p>}
-            </div>
-            <div>
-              <EnLabel>Hora</EnLabel>
-              {!isValidDay(date) || !date ? (
-                <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(50,44,40,0.05)", border: "1px solid rgba(50,44,40,0.15)", color: "rgba(50,44,40,0.6)" }}>Bloques de 40 min · 10:00 a 16:00</p>
-              ) : slotsLoaded && slots.length === 0 ? (
-                <p className="mt-3 rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(50,44,40,0.05)", border: "1px solid rgba(50,44,40,0.15)", color: "rgba(50,44,40,0.6)" }}>No hay horas disponibles para este día</p>
-              ) : (
-                <select value={time} onChange={(e) => setTime(e.target.value)} className="mt-3 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle}>
-                  <option value="">Seleccionar</option>
-                  {slots.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              )}
-            </div>
-          </div>
+        <div className="mt-11 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
+          <AccordionStep num="01" title="Día de la evaluación" valueLabel={dayLabel} open={openStep === "day"} onToggle={() => setOpenStep(openStep === "day" ? null : "day")}>
+            <select value={date} onChange={(e) => { setDate(e.target.value); setTime(""); }} style={selectStyle}>
+              <option value="">Selecciona un día · martes y jueves</option>
+              {days.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+            </select>
+          </AccordionStep>
 
-          <div>
-            <EnLabel>Datos de contacto</EnLabel>
-            <div className="mt-3 grid sm:grid-cols-2 gap-3">
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre y apellido" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
-              <input value={rut} onChange={(e) => setRut(e.target.value)} placeholder="RUT" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono / WhatsApp" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle} />
-              <select value={topic} onChange={(e) => setTopic(e.target.value)} className="sm:col-span-2 w-full rounded-xl px-4 py-3 text-sm outline-none" style={inputStyle}>
+          <AccordionStep num="02" title="Hora" valueLabel={time ? `${time} h` : undefined} open={openStep === "hour"} onToggle={() => setOpenStep(openStep === "hour" ? null : "hour")}>
+            {!date ? (
+              <p style={{ color: "#8C8378", fontSize: 14 }}>Elige primero un día.</p>
+            ) : slotsLoaded && slots.length === 0 ? (
+              <p style={{ color: "#8C8378", fontSize: 14 }}>No hay horas disponibles para este día.</p>
+            ) : (
+              <select value={time} onChange={(e) => setTime(e.target.value)} style={selectStyle}>
+                <option value="">Bloques de 40 min · 10:00 a 16:00</option>
+                {slots.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            )}
+          </AccordionStep>
+
+          <AccordionStep num="03" title="Datos de contacto" valueLabel={name || undefined} open={openStep === "contact"} onToggle={() => setOpenStep(openStep === "contact" ? null : "contact")}>
+            <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre y apellido" style={selectStyle} />
+              <input value={rut} onChange={(e) => setRut(e.target.value)} placeholder="RUT" style={selectStyle} />
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono / WhatsApp" style={selectStyle} />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={selectStyle} />
+              <select value={topic} onChange={(e) => setTopic(e.target.value)} style={selectStyle}>
                 <option>Medicina estética</option>
                 <option>Odontología general</option>
                 <option>Implantología</option>
                 <option>Aún no lo sé</option>
               </select>
             </div>
-          </div>
+          </AccordionStep>
 
           {step === "form" && (
-            <div className="pt-2 flex justify-center">
+            <div className="pt-7 flex justify-center">
               <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all"
                 style={{ padding: "22px 54px", background: ready ? "#B89B6A" : "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", opacity: ready ? 1 : 0.5, fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
                 {submitting ? "Confirmando…" : "Confirmar reserva"}
@@ -556,7 +593,7 @@ function BookingSection({ services }: { services: Service[] }) {
           )}
 
           {step === "success" && (
-            <div className="pt-4 text-center space-y-3" style={{ borderTop: "1px solid rgba(50,44,40,0.1)" }}>
+            <div className="pt-7 text-center space-y-3">
               <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(184,155,106,0.15)" }}>
                 <Check className="h-7 w-7" style={{ color: "#B89B6A" }} />
               </div>
@@ -566,7 +603,7 @@ function BookingSection({ services }: { services: Service[] }) {
           )}
 
           {step === "error" && (
-            <div className="pt-4 text-center space-y-3" style={{ borderTop: "1px solid rgba(50,44,40,0.1)" }}>
+            <div className="pt-7 text-center space-y-3">
               <p className="text-sm" style={{ color: "#5A5148" }}>Hubo un problema al confirmar la reserva. Inténtalo de nuevo o escríbenos por WhatsApp.</p>
               <button onClick={handleConfirm} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#2E3135", color: "#fff" }}>Reintentar</button>
             </div>
