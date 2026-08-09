@@ -497,14 +497,14 @@ function AccordionStep({
 }: { num: string; title: string; valueLabel?: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
   return (
     <div style={{ borderBottom: "1px solid rgba(50,44,40,0.12)" }}>
-      <button onClick={onToggle} className="w-full flex items-center justify-between gap-4" style={{ padding: "22px 4px" }}>
-        <span className="flex items-center gap-4">
-          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", color: "#B89B6A" }}>{num}</span>
-          <span style={{ fontSize: "clamp(15px,1.3vw,19px)", fontWeight: 400, letterSpacing: "0.14em", color: "#322C28", textTransform: "uppercase" }}>{title}</span>
+      <button onClick={onToggle} className="w-full flex items-center justify-between gap-2 sm:gap-4" style={{ padding: "22px 4px" }}>
+        <span className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <span className="shrink-0" style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", color: "#B89B6A" }}>{num}</span>
+          <span className="truncate" style={{ fontSize: "clamp(14px,1.3vw,19px)", fontWeight: 400, letterSpacing: "0.06em", color: "#322C28", textTransform: "uppercase" }}>{title}</span>
         </span>
-        <span className="flex items-center gap-4">
-          {valueLabel && <span style={{ fontSize: "clamp(14px,1.2vw,17px)", fontWeight: 500, color: "#B89B6A" }}>{valueLabel}</span>}
-          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.18em", color: "#B89B6A", textTransform: "uppercase" }}>
+        <span className="flex items-center gap-2 sm:gap-4 shrink-0">
+          {valueLabel && <span className="hidden sm:inline" style={{ fontSize: "clamp(14px,1.2vw,17px)", fontWeight: 500, color: "#B89B6A" }}>{valueLabel}</span>}
+          <span className="hidden sm:inline" style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.18em", color: "#B89B6A", textTransform: "uppercase" }}>
             {open ? "Ocultar" : "Desplegar"}
           </span>
           <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 30, height: 30, border: "1px solid rgba(50,44,40,0.25)", fontSize: 14, color: "#322C28", transform: open ? "rotate(180deg)" : "none" }}>↓</span>
@@ -610,8 +610,8 @@ function BookingSection() {
 
           {step === "form" && (
             <div className="pt-7 flex justify-center">
-              <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all pc-cta-pulse"
-                style={{ padding: "22px 54px", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
+              <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all pc-cta-pulse whitespace-nowrap"
+                style={{ padding: "18px clamp(28px,7vw,54px)", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: "clamp(12px,3.2vw,14px)", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
                 {submitting ? "Confirmando…" : "Confirmar reserva"}
               </button>
             </div>
