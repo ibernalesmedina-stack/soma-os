@@ -366,17 +366,17 @@ function ResultadoReal() {
           Antes <em style={{ fontStyle: "italic", color: "#8C7B62" }}>y</em> después
         </h2>
       </div>
-      <div className="mx-auto grid md:grid-cols-2" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)", height: "clamp(520px,78vh,820px)" }}>
-        <div className="relative grid grid-rows-3" style={{ gap: "clamp(10px,1.2vw,16px)" }}>
+      <div className="mx-auto grid md:grid-cols-2 items-stretch" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)", height: "clamp(520px,78vh,820px)" }}>
+        <div className="relative grid grid-rows-3 h-full" style={{ gap: "clamp(10px,1.2vw,16px)", minHeight: 0 }}>
           {testimonioImgs.map((src, i) => (
-            <div key={src} className="relative rounded-2xl overflow-hidden">
-              <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover" />
+            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ minHeight: 0 }}>
+              <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
             </div>
           ))}
-          <span className="absolute top-4 left-4 rounded-full" style={{ padding: "6px 16px", background: "rgba(46,49,53,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
+          <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(46,49,53,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
         </div>
-        <div className="relative rounded-2xl overflow-hidden">
-          <video src={testimonioVideo} className="w-full h-full object-cover" autoPlay muted loop playsInline controls />
+        <div className="relative rounded-2xl overflow-hidden h-full" style={{ minHeight: 0 }}>
+          <video src={testimonioVideo} className="w-full h-full object-cover block" autoPlay muted loop playsInline controls />
           <span className="absolute top-4 left-4 rounded-full" style={{ padding: "6px 16px", background: "rgba(184,155,106,0.9)", color: "#fff", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Después</span>
         </div>
       </div>
