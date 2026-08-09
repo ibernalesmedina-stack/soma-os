@@ -65,6 +65,8 @@ const SITE_STYLES = `
   .pc-wa-btn:hover { animation-play-state: paused; }
   .pc-cta-pulse { animation: pc-ctaPulse 3.4s ease-in-out infinite; }
   .pc-marquee { animation: pc-marquee 42s linear infinite; }
+  .pc-treat-marquee { animation: pc-marquee 32s linear infinite; }
+  .pc-treat-marquee:hover { animation-play-state: paused; }
   .pc-marquee:hover { animation-play-state: paused; }
   .pc-reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
   .pc-reveal.pc-in { opacity: 1; transform: translateY(0); }
@@ -245,11 +247,11 @@ const CATEGORIAS: Categoria[] = [
     title: "Medicina estética",
     desc: "Tratamientos diseñados para armonizar el rostro, revitalizar la piel y potenciar la belleza natural mediante procedimientos seguros, personalizados y mínimamente invasivos.",
     items: [
+      { name: "Ácido hialurónico", sub: "Volumen y armonía facial", desc: "Relleno de alta calidad para restaurar volúmenes, definir contornos y armonizar proporciones del rostro, siempre respetando tus rasgos.", icon: Gem, img: "/tratamiento-acido-hialuronico.jpg" },
+      { name: "Toxina botulínica", sub: "Expresión relajada y natural", desc: "Suaviza líneas de expresión y previene su profundización, manteniendo un rostro descansado, con movimiento y expresión natural.", icon: Syringe, img: "/tratamiento-botox.jpg" },
       { name: "Peeling químico", sub: "Renovación y luminosidad de la piel", desc: "Exfoliación controlada que renueva las capas superficiales de la piel, mejora la textura, atenúa manchas y devuelve luminosidad de forma progresiva y natural.", icon: Sun, img: "/tratamiento-peeling.jpg" },
       { name: "Mesoterapia", sub: "Hidratación profunda y firmeza", desc: "Microinyecciones de activos, vitaminas y ácido hialurónico que hidratan en profundidad, mejoran la firmeza y revitalizan el aspecto general del rostro.", icon: Droplet, img: "/tratamiento-mesoterapia.jpg" },
       { name: "Bioestimuladores faciales", sub: "Colágeno propio, resultado progresivo", desc: "Estimulan la producción natural de colágeno, mejorando densidad, firmeza y calidad de la piel con un resultado gradual que se ve genuinamente tuyo.", icon: Sparkles, img: "/tratamiento-bioestimuladores.jpg" },
-      { name: "Ácido hialurónico", sub: "Volumen y armonía facial", desc: "Relleno de alta calidad para restaurar volúmenes, definir contornos y armonizar proporciones del rostro, siempre respetando tus rasgos.", icon: Gem, img: "/tratamiento-acido-hialuronico.jpg" },
-      { name: "Toxina botulínica", sub: "Expresión relajada y natural", desc: "Suaviza líneas de expresión y previene su profundización, manteniendo un rostro descansado, con movimiento y expresión natural.", icon: Syringe, img: "/tratamiento-botox.jpg" },
     ],
   },
   {
@@ -286,11 +288,12 @@ function Tratamientos() {
             <h3 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(30px,3.6vw,60px)" }}>{cat.title}</h3>
             <p className="mx-auto mt-4" style={{ maxWidth: "58ch", color: "#5A5148", fontSize: "clamp(16px,1.2vw,19px)", lineHeight: 1.6 }}>{cat.desc}</p>
           </div>
-          <div className="mt-10 flex justify-center overflow-x-auto px-6" style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none" }}>
-            {cat.items.map((it, i) => {
+          <div className={`mt-10 px-6 ${ci < 2 ? "overflow-hidden" : "overflow-x-auto"}`}>
+          <div className={`flex ${ci < 2 ? "pc-treat-marquee" : "justify-center"}`} style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none", width: ci < 2 ? "max-content" : undefined }}>
+            {(ci < 2 ? [...cat.items, ...cat.items] : cat.items).map((it, i) => {
               if (!it.img) {
                 return (
-                  <article key={it.name} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
+                  <article key={`${it.name}-${i}`} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
                     <span style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
                     <div className="flex-1 flex items-center justify-center">
                       <img src="/icono-implante.png" alt="" className="w-full h-auto opacity-80" style={{ maxWidth: "58%" }} />
@@ -312,7 +315,7 @@ function Tratamientos() {
                 );
               }
               return (
-                <article key={it.name} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89" }}>
+                <article key={`${it.name}-${i}`} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89" }}>
                   <img src={it.img} alt={it.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
                   <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(114,127,137,0.15) 52%, rgba(114,127,137,0.05) 100%)" }}>
@@ -335,6 +338,7 @@ function Tratamientos() {
                 </article>
               );
             })}
+          </div>
           </div>
         </div>
       ))}
