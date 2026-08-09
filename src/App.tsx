@@ -35,6 +35,7 @@ import AdminIntegraciones from "./pages/admin/Integraciones";
 import AdminSitioEditor from "./pages/admin/SitioEditor";
 import Sitio from "./pages/Sitio";
 import SitioPaulette from "./pages/SitioPaulette";
+import SitioPaolaCardenas from "./pages/SitioPaolaCardenas";
 import PagoExitoso from "./pages/PagoExitoso";
 import Landing from "./pages/Landing";
 import Privacidad from "./pages/Privacidad";
@@ -69,6 +70,8 @@ const isCustomDomain = !isPlatformDomain;
 const DOMAIN_ROUTES: Record<string, React.ReactElement> = {
   "www.elliotnutrition.com": <SitioPaulette />,
   "elliotnutrition.com":     <SitioPaulette />,
+  "www.drapaolacardenasfica.com": <SitioPaolaCardenas />,
+  "drapaolacardenasfica.com":     <SitioPaolaCardenas />,
   // Próximas clientas:
   // "www.nombrecliente.com": <SitioNombreCliente />,
 };
