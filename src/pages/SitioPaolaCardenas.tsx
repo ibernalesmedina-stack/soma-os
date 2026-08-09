@@ -46,8 +46,6 @@ const SITE_STYLES = `
   .pc-reveal.pc-in { opacity: 1; transform: translateY(0); }
 `;
 
-type Service = { id: string; name: string; description: string; price: number; duration_min: number };
-
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -97,14 +95,6 @@ function useSEO() {
 
 export default function SitioPaolaCardenas() {
   useSEO();
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    fetch("/api/booking/slots-paola?action=services")
-      .then((r) => r.json())
-      .then((d) => { if (d.services?.length) setServices(d.services); })
-      .catch(() => {});
-  }, []);
 
   return (
     <>
@@ -116,7 +106,7 @@ export default function SitioPaolaCardenas() {
         <Tratamientos />
         <AntesDespues />
         <QuienSoy />
-        <Testimonios services={services} />
+        <Testimonios />
         <Cierre />
         <FAQ />
         <Footer />
@@ -408,7 +398,7 @@ const REVIEWS = [
   { q: "Vine por un implante y me fui con la seguridad de volver a hablar sin taparme.", a: "Rodrigo T.", t: "Implantología" },
 ];
 
-function Testimonios({ services }: { services: Service[] }) {
+function Testimonios() {
   return (
     <section id="testimonios" style={{ background: "#EAE5DE", padding: "clamp(110px,17vh,220px) 0" }}>
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -439,7 +429,7 @@ function Testimonios({ services }: { services: Service[] }) {
             ))}
           </div>
         </div>
-        <BookingSection services={services} />
+        <BookingSection />
       </div>
     </section>
   );
@@ -488,7 +478,7 @@ function AccordionStep({
   );
 }
 
-function BookingSection({ services }: { services: Service[] }) {
+function BookingSection() {
   const days = bookingDays();
   const [openStep, setOpenStep] = useState<"day" | "hour" | "contact" | null>(null);
   const [date, setDate] = useState("");
@@ -542,10 +532,6 @@ function BookingSection({ services }: { services: Service[] }) {
           </h2>
           <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes y jueves · bloques de 40 minutos entre 10:00 y 16:00.</p>
         </div>
-
-        {services.length > 0 && (
-          <p className="text-center text-xs mt-3" style={{ color: "#8C8378" }}>{services[0].description}</p>
-        )}
 
         <div className="mt-11 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
           <AccordionStep num="01" title="Día de la evaluación" valueLabel={dayLabel} open={openStep === "day"} onToggle={() => setOpenStep(openStep === "day" ? null : "day")}>
