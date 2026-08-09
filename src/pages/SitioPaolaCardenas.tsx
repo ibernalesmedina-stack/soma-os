@@ -234,9 +234,9 @@ const CATEGORIAS: Categoria[] = [
     items: [
       { name: "Peeling químico", sub: "Renovación y luminosidad de la piel", desc: "Exfoliación controlada que renueva las capas superficiales de la piel, mejora la textura, atenúa manchas y devuelve luminosidad de forma progresiva y natural.", icon: Sun, img: "/tratamiento-peeling.jpg" },
       { name: "Mesoterapia", sub: "Hidratación profunda y firmeza", desc: "Microinyecciones de activos, vitaminas y ácido hialurónico que hidratan en profundidad, mejoran la firmeza y revitalizan el aspecto general del rostro.", icon: Droplet, img: "/tratamiento-mesoterapia.jpg" },
-      { name: "Bioestimuladores faciales", sub: "Colágeno propio, resultado progresivo", desc: "Estimulan la producción natural de colágeno, mejorando densidad, firmeza y calidad de la piel con un resultado gradual que se ve genuinamente tuyo.", icon: Sparkles },
-      { name: "Ácido hialurónico", sub: "Volumen y armonía facial", desc: "Relleno de alta calidad para restaurar volúmenes, definir contornos y armonizar proporciones del rostro, siempre respetando tus rasgos.", icon: Gem },
-      { name: "Toxina botulínica", sub: "Expresión relajada y natural", desc: "Suaviza líneas de expresión y previene su profundización, manteniendo un rostro descansado, con movimiento y expresión natural.", icon: Syringe },
+      { name: "Bioestimuladores faciales", sub: "Colágeno propio, resultado progresivo", desc: "Estimulan la producción natural de colágeno, mejorando densidad, firmeza y calidad de la piel con un resultado gradual que se ve genuinamente tuyo.", icon: Sparkles, img: "/tratamiento-bioestimuladores.jpg" },
+      { name: "Ácido hialurónico", sub: "Volumen y armonía facial", desc: "Relleno de alta calidad para restaurar volúmenes, definir contornos y armonizar proporciones del rostro, siempre respetando tus rasgos.", icon: Gem, img: "/tratamiento-acido-hialuronico.jpg" },
+      { name: "Toxina botulínica", sub: "Expresión relajada y natural", desc: "Suaviza líneas de expresión y previene su profundización, manteniendo un rostro descansado, con movimiento y expresión natural.", icon: Syringe, img: "/tratamiento-botox.jpg" },
     ],
   },
   {
@@ -244,9 +244,9 @@ const CATEGORIAS: Categoria[] = [
     desc: "Cuidamos la salud de tu sonrisa con tratamientos preventivos y restauradores que combinan funcionalidad, estética y bienestar.",
     items: [
       { name: "Limpieza dental", sub: "Salud que se ve y se siente", desc: "Remoción profesional de placa y sarro, pulido y revisión completa para mantener encías sanas y prevenir problemas mayores.", icon: ShieldCheck },
-      { name: "Blanqueamiento", sub: "Tonos más claros, sin dañar", desc: "Protocolo profesional que aclara varios tonos el esmalte de forma segura y controlada, con seguimiento personalizado.", icon: Zap },
+      { name: "Blanqueamiento", sub: "Tonos más claros, sin dañar", desc: "Protocolo profesional que aclara varios tonos el esmalte de forma segura y controlada, con seguimiento personalizado.", icon: Zap, img: "/tratamiento-blanqueamiento.jpg" },
       { name: "Restauraciones", sub: "Estética y función devueltas", desc: "Reparación de piezas dañadas con materiales estéticos de alta resistencia que replican el color y la anatomía natural del diente.", icon: SmilePlus },
-      { name: "Extracciones", sub: "Procedimiento seguro y cuidado", desc: "Extracción realizada con técnica atraumática, anestesia adecuada y acompañamiento en todo el proceso de recuperación.", icon: Scissors },
+      { name: "Extracciones", sub: "Procedimiento seguro y cuidado", desc: "Extracción realizada con técnica atraumática, anestesia adecuada y acompañamiento en todo el proceso de recuperación.", icon: Scissors, img: "/tratamiento-extracciones.jpg" },
       { name: "Prótesis dentales", sub: "Recuperar la mordida y la sonrisa", desc: "Prótesis fijas o removibles diseñadas a medida para devolver función masticatoria, soporte facial y estética.", icon: Wrench },
     ],
   },
