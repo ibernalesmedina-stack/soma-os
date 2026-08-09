@@ -617,8 +617,11 @@ function OdontologaView({ ficha, onChange, setFicha, notas, setNotas, reservas, 
       <TabsContent value="resumen" className="mt-4 space-y-4">
         <Section title="Resumen clínico">
           <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Email"><Input type="email" value={ficha.email ?? ""} onChange={e => onChange("email", e.target.value)} /></Field>
+            <Field label="Teléfono"><Input value={ficha.phone ?? ""} onChange={e => onChange("phone", e.target.value)} /></Field>
+            <Field label="RUT"><Input value={ficha.rut ?? ""} onChange={e => onChange("rut", e.target.value)} /></Field>
             <Field label="Edad"><Input value={ficha.edad ?? ""} onChange={e => onChange("edad", e.target.value)} /></Field>
-            <Field label="Próxima acción"><Input value={ficha.proximaAccion ?? ""} onChange={e => onChange("proximaAccion", e.target.value)} /></Field>
+            <div className="sm:col-span-2"><Field label="Próxima acción"><Input value={ficha.proximaAccion ?? ""} onChange={e => onChange("proximaAccion", e.target.value)} /></Field></div>
             <div className="sm:col-span-2"><Field label="Diagnóstico general"><Textarea rows={3} value={ficha.diagnostico ?? ""} onChange={e => onChange("diagnostico", e.target.value)} /></Field></div>
           </div>
         </Section>
