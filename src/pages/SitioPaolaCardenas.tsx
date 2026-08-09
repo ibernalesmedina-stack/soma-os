@@ -118,7 +118,6 @@ export default function SitioPaolaCardenas() {
         <Filosofia />
         <Tratamientos />
         <AntesDespues />
-        <ResultadoReal />
         <QuienSoy />
         <Testimonios />
         <Cierre />
@@ -348,36 +347,6 @@ function AntesDespues() {
           <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full flex items-center justify-center" style={{ width: 62, height: 62, border: "1px solid rgba(248,246,242,0.85)", background: "rgba(248,246,242,0.12)", backdropFilter: "blur(6px)", color: "#F8F6F2" }}>
             ← →
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const testimonioImgs = ["/paola-testimonio-1.jpg", "/paola-testimonio-2.jpg", "/paola-testimonio-3.jpg"];
-const testimonioVideo = "/paola-testimonio.mp4";
-
-function ResultadoReal() {
-  return (
-    <section style={{ background: "#EAE5DE", padding: "clamp(90px,13vh,170px) clamp(20px,5vw,72px)" }}>
-      <div className="text-center" style={{ marginBottom: "clamp(40px,6vh,64px)" }}>
-        <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Resultado real</p>
-        <h2 className="pc-serif mt-3" style={{ fontWeight: 300, fontSize: "clamp(30px,4vw,60px)", lineHeight: 1.05 }}>
-          Antes <em style={{ fontStyle: "italic", color: "#8C7B62" }}>y</em> después
-        </h2>
-      </div>
-      <div className="mx-auto grid md:grid-cols-2 items-stretch" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)", height: "clamp(520px,78vh,820px)" }}>
-        <div className="relative grid grid-rows-3 h-full" style={{ gap: "clamp(10px,1.2vw,16px)", minHeight: 0 }}>
-          {testimonioImgs.map((src, i) => (
-            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ minHeight: 0 }}>
-              <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
-            </div>
-          ))}
-          <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(46,49,53,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
-        </div>
-        <div className="relative rounded-2xl overflow-hidden h-full" style={{ minHeight: 0 }}>
-          <video src={testimonioVideo} className="w-full h-full object-cover block" autoPlay muted loop playsInline controls />
-          <span className="absolute top-4 left-4 rounded-full" style={{ padding: "6px 16px", background: "rgba(184,155,106,0.9)", color: "#fff", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Después</span>
         </div>
       </div>
     </section>
