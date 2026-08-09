@@ -296,7 +296,7 @@ function Tratamientos() {
                   <article key={`${it.name}-${i}`} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
                     <span style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
                     <div className="flex-1 flex items-center justify-center">
-                      <img src="/icono-implante.png" alt="" className="w-full h-auto opacity-80" style={{ maxWidth: "58%" }} />
+                      <img src="/icono-implante.png" alt="" className="w-full h-auto opacity-80" style={{ maxWidth: "42%" }} />
                     </div>
                     <div>
                       <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
