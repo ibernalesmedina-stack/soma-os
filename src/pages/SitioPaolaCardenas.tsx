@@ -214,7 +214,7 @@ function Hero() {
 
 function Filosofia() {
   return (
-    <section id="filosofia" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,220px)" }}>
+    <section id="filosofia" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(50px,7vh,100px)" }}>
       <div className="grid lg:grid-cols-12 items-center" style={{ gap: "clamp(24px,4vw,64px)" }}>
         <Reveal className="lg:col-span-6 flex flex-col" style={{ gap: "clamp(22px,3vh,32px)" }}>
           <div>
@@ -281,31 +281,46 @@ const CATEGORIAS: Categoria[] = [
   },
 ];
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 function Tratamientos() {
+  const isMobile = useIsMobile();
   return (
-    <section id="tratamientos" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) 0 clamp(110px,16vh,220px)" }}>
+    <section id="tratamientos" style={{ background: "#f0ebe5", padding: "clamp(50px,7vh,100px) 0 clamp(110px,16vh,220px)" }}>
       <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(32px,3.4vw,54px)", textTransform: "uppercase", letterSpacing: "-0.01em", color: "#322C28" }}>
         Nuestros tratamientos
       </h2>
-      {CATEGORIAS.map((cat, ci) => (
+      {CATEGORIAS.map((cat, ci) => {
+        const moves = ci < 2 || (ci === 2 && isMobile);
+        return (
         <div key={cat.title} style={{ marginTop: "clamp(60px,9vh,110px)" }}>
           <div className="mx-auto text-center px-6" style={{ maxWidth: "1100px" }}>
             <h3 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(30px,3.6vw,60px)" }}>{cat.title}</h3>
             <p className="mx-auto mt-4" style={{ maxWidth: "58ch", color: "#5A5148", fontSize: "clamp(16px,1.2vw,19px)", lineHeight: 1.6 }}>{cat.desc}</p>
           </div>
-          <div className={`mt-10 px-6 ${ci < 2 ? "overflow-hidden" : "overflow-x-auto"}`}>
-          <div className={`flex ${ci < 2 ? "pc-treat-marquee" : "justify-center"}`} style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none", width: ci < 2 ? "max-content" : undefined }}>
-            {(ci < 2 ? [...cat.items, ...cat.items] : cat.items).map((it, i) => {
+          <div className={`mt-10 px-6 ${moves ? "overflow-hidden" : "overflow-x-auto"}`}>
+          <div className={`flex ${moves ? "pc-treat-marquee" : "justify-center"}`} style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none", width: moves ? "max-content" : undefined }}>
+            {(moves ? [...cat.items, ...cat.items] : cat.items).map((it, i) => {
               if (!it.img) {
                 return (
                   <article key={`${it.name}-${i}`} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
                     <span style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
-                    <div className="flex-1 flex items-center justify-center">
+                    <div className="flex-1 flex items-center justify-center" style={{ minHeight: 0 }}>
                       <img src="/icono-implante.png" alt="" className="w-full h-auto opacity-80" style={{ maxWidth: "42%" }} />
                     </div>
                     <div>
-                      <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
-                      <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
+                      <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(20px,1.9vw,28px)" }}>{it.name}</h4>
+                      <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(14px,1.2vw,16px)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.desc}</p>
                       <div className="mt-5 flex items-center justify-between gap-2">
                         <div>
                           <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
@@ -346,7 +361,8 @@ function Tratamientos() {
           </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
@@ -567,11 +583,11 @@ function BookingSection() {
   const dayLabel = days.find((d) => d.id === date)?.label;
 
   return (
-    <section id="agenda" className="mt-24" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(110px,16vh,210px)" }}>
+    <section id="agenda" className="mt-8" style={{ background: "#f0ebe5", padding: "clamp(40px,6vh,90px) clamp(20px,5vw,72px) clamp(110px,16vh,210px)" }}>
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
         <div className="text-center">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Reserva</p>
-          <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(26px,3.4vw,54px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
+          <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(34px,4.2vw,62px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
             Agenda tu evaluación <span style={{ color: "#B89B6A" }}>100% online</span>
           </h2>
           <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes y jueves · bloques de 40 minutos entre 10:00 y 16:00.</p>
