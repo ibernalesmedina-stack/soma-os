@@ -57,24 +57,27 @@ const PLATFORM_DOMAINS = new Set([
   "www.somaos.app",
   "app.somaos.app",
 ]);
-const isPlatformDomain =
-  PLATFORM_DOMAINS.has(hostname) ||
-  hostname.includes("vercel.app") ||
-  hostname.includes("somaos");
-
-// Si no es dominio de la plataforma → es el sitio personalizado de una clienta
-const isCustomDomain = !isPlatformDomain;
-
 // Mapa: dominio personalizado → componente del sitio de la clienta
 // Cada clienta con sitio propio se agrega aquí + configura su DNS en Vercel
+// (los alias *.vercel.app temporales también se pueden mapear aquí mientras se define el dominio real)
 const DOMAIN_ROUTES: Record<string, React.ReactElement> = {
   "www.elliotnutrition.com": <SitioPaulette />,
   "elliotnutrition.com":     <SitioPaulette />,
   "www.drapaolacardenasfica.com": <SitioPaolaCardenas />,
   "drapaolacardenasfica.com":     <SitioPaolaCardenas />,
+  "drapaolacardenasfica.vercel.app": <SitioPaolaCardenas />, // alias temporal, quitar cuando el dominio real esté conectado
   // Próximas clientas:
   // "www.nombrecliente.com": <SitioNombreCliente />,
 };
+
+const isPlatformDomain =
+  !(hostname in DOMAIN_ROUTES) &&
+  (PLATFORM_DOMAINS.has(hostname) ||
+    hostname.includes("vercel.app") ||
+    hostname.includes("somaos"));
+
+// Si no es dominio de la plataforma → es el sitio personalizado de una clienta
+const isCustomDomain = !isPlatformDomain;
 
 const App = () => {
   if (isCustomDomain) {
