@@ -471,11 +471,11 @@ function AccordionStep({
       <button onClick={onToggle} className="w-full flex items-center justify-between gap-4" style={{ padding: "22px 4px" }}>
         <span className="flex items-center gap-4">
           <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", color: "#B89B6A" }}>{num}</span>
-          <span style={{ fontSize: "clamp(17px,1.5vw,22px)", fontWeight: 600, letterSpacing: "-0.005em", color: "#322C28", textTransform: "uppercase" }}>{title}</span>
+          <span style={{ fontSize: "clamp(15px,1.3vw,19px)", fontWeight: 400, letterSpacing: "0.14em", color: "#322C28", textTransform: "uppercase" }}>{title}</span>
         </span>
         <span className="flex items-center gap-4">
           {valueLabel && <span style={{ fontSize: "clamp(14px,1.2vw,17px)", fontWeight: 500, color: "#B89B6A" }}>{valueLabel}</span>}
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.2em", color: "#B89B6A", textTransform: "uppercase" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.18em", color: "#B89B6A", textTransform: "uppercase" }}>
             {open ? "Ocultar" : "Desplegar"}
           </span>
           <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 30, height: 30, border: "1px solid rgba(50,44,40,0.25)", fontSize: 14, color: "#322C28", transform: open ? "rotate(180deg)" : "none" }}>↓</span>
@@ -537,10 +537,10 @@ function BookingSection({ services }: { services: Service[] }) {
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
         <div className="text-center">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Reserva</p>
-          <h2 className="pc-serif mt-3" style={{ fontWeight: 300, fontSize: "clamp(32px,4.6vw,72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}>
-            Agenda tu evaluación <span style={{ fontStyle: "italic", color: "#B89B6A" }}>100% online</span>
+          <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(26px,3.4vw,54px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
+            Agenda tu evaluación <span style={{ color: "#B89B6A" }}>100% online</span>
           </h2>
-          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148" }}>Martes y jueves · bloques de 40 minutos entre 10:00 y 16:00.</p>
+          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes y jueves · bloques de 40 minutos entre 10:00 y 16:00.</p>
         </div>
 
         {services.length > 0 && (
@@ -585,8 +585,8 @@ function BookingSection({ services }: { services: Service[] }) {
 
           {step === "form" && (
             <div className="pt-7 flex justify-center">
-              <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all"
-                style={{ padding: "22px 54px", background: ready ? "#B89B6A" : "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", opacity: ready ? 1 : 0.5, fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
+              <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all pc-cta-pulse"
+                style={{ padding: "22px 54px", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: 14, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
                 {submitting ? "Confirmando…" : "Confirmar reserva"}
               </button>
             </div>
