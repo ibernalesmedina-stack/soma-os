@@ -375,7 +375,7 @@ function AntesDespues() {
       <div className="mx-auto grid md:grid-cols-2 items-start" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)" }}>
         <div className="relative grid grid-rows-3 gap-3">
           {testimonioImgs.map((src, i) => (
-            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
+            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "7/3" }}>
               <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
             </div>
           ))}
