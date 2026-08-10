@@ -70,11 +70,6 @@ const SITE_STYLES = `
   .pc-marquee:hover { animation-play-state: paused; }
   .pc-reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
   .pc-reveal.pc-in { opacity: 1; transform: translateY(0); }
-  @media (min-width: 768px) {
-    .pc-resultados-grid { height: clamp(520px,78vh,820px); }
-    .pc-resultados-grid > div { aspect-ratio: auto !important; margin-top: 0 !important; }
-    .pc-resultados-grid > div > div { aspect-ratio: auto !important; }
-  }
 `;
 
 function useReveal() {
@@ -377,16 +372,16 @@ function AntesDespues() {
         <h2 style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(30px,2.6vw,42px)", textTransform: "uppercase", color: "#322C28" }}>Antes y después</h2>
         <p className="mt-2" style={{ color: "#8C8378", fontSize: "clamp(13px,1.05vw,16px)" }}>de nuestros pacientes</p>
       </div>
-      <div className="mx-auto grid md:grid-cols-2 items-stretch pc-resultados-grid" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)" }}>
-        <div className="relative grid grid-rows-3 gap-3 h-full">
+      <div className="mx-auto grid md:grid-cols-2 items-start" style={{ maxWidth: 1200, gap: "clamp(14px,1.6vw,22px)" }}>
+        <div className="relative grid grid-rows-3 gap-3">
           {testimonioImgs.map((src, i) => (
-            <div key={src} className="relative rounded-2xl overflow-hidden h-full" style={{ aspectRatio: "4/3" }}>
+            <div key={src} className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
               <img src={src} alt={`Antes ${i + 1}`} className="w-full h-full object-cover block" />
             </div>
           ))}
           <span className="absolute top-4 left-4 rounded-full z-10" style={{ padding: "6px 16px", background: "rgba(114,127,137,0.75)", backdropFilter: "blur(4px)", color: "#F4F2EE", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Antes</span>
         </div>
-        <div className="relative rounded-2xl overflow-hidden mt-4 md:mt-0 h-full" style={{ aspectRatio: "3/4" }}>
+        <div className="relative rounded-2xl overflow-hidden mt-4 md:mt-0" style={{ aspectRatio: "3/4" }}>
           <video src={testimonioVideo} className="w-full h-full object-cover block" autoPlay muted loop playsInline controls />
           <span className="absolute top-4 left-4 rounded-full" style={{ padding: "6px 16px", background: "rgba(184,155,106,0.9)", color: "#fff", fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase" }}>Después</span>
         </div>
