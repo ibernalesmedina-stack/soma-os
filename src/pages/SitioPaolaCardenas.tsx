@@ -727,7 +727,7 @@ function Footer() {
     <footer style={{ background: "#f0ebe5", borderTop: "1px solid rgba(50,44,40,0.12)", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) 36px" }}>
       <div className="flex flex-wrap justify-between" style={{ gap: "clamp(36px,6vw,90px)" }}>
         <div>
-          <img src="/logo-firma.png" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(64px,8vw,96px)", width: "auto", marginLeft: "-8px" }} />
+          <img src="/logo-firma.png" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(110px,14vw,170px)", width: "auto", marginLeft: "-14px" }} />
           <p className="mt-3 text-[13px]" style={{ color: "#8C8378" }}>Cirujana Dentista · Especialista en Implantología Bucomaxilofacial</p>
           <div className="mt-6 flex gap-3">
             <a href="https://www.instagram.com/dra.cardenasfica/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full text-[11px] uppercase" style={{ padding: "11px 20px", border: "1px solid rgba(50,44,40,0.18)", letterSpacing: "0.18em" }}>
