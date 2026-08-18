@@ -491,12 +491,26 @@ function EditReservaDialog({ reserva, userId, onClose, onSaved }: {
   );
 }
 
+// Converts a Santiago-local "YYYY-MM-DD" + "HH:MM" into a correct UTC ISO string,
+// regardless of the browser/device's own timezone setting.
+function santiagoLocalToUTC(date: string, time: string): string {
+  const noonUTC = new Date(`${date}T12:00:00Z`);
+  const santiagoNoonHour = parseInt(
+    new Intl.DateTimeFormat("en", { timeZone: "America/Santiago", hour: "numeric", hour12: false }).format(noonUTC)
+  );
+  const offsetMin = (santiagoNoonHour - 12) * 60;
+  const localDt = new Date(`${date}T${time}:00Z`);
+  localDt.setMinutes(localDt.getMinutes() - offsetMin);
+  return localDt.toISOString();
+}
+
 function BloqueoDialog({ onSave }: { onSave: (b: { start: string; end: string; motivo: string }) => void }) {
   const [open, setOpen] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState(today);
   const [start, setStart] = useState("12:00");
   const [end, setEnd] = useState("13:00");
+  const [days, setDays] = useState(1);
   const [motivo, setMotivo] = useState("");
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -507,7 +521,7 @@ function BloqueoDialog({ onSave }: { onSave: (b: { start: string; end: string; m
         <DialogHeader><DialogTitle>Bloquear horario</DialogTitle></DialogHeader>
         <div className="grid gap-3">
           <div className="grid gap-1.5">
-            <Label className="text-xs">Fecha</Label>
+            <Label className="text-xs">Fecha de inicio</Label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -521,18 +535,28 @@ function BloqueoDialog({ onSave }: { onSave: (b: { start: string; end: string; m
             </div>
           </div>
           <div className="grid gap-1.5">
+            <Label className="text-xs">Repetir por (días)</Label>
+            <Input type="number" min={1} max={60} value={days} onChange={(e) => setDays(Math.max(1, Math.min(60, Number(e.target.value) || 1)))} />
+            <p className="text-[11px] text-muted-foreground">Para vacaciones: bloquea el mismo rango horario todos los días, comenzando en la fecha de inicio. Ej: 14 días.</p>
+          </div>
+          <div className="grid gap-1.5">
             <Label className="text-xs">Motivo del bloqueo</Label>
             <Textarea rows={2} placeholder="Ej: feriado, vacaciones, almuerzo, capacitación…" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button onClick={() => {
+          <Button onClick={async () => {
             if (!motivo.trim()) return;
-            const s = new Date(`${date}T${start}:00`).toISOString();
-            const e = new Date(`${date}T${end}:00`).toISOString();
-            onSave({ start: s, end: e, motivo: motivo.trim() });
-            setOpen(false); setMotivo("");
+            for (let i = 0; i < days; i++) {
+              const d = new Date(`${date}T00:00:00Z`);
+              d.setUTCDate(d.getUTCDate() + i);
+              const dayStr = d.toISOString().slice(0, 10);
+              const s = santiagoLocalToUTC(dayStr, start);
+              const e = santiagoLocalToUTC(dayStr, end);
+              await onSave({ start: s, end: e, motivo: motivo.trim() });
+            }
+            setOpen(false); setMotivo(""); setDays(1);
           }}>Bloquear</Button>
         </DialogFooter>
       </DialogContent>

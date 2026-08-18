@@ -36,7 +36,12 @@ async function sbGet(path: string) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
   });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) {
+    console.error(`sbGet failed for ${path}:`, data);
+    return [];
+  }
+  return data;
 }
 
 async function getAccessToken(token: { access_token: string; refresh_token: string; expiry_date?: number }) {
@@ -100,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const [reservas, bloqueos] = await Promise.all([
       sbGet(`reservas?user_id=eq.${USER_ID}&date=gte.${prevDate}T00:00:00Z&date=lt.${nextDate}T00:00:00Z&status=neq.cancelada&select=date,es_control`),
-      sbGet(`bloqueos?user_id=eq.${USER_ID}&start=lte.${date}T23:59:59&end=gte.${date}T00:00:00&select=start,end`),
+      sbGet(`bloqueos?user_id=eq.${USER_ID}&start_at=lte.${date}T23:59:59&end_at=gte.${date}T00:00:00&select=start_at,end_at`),
     ]);
 
     // Build occupied windows (all in UTC)
@@ -114,7 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     if (Array.isArray(bloqueos)) {
       for (const b of bloqueos) {
-        occupied.push({ start: new Date(b.start), end: new Date(b.end) });
+        occupied.push({ start: new Date(b.start_at), end: new Date(b.end_at) });
       }
     }
 
