@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  ArrowRight, Sparkles, Star, ExternalLink, Check,
-  Syringe, Droplet, Sun, Gem, Zap, SmilePlus, ShieldCheck, Scissors, Wrench,
-  Instagram as InstagramIcon,
-} from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Check, ExternalLink, Eye, ScanFace } from "lucide-react";
+import { TRATAMIENTOS, CATEGORIAS } from "./paola/datos";
+import { SITE_STYLES, Footer, WhatsAppButton, WHATSAPP_NUMBER, useMeta, waLink, tc } from "./paola/comun";
+import TratamientoPagina from "./paola/TratamientoPagina";
+import PrivacidadPaola from "./paola/PrivacidadPaola";
 
 type IconProps = { className?: string; style?: React.CSSProperties; strokeWidth?: number | string };
 
@@ -23,54 +24,6 @@ const ctaImg = "/paola-cta.png";
 const portraitImg = "/paola-portrait.jpg";
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=dra+paola+cardenas+fica";
-const WHATSAPP_NUMBER = "56971252179";
-
-const SITE_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Instrument+Sans:wght@400;500;600;700&display=swap');
-
-  .pc-site {
-    --pc-bg: #f0ebe5;
-    --pc-bg-alt: #f0ebe5;
-    --pc-text: #322C28;
-    --pc-text-muted: #5A5148;
-    --pc-text-subtle: #8C8378;
-    --pc-text-alt: #8C7B62;
-    --pc-dark: #727f89;
-    --pc-on-dark: #F4F2EE;
-    --pc-accent: #B89B6A;
-    --pc-accent-hover: #A6884F;
-    --pc-accent-light: #E3D3B4;
-    background-color: var(--pc-bg);
-    color: var(--pc-text);
-    font-family: 'Instrument Sans', system-ui, sans-serif;
-  }
-  .pc-site h1, .pc-site h2, .pc-site h3, .pc-serif { font-family: 'Cormorant Garamond', serif; }
-  @keyframes pc-ctaPulse {
-    0%, 100% { transform: translateY(0); box-shadow: 0 14px 32px rgba(184,155,106,0.32); }
-    50% { transform: translateY(-5px); box-shadow: 0 24px 48px rgba(184,155,106,0.46); }
-  }
-  @keyframes pc-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @keyframes pc-waRipple {
-    0%   { box-shadow: 0 10px 28px rgba(37,211,102,0.5), 0 0 0 0 rgba(37,211,102,0.55); }
-    70%  { box-shadow: 0 10px 28px rgba(37,211,102,0.5), 0 0 0 16px rgba(37,211,102,0); }
-    100% { box-shadow: 0 10px 28px rgba(37,211,102,0.5), 0 0 0 0 rgba(37,211,102,0); }
-  }
-  @keyframes pc-waBounce {
-    0%, 82%, 100% { transform: translateY(0); }
-    88% { transform: translateY(-7px); }
-    94% { transform: translateY(0); }
-    97% { transform: translateY(-3px); }
-  }
-  .pc-wa-btn { animation: pc-waRipple 2.4s ease-out infinite, pc-waBounce 3.2s ease-in-out infinite; }
-  .pc-wa-btn:hover { animation-play-state: paused; }
-  .pc-cta-pulse { animation: pc-ctaPulse 3.4s ease-in-out infinite; }
-  .pc-marquee { animation: pc-marquee 42s linear infinite; }
-  .pc-treat-marquee { animation: pc-marquee 32s linear infinite; }
-  .pc-treat-marquee:hover { animation-play-state: paused; }
-  .pc-marquee:hover { animation-play-state: paused; }
-  .pc-reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
-  .pc-reveal.pc-in { opacity: 1; transform: translateY(0); }
-`;
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -97,49 +50,50 @@ function Reveal({ children, delay = 0, className = "", style }: { children: Reac
   );
 }
 
-function useSEO() {
+function useScrollToHash() {
+  const { hash } = useLocation();
   useEffect(() => {
-    document.title = "Dra. Paola Cárdenas Fica · Implantología y Odontología | Viña del Mar";
-    const setMeta = (attr: string, val: string, content: string) => {
-      let el = document.querySelector(`meta[${attr}="${val}"]`);
-      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, val); document.head.appendChild(el); }
-      el.setAttribute("content", content);
-    };
-    const desc = "Dra. Paola Cárdenas Fica, Cirujana Dentista especialista en Implantología Bucomaxilofacial en Viña del Mar. Agenda tu evaluación online.";
-    setMeta("name", "description", desc);
-    setMeta("name", "robots", "index, follow");
-    setMeta("property", "og:title", "Dra. Paola Cárdenas Fica · Implantología Bucomaxilofacial");
-    setMeta("property", "og:description", desc);
-    setMeta("property", "og:url", "https://drapaolacardenasfica.com");
-    setMeta("property", "og:type", "website");
-    setMeta("property", "og:site_name", "Dra. Paola Cárdenas Fica");
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) { canonical = document.createElement("link") as HTMLLinkElement; canonical.rel = "canonical"; document.head.appendChild(canonical); }
-    canonical.href = "https://drapaolacardenasfica.com";
-  }, []);
+    if (!hash) return;
+    const t = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView(), 80);
+    return () => clearTimeout(t);
+  }, [hash]);
 }
 
-export default function SitioPaolaCardenas() {
-  useSEO();
-
+function Inicio() {
+  useMeta({
+    title: "Dra. Paola Cárdenas Fica · Implantología, Odontología y Estética Facial",
+    description: "Cirujana Dentista especialista en Implantología Bucomaxilofacial. Implantes, odontología general y estética facial en Edificio Soho, Concón. Agenda tu evaluación.",
+    path: "/",
+    image: heroImg,
+  });
+  useScrollToHash();
   return (
     <>
       <style>{SITE_STYLES}</style>
       <main className="pc-site min-h-screen overflow-x-hidden">
         <Nav />
         <Hero />
-        <Filosofia />
+        <SobreMi />
         <Tratamientos />
         <AntesDespues />
-        <QuienSoy />
-        <Testimonios />
+        <CitaDiagnostico />
+        <BookingSection />
         <Cierre />
+        <Testimonios />
         <FAQ />
         <Footer />
         <WhatsAppButton />
       </main>
     </>
   );
+}
+
+export default function SitioPaolaCardenas() {
+  const { pathname } = useLocation();
+  const m = pathname.match(/^\/tratamientos\/([a-z0-9-]+)\/?$/);
+  if (m) return <TratamientoPagina slug={m[1]} />;
+  if (/^\/politica-de-privacidad\/?$/.test(pathname)) return <PrivacidadPaola />;
+  return <Inicio />;
 }
 
 function Nav() {
@@ -186,19 +140,19 @@ function Nav() {
 
 function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden" style={{ minHeight: "640px", height: "100vh", background: "#727f89" }}>
+    <section id="top" className="relative overflow-hidden" style={{ minHeight: "520px", height: "78vh", background: "#727f89" }}>
       <img src={heroImg} alt="Dra. Paola Cárdenas Fica" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "62% 34%", filter: "grayscale(0.2) brightness(0.82) sepia(0.08)" }} />
       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(114,127,137,0.34) 100%)" }} />
-      <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(48px,9vh,104px)" }}>
-        <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Estética · Rehabilitación oral</p>
-        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(58px,8vw,132px)", lineHeight: 0.96, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
+      <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(36px,7vh,80px)" }}>
+        <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
+        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(44px,6.2vw,100px)", lineHeight: 0.96, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
           No solo<br />restauramos sonrisas.<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>Devolvemos confianza.</em>
         </h1>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <a href="#tratamientos" className="rounded-full transition-all hover:-translate-y-1" style={{ padding: "21px 40px", border: "1px solid rgba(244,242,238,0.6)", background: "rgba(244,242,238,0.08)", color: "#F4F2EE", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        <div className="mt-7 flex flex-wrap gap-3.5">
+          <a href="#tratamientos" className="rounded-full transition-all hover:-translate-y-1" style={{ padding: "17px 32px", border: "1px solid rgba(244,242,238,0.6)", background: "rgba(244,242,238,0.08)", color: "#F4F2EE", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
             Ver tratamientos
           </a>
-          <a href="#agenda" className="pc-cta-pulse rounded-full" style={{ padding: "21px 40px", background: "#B89B6A", color: "#fff", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+          <a href="#agenda" className="pc-cta-pulse rounded-full" style={{ padding: "17px 32px", background: "#B89B6A", color: "#fff", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
             Agenda online
           </a>
         </div>
@@ -207,74 +161,115 @@ function Hero() {
   );
 }
 
-function Filosofia() {
+function SobreMi() {
+  const [tab, setTab] = useState(0);
+  const [count1, setCount1] = useState(0);
+  const [count2, setCount2] = useState(0);
+  const { ref, visible } = useReveal();
+  const x0 = useRef<{ x: number; y: number } | null>(null);
+  const { hash } = useLocation();
+
+  useEffect(() => { if (hash === "#filosofia") setTab(1); else if (hash === "#dra") setTab(0); }, [hash]);
+  useEffect(() => {
+    if (!visible) return;
+    const dur = 1800;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount1(Math.round(eased * 6));
+      setCount2(Math.round(eased * 3000));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [visible]);
+
+  const h2 = { margin: "0 0 clamp(22px,3vh,30px)", fontWeight: 300, fontSize: "clamp(36px,4.2vw,68px)", lineHeight: 1.02, letterSpacing: "-0.025em", color: "#322C28" } as const;
+  const p_ = { margin: "0 0 18px", maxWidth: "54ch", fontSize: "clamp(15px,1.1vw,17px)", lineHeight: 1.8, color: "#5A5148" } as const;
+  const panel = (i: number) => ({
+    gridArea: "1 / 1",
+    transition: "opacity .6s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1), visibility .7s",
+    opacity: tab === i ? 1 : 0,
+    visibility: (tab === i ? "visible" : "hidden") as "visible" | "hidden",
+    pointerEvents: (tab === i ? "auto" : "none") as "auto" | "none",
+    transform: tab === i ? "none" : `translateX(${i < tab ? -40 : 40}px)`,
+  });
+  const tabBtn = (i: number, label: string) => (
+    <button role="tab" aria-selected={tab === i} onClick={() => setTab(i)} className="rounded-full transition-colors"
+      style={{ padding: "11px 22px", fontSize: 11, fontWeight: 700, letterSpacing: ".22em", textTransform: "uppercase", background: tab === i ? "#727f89" : "transparent", color: tab === i ? "#F4F2EE" : "#8C8378" }}>
+      {label}
+    </button>
+  );
+
   return (
-    <section id="filosofia" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px) clamp(50px,7vh,100px)" }}>
-      <div className="grid lg:grid-cols-12 items-center" style={{ gap: "clamp(24px,4vw,64px)" }}>
-        <Reveal className="lg:col-span-6 flex flex-col" style={{ gap: "clamp(22px,3vh,32px)" }}>
-          <div>
-            <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: "clamp(16px,2vh,24px)" }}>Mi filosofía</p>
-            <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(40px,4.4vw,72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}>
-              Una odontología centrada en las <em style={{ color: "#8C7B62", fontStyle: "italic" }}>personas</em>
-            </h2>
-          </div>
-          <p style={{ maxWidth: "52ch", color: "#5A5148", lineHeight: 1.8 }}>
-            Creo que la odontología va mucho más allá de un diagnóstico o un procedimiento. Para mí, cada paciente tiene una historia, necesidades y expectativas distintas, por eso creo en una atención cercana, donde escuchar es tan importante como tratar.
-          </p>
-          <p style={{ maxWidth: "52ch", color: "#5A5148", lineHeight: 1.8 }}>
-            Mi compromiso es ofrecer una experiencia basada en la confianza, la honestidad y el respeto, combinando ciencia, precisión y una mirada estética para encontrar soluciones que realmente mejoren la calidad de vida de quienes confían en mí.
-          </p>
-          <div className="flex flex-wrap gap-3.5">
-            {["Confianza", "Excelencia", "Armonía"].map((t) => (
-              <span key={t} className="rounded-full transition-colors" style={{ padding: "12px 26px", border: "1px solid #B89B6A", fontSize: "clamp(11px,0.95vw,13px)", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
-                {t}
-              </span>
-            ))}
+    <section id="dra" ref={ref} className="relative" style={{ background: "#f0ebe5", padding: "clamp(90px,13vh,170px) clamp(20px,5vw,72px)" }}>
+      <span id="filosofia" className="absolute top-0" />
+      <div className="mx-auto grid lg:grid-cols-12 items-center" style={{ maxWidth: 1280, gap: "clamp(28px,4vw,72px)" }}>
+        <Reveal className="lg:col-span-5">
+          <div className="rounded-[18px] overflow-hidden" style={{ aspectRatio: "4/5", boxShadow: "0 30px 70px rgba(50,44,40,.12)" }}>
+            <img src={portraitImg} alt="Dra. Paola Cárdenas Fica" className="w-full h-full object-cover" loading="lazy" />
           </div>
         </Reveal>
-        <Reveal delay={120} className="lg:col-span-6">
-          <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4", background: "linear-gradient(135deg, #727f89, #5A5148)" }} />
+        <Reveal delay={120} className="lg:col-span-6 lg:col-start-7">
+          <div role="tablist" aria-label="Sobre la doctora" className="inline-flex rounded-full" style={{ gap: 6, padding: 5, border: "1px solid rgba(50,44,40,.14)", background: "#fff", marginBottom: "clamp(30px,4.5vh,48px)" }}>
+            {tabBtn(0, "Quién soy")}
+            {tabBtn(1, "Mi enfoque")}
+          </div>
+          <div className="grid" style={{ touchAction: "pan-y" }}
+            onPointerDown={(e) => { x0.current = { x: e.clientX, y: e.clientY }; }}
+            onPointerUp={(e) => {
+              if (!x0.current) return;
+              const dx = e.clientX - x0.current.x, dy = e.clientY - x0.current.y;
+              x0.current = null;
+              if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) setTab(dx < 0 ? 1 : 0);
+            }}>
+            <div role="tabpanel" aria-hidden={tab !== 0} style={panel(0)}>
+              <h2 className="pc-serif" style={h2}>Dra. Paola <em style={{ fontStyle: "italic", color: "#8C7B62" }}>Cárdenas Fica</em></h2>
+              <p style={p_}>Soy Cirujana Dentista y Especialista en Implantología Bucomaxilofacial. Con más de 6 años de experiencia y más de 3.000 pacientes atendidos, he complementado mi formación con perfeccionamientos en implantología y estética en Chile y el extranjero.</p>
+              <p style={p_}>Integro ciencia, precisión y una mirada estética para crear tratamientos personalizados, con resultados naturales y duraderos.</p>
+              <div className="flex flex-wrap" style={{ gap: "clamp(30px,5vw,64px)", borderTop: "1px solid rgba(50,44,40,.14)", paddingTop: 28, marginTop: "clamp(14px,2vh,24px)" }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "clamp(36px,3.4vw,54px)", lineHeight: 1, color: "#8C7B62" }}>{count1}+</div>
+                  <p className="mt-2.5 text-[11px]" style={{ letterSpacing: "0.22em", textTransform: "uppercase", color: "#8C8378" }}>Años de experiencia</p>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "clamp(36px,3.4vw,54px)", lineHeight: 1, color: "#8C7B62" }}>{count2.toLocaleString("es-CL")}+</div>
+                  <p className="mt-2.5 text-[11px]" style={{ letterSpacing: "0.22em", textTransform: "uppercase", color: "#8C8378" }}>Pacientes atendidos</p>
+                </div>
+              </div>
+            </div>
+            <div role="tabpanel" aria-hidden={tab !== 1} style={panel(1)}>
+              <h2 className="pc-serif" style={h2}>Una odontología centrada en las <em style={{ fontStyle: "italic", color: "#8C7B62" }}>personas</em></h2>
+              <p style={p_}>Creo que la odontología va mucho más allá de un diagnóstico o un procedimiento. Cada paciente tiene una historia, necesidades y expectativas distintas, por eso creo en una atención cercana, donde escuchar es tan importante como tratar.</p>
+              <p style={p_}>Mi enfoque combina rehabilitación oral y armonización estética: una sonrisa no solo debe recuperar su función, sino también potenciar la confianza y el bienestar de cada persona.</p>
+              <div className="flex flex-wrap gap-3" style={{ marginTop: "clamp(14px,2vh,24px)" }}>
+                {["Confianza", "Excelencia", "Armonía"].map((v) => (
+                  <span key={v} className="rounded-full" style={{ padding: "11px 22px", border: "1px solid #B89B6A", fontSize: 11, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>{v}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center" style={{ gap: 18, marginTop: "clamp(28px,4vh,40px)" }}>
+            {[0, 1].map((d) => (
+              <button key={d} aria-label={d ? "Siguiente" : "Anterior"} disabled={tab === d} onClick={() => setTab(d)}
+                className="rounded-full inline-flex items-center justify-center transition-colors hover:bg-[#322C28] hover:text-[#f0ebe5] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#322C28]"
+                style={{ width: 44, height: 44, border: "1px solid rgba(50,44,40,.22)", color: "#322C28" }}>{d ? "→" : "←"}</button>
+            ))}
+            <span className="relative overflow-hidden" style={{ flex: 1, maxWidth: 120, height: 1, background: "rgba(50,44,40,.15)" }}>
+              <i className="absolute inset-y-0 left-0" style={{ width: "50%", background: "#B89B6A", transform: `translateX(${tab * 100}%)`, transition: "transform .7s cubic-bezier(.16,1,.3,1)" }} />
+            </span>
+            <span style={{ fontSize: 11, letterSpacing: ".22em", color: "#8C8378" }}><b style={{ color: "#322C28", fontWeight: 600 }}>0{tab + 1}</b> / 02</span>
+          </div>
         </Reveal>
       </div>
     </section>
   );
 }
 
-type Categoria = { title: string; desc: string; items: { name: string; sub: string; desc: string; icon: React.ComponentType<IconProps>; img?: string }[] };
-
-const CATEGORIAS: Categoria[] = [
-  {
-    title: "Medicina estética",
-    desc: "Tratamientos diseñados para armonizar el rostro, revitalizar la piel y potenciar la belleza natural mediante procedimientos seguros, personalizados y mínimamente invasivos.",
-    items: [
-      { name: "Ácido hialurónico", sub: "Volumen y armonía facial", desc: "Relleno de alta calidad para restaurar volúmenes, definir contornos y armonizar proporciones del rostro, siempre respetando tus rasgos.", icon: Gem, img: "/tratamiento-acido-hialuronico.jpg" },
-      { name: "Toxina botulínica", sub: "Expresión relajada y natural", desc: "Suaviza líneas de expresión y previene su profundización, manteniendo un rostro descansado, con movimiento y expresión natural.", icon: Syringe, img: "/tratamiento-botox.jpg" },
-      { name: "Peeling químico", sub: "Renovación y luminosidad de la piel", desc: "Exfoliación controlada que renueva las capas superficiales de la piel, mejora la textura, atenúa manchas y devuelve luminosidad de forma progresiva y natural.", icon: Sun, img: "/tratamiento-peeling.jpg" },
-      { name: "Mesoterapia", sub: "Hidratación profunda y firmeza", desc: "Microinyecciones de activos, vitaminas y ácido hialurónico que hidratan en profundidad, mejoran la firmeza y revitalizan el aspecto general del rostro.", icon: Droplet, img: "/tratamiento-mesoterapia.jpg" },
-      { name: "Bioestimuladores faciales", sub: "Colágeno propio, resultado progresivo", desc: "Estimulan la producción natural de colágeno, mejorando densidad, firmeza y calidad de la piel con un resultado gradual que se ve genuinamente tuyo.", icon: Sparkles, img: "/tratamiento-bioestimuladores.jpg" },
-    ],
-  },
-  {
-    title: "Odontología general",
-    desc: "Cuidamos la salud de tu sonrisa con tratamientos preventivos y restauradores que combinan funcionalidad, estética y bienestar.",
-    items: [
-      { name: "Limpieza dental", sub: "Salud que se ve y se siente", desc: "Remoción profesional de placa y sarro, pulido y revisión completa para mantener encías sanas y prevenir problemas mayores.", icon: ShieldCheck, img: "/tratamiento-limpieza.jpg" },
-      { name: "Blanqueamiento", sub: "Tonos más claros, sin dañar", desc: "Protocolo profesional que aclara varios tonos el esmalte de forma segura y controlada, con seguimiento personalizado.", icon: Zap, img: "/tratamiento-blanqueamiento.jpg" },
-      { name: "Restauraciones", sub: "Estética y función devueltas", desc: "Reparación de piezas dañadas con materiales estéticos de alta resistencia que replican el color y la anatomía natural del diente.", icon: SmilePlus, img: "/tratamiento-restauraciones.jpg" },
-      { name: "Extracciones", sub: "Procedimiento seguro y cuidado", desc: "Extracción realizada con técnica atraumática, anestesia adecuada y acompañamiento en todo el proceso de recuperación.", icon: Scissors, img: "/tratamiento-extracciones.jpg" },
-      { name: "Prótesis dentales", sub: "Recuperar la mordida y la sonrisa", desc: "Prótesis fijas o removibles diseñadas a medida para devolver función masticatoria, soporte facial y estética.", icon: Wrench, img: "/tratamiento-protesis.jpg" },
-    ],
-  },
-  {
-    title: "Implantología",
-    desc: "Recuperamos la funcionalidad y la estética de tu sonrisa mediante implantes dentales de alta precisión, devolviendo seguridad y calidad de vida.",
-    items: [
-      { name: "Implante unitario", sub: "Una pieza, resultado natural", desc: "Reposición de una pieza perdida mediante un implante de titanio y corona personalizada, indistinguible de tus dientes naturales.", icon: ToothImplantIcon },
-      { name: "Implantes múltiples", sub: "Rehabilitación por sectores", desc: "Solución para varias piezas ausentes, planificada digitalmente para devolver función masticatoria y estética de forma integral.", icon: ToothImplantIcon },
-      { name: "Rehabilitación completa", sub: "Toda la sonrisa, en un plan", desc: "Tratamiento integral que restaura la arcada completa, recuperando mordida, soporte facial y confianza al hablar y sonreír.", icon: ToothImplantIcon },
-    ],
-  },
-];
+const ICONO_TARJETA: Record<string, React.ComponentType<IconProps>> = {
+  "tratamiento-de-ojeras": Eye,
+  "mesoplastia-de-papada": ScanFace,
+};
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -290,65 +285,82 @@ function useIsMobile(breakpoint = 768) {
 
 function Tratamientos() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const titulo = Array.from({ length: 6 }, (_, k) => (
+    <span key={k} className="inline-flex items-center" style={{ gap: "clamp(28px,3.4vw,60px)", paddingRight: "clamp(28px,3.4vw,60px)" }}>
+      <span className="pc-serif whitespace-nowrap" style={{ fontWeight: 300, fontSize: "clamp(34px,4.4vw,70px)", lineHeight: 1.1, letterSpacing: "-0.02em", color: "#F4F2EE" }}>
+        Nuestros <em style={{ fontStyle: "italic", color: "#E3D3B4" }}>tratamientos</em>
+      </span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: "clamp(10px,.9vw,14px)", height: "clamp(10px,.9vw,14px)", flex: "0 0 auto" }}>
+        <path d="M12 2c.5 5.3 4.7 9.5 10 10-5.3.5-9.5 4.7-10 10-.5-5.3-4.7-9.5-10-10 5.3-.5 9.5-4.7 10-10z" fill="#E3D3B4" />
+      </svg>
+    </span>
+  ));
+  const precioYBotones = (slug: string, resumen: string) => (
+    <div className="mt-5">
+      <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
+      <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>{resumen}</span>
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <a href="#agenda" onClick={(e) => e.stopPropagation()} className="rounded-full font-medium uppercase" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,13px)" }}>
+          Agendar
+        </a>
+        <Link to={`/tratamientos/${slug}`} onClick={(e) => e.stopPropagation()} className="uppercase whitespace-nowrap" style={{ color: "#E3D3B4", letterSpacing: "0.16em", fontSize: "clamp(10px,2.6vw,12px)", fontWeight: 600 }}>
+          Más información →
+        </Link>
+      </div>
+    </div>
+  );
   return (
-    <section id="tratamientos" style={{ background: "#f0ebe5", padding: "clamp(50px,7vh,100px) 0 clamp(110px,16vh,220px)" }}>
-      <h2 className="text-center" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(32px,3.4vw,54px)", textTransform: "uppercase", letterSpacing: "-0.01em", color: "#322C28" }}>
-        Nuestros tratamientos
-      </h2>
+    <section id="tratamientos" style={{ background: "#f0ebe5", padding: "0 0 clamp(90px,13vh,180px)" }}>
+      <div style={{ background: "#727f89", padding: "clamp(18px,2.6vh,30px) 0" }}>
+        <h2 aria-label="Nuestros tratamientos" className="overflow-hidden" style={{ margin: 0, WebkitMaskImage: "linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)", maskImage: "linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)" }}>
+          <span aria-hidden="true" className="pc-title-marquee flex" style={{ width: "max-content" }}>{titulo}{titulo}</span>
+        </h2>
+      </div>
       {CATEGORIAS.map((cat, ci) => {
-        const moves = ci < 2 || (ci === 2 && isMobile);
+        const items = cat.slugs.map((s) => TRATAMIENTOS[s]);
+        const moves = items.length > 3 || isMobile;
         return (
-        <div key={cat.title} style={{ marginTop: "clamp(60px,9vh,110px)" }}>
+        <div key={cat.title} style={{ marginTop: "clamp(44px,6.5vh,84px)" }}>
           <div className="mx-auto text-center px-6" style={{ maxWidth: "1100px" }}>
-            <h3 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(30px,3.6vw,60px)" }}>{cat.title}</h3>
+            <h3 className="pc-serif" style={{ fontWeight: 600, fontSize: "clamp(30px,3.6vw,60px)", letterSpacing: "-0.02em" }}>{tc(cat.title)}</h3>
             <p className="mx-auto mt-4" style={{ maxWidth: "58ch", color: "#5A5148", fontSize: "clamp(16px,1.2vw,19px)", lineHeight: 1.6 }}>{cat.desc}</p>
           </div>
           <div className={`mt-10 px-6 ${moves ? "overflow-hidden" : "overflow-x-auto"}`}>
           <div className={`flex ${moves ? "pc-treat-marquee" : "justify-center"}`} style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none", width: moves ? "max-content" : undefined }}>
-            {(moves ? [...cat.items, ...cat.items] : cat.items).map((it, i) => {
+            {(moves ? [...items, ...items] : items).map((it, i) => {
+              const ir = () => navigate(`/tratamientos/${it.slug}`);
+              const num = String((i % items.length) + 1).padStart(2, "0");
               if (!it.img) {
+                const Icono = ICONO_TARJETA[it.slug];
                 return (
-                  <article key={`${it.name}-${i}`} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
-                    <span style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
+                  <article key={`${it.slug}-${i}`} onClick={ir} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
+                    <span style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{num}</span>
                     <div className="flex-1 flex items-center justify-center" style={{ minHeight: 0 }}>
-                      <img src="/icono-implante.png" alt="" className="w-full h-auto opacity-80" style={{ maxWidth: "42%" }} />
+                      {Icono
+                        ? <Icono strokeWidth={1} style={{ width: "30%", height: "auto", maxHeight: "100%", color: "rgba(244,242,238,0.8)" }} />
+                        : <img src="/icono-implante.png" alt="" className="w-auto h-auto opacity-80" style={{ maxWidth: "38%", maxHeight: "100%" }} />}
                     </div>
                     <div>
-                      <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(20px,1.9vw,28px)" }}>{it.name}</h4>
+                      <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: it.name.length > 26 ? "clamp(18px,1.55vw,23px)" : "clamp(20px,1.9vw,28px)", lineHeight: 1.2 }}>{tc(it.name)}</h4>
                       <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(14px,1.2vw,16px)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.desc}</p>
-                      <div className="mt-5 flex items-center justify-between gap-2">
-                        <div>
-                          <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
-                          <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>Consultar</span>
-                        </div>
-                        <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,13px)" }}>
-                          Agendar
-                        </a>
-                      </div>
+                      {precioYBotones(it.slug, it.resumen)}
                     </div>
                   </article>
                 );
               }
               return (
-                <article key={`${it.name}-${i}`} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89" }}>
-                  <img src={it.img} alt={it.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{String(i + 1).padStart(2, "0")}</span>
+                <article key={`${it.slug}-${i}`} onClick={ir} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89" }}>
+                  <img src={it.img} alt={tc(it.name)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{num}</span>
                   <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(114,127,137,0.15) 52%, rgba(114,127,137,0.05) 100%)" }}>
-                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
+                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{tc(it.name)}</h4>
                     <p className="mt-1.5" style={{ color: "rgba(244,242,238,0.75)", fontSize: "clamp(14px,1.15vw,16px)" }}>{it.sub}</p>
                   </div>
                   <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(114,127,137,0.93)", backdropFilter: "blur(6px)" }}>
-                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{it.name}</h4>
-                    <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)" }}>{it.desc}</p>
-                    <div className="mt-5 flex items-center justify-between gap-2">
-                      <div>
-                        <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
-                        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>Consultar</span>
-                      </div>
-                      <a href="#agenda" className="rounded-full font-medium uppercase self-start" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,13px)" }}>
-                        Agendar
-                      </a>
-                    </div>
+                    <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{tc(it.name)}</h4>
+                    <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.desc}</p>
+                    {precioYBotones(it.slug, it.resumen)}
                   </div>
                 </article>
               );
@@ -358,6 +370,42 @@ function Tratamientos() {
         </div>
         );
       })}
+    </section>
+  );
+}
+
+function CitaDiagnostico() {
+  return (
+    <section id="diagnostico" style={{ background: "#f0ebe5", padding: "clamp(60px,9vh,120px) clamp(20px,5vw,72px) 0" }}>
+      <Reveal>
+        <div className="mx-auto grid lg:grid-cols-12 items-center" style={{ maxWidth: 1180, gap: "clamp(28px,4vw,64px)", background: "#727f89", color: "#F4F2EE", borderRadius: 20, padding: "clamp(36px,5vw,80px) clamp(26px,5vw,80px)" }}>
+          <div className="lg:col-span-7">
+            <p style={{ fontSize: "clamp(12px,0.95vw,14px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", color: "#E3D3B4", marginBottom: 22 }}>El primer paso</p>
+            <h2 className="pc-serif" style={{ margin: "0 0 26px", fontWeight: 300, fontSize: "clamp(38px,4.6vw,72px)", lineHeight: 1, letterSpacing: "-0.025em" }}>
+              Cita <em style={{ fontStyle: "italic", color: "#E3D3B4" }}>diagnóstico</em>
+            </h2>
+            <p style={{ margin: "0 0 18px", maxWidth: "52ch", fontSize: 15, lineHeight: 1.8, color: "rgba(244,242,238,0.85)" }}>Es el momento más importante de tu tratamiento. Evaluamos tu rostro y tu sonrisa, conversamos sobre lo que quieres lograr y lo que esperas del resultado.</p>
+            <p style={{ margin: 0, maxWidth: "52ch", fontSize: 15, lineHeight: 1.8, color: "rgba(244,242,238,0.85)" }}>A partir de esa conversación planificamos cada paso a seguir, para que sepas con claridad cómo llegaremos a tu objetivo.</p>
+          </div>
+          <div className="lg:col-span-5">
+            <div style={{ border: "1px solid rgba(244,242,238,0.25)", borderRadius: 16, padding: "clamp(24px,2.4vw,36px)" }}>
+              <div className="flex justify-between items-baseline gap-4" style={{ paddingBottom: 16, borderBottom: "1px solid rgba(244,242,238,0.18)" }}>
+                <span style={{ fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(244,242,238,0.7)" }}>Modalidad</span>
+                <span style={{ fontSize: 15 }}>Presencial</span>
+              </div>
+              <div className="flex justify-between items-baseline gap-4" style={{ padding: "16px 0 20px" }}>
+                <span style={{ fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(244,242,238,0.7)" }}>Valor</span>
+                <span style={{ fontWeight: 600, fontSize: "clamp(26px,2.4vw,34px)", lineHeight: 1, color: "#E3D3B4" }}>$20.000</span>
+              </div>
+              <div className="flex gap-3 items-start" style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(240,235,229,0.14)", marginBottom: 24 }}>
+                <span style={{ color: "#E3D3B4", fontSize: 14, lineHeight: 1.4 }}>✦</span>
+                <span style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(244,242,238,0.92)" }}>Si te realizas el tratamiento <strong style={{ fontWeight: 600, color: "#fff" }}>el mismo día</strong>, el valor de la cita se descuenta del total.</span>
+              </div>
+              <a href="#agenda" className="block text-center rounded-full" style={{ padding: "16px 22px", background: "#B89B6A", color: "#fff", fontSize: 11, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase" }}>Agendar cita</a>
+            </div>
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -390,62 +438,12 @@ function AntesDespues() {
   );
 }
 
-function QuienSoy() {
-  const [count1, setCount1] = useState(0);
-  const [count2, setCount2] = useState(0);
-  const { ref, visible } = useReveal();
-
-  useEffect(() => {
-    if (!visible) return;
-    const dur = 1800;
-    const t0 = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - t0) / dur);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setCount1(Math.round(eased * 6));
-      setCount2(Math.round(eased * 3000));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [visible]);
-
-  return (
-    <section id="dra" ref={ref} style={{ background: "#727f89", color: "#F4F2EE", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
-      <div className="grid lg:grid-cols-12 items-start gap-10">
-        <div className="lg:col-span-5 rounded-2xl overflow-hidden" style={{ aspectRatio: "4/5" }}>
-          <img src={portraitImg} alt="Dra. Paola Cárdenas Fica" className="w-full h-full object-cover" loading="lazy" />
-        </div>
-        <div className="lg:col-span-7">
-          <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: 30 }}>Quién soy</p>
-          <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(38px,4.6vw,76px)" }}>Dra. Paola<br /><em style={{ fontStyle: "italic" }}>Cárdenas Fica</em></h2>
-          <p className="mt-6" style={{ color: "rgba(244,242,238,0.72)", fontSize: 15, lineHeight: 1.8 }}>
-            Soy Cirujana Dentista y Especialista en Implantología Bucomaxilofacial. Con más de 6 años de experiencia y más de 3.000 pacientes atendidos, he complementado mi formación con perfeccionamientos en implantología y estética en Chile y el extranjero, integrando ciencia, precisión y una mirada estética para crear tratamientos personalizados con resultados naturales y duraderos.
-          </p>
-          <p className="mt-4" style={{ color: "rgba(244,242,238,0.72)", fontSize: 15, lineHeight: 1.8 }}>
-            Mi enfoque combina rehabilitación oral y armonización estética, entendiendo que una sonrisa no solo debe recuperar su función, sino también potenciar la confianza y el bienestar de cada persona.
-          </p>
-          <div className="mt-10 pt-8 flex flex-wrap" style={{ borderTop: "1px solid rgba(244,242,238,0.18)", gap: "clamp(30px,5vw,70px)" }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: "clamp(38px,3.8vw,60px)", color: "#E3D3B4" }}>{count1}+</div>
-              <p className="text-[11px] mt-1" style={{ letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(244,242,238,0.55)" }}>Años de experiencia</p>
-            </div>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: "clamp(38px,3.8vw,60px)", color: "#E3D3B4" }}>{count2.toLocaleString("es-CL")}+</div>
-              <p className="text-[11px] mt-1" style={{ letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(244,242,238,0.55)" }}>Pacientes atendidos</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 const REVIEWS = [
   { q: "Llegué escondiendo mi sonrisa en cada foto. Hoy no me acuerdo de hacerlo.", a: "Camila R.", t: "Implantología" },
   { q: "Todo se sintió pensado para mí. Nada exagerado, nada evidente.", a: "Andrea S.", t: "Armonización" },
   { q: "Volví a masticar tranquilo. Y volví a reírme fuerte.", a: "Jorge M.", t: "Rehabilitación" },
   { q: "Me explicó cada paso sin apuro. Salí sabiendo exactamente qué iba a pasar.", a: "Valentina P.", t: "Odontología" },
-  { q: "El resultado se ve mío. Nadie notó el tratamiento, todos notaron el cambio.", a: "Francisca M.", t: "Medicina estética" },
+  { q: "El resultado se ve mío. Nadie notó el tratamiento, todos notaron el cambio.", a: "Francisca M.", t: "Estética facial" },
   { q: "Vine por un implante y me fui con la seguridad de volver a hablar sin taparme.", a: "Rodrigo T.", t: "Implantología" },
 ];
 
@@ -482,9 +480,6 @@ function Testimonios() {
             ))}
           </div>
         </div>
-      </div>
-      <div style={{ position: "relative", zIndex: 2 }}>
-        <BookingSection />
       </div>
     </section>
   );
@@ -542,7 +537,7 @@ function BookingSection() {
   const [rut, setRut] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [topic, setTopic] = useState("Medicina estética");
+  const [topic, setTopic] = useState("Estética facial");
   const [step, setStep] = useState<"form" | "success" | "error">("form");
   const [submitting, setSubmitting] = useState(false);
   const [slots, setSlots] = useState<string[]>([]);
@@ -578,7 +573,7 @@ function BookingSection() {
   const dayLabel = days.find((d) => d.id === date)?.label;
 
   return (
-    <section id="agenda" className="mt-8" style={{ background: "#f0ebe5", padding: "clamp(40px,6vh,90px) clamp(20px,5vw,72px) clamp(110px,16vh,210px)" }}>
+    <section id="agenda" style={{ background: "#f0ebe5", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) clamp(80px,12vh,150px)" }}>
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
         <div className="text-center">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Reserva</p>
@@ -616,7 +611,7 @@ function BookingSection() {
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Teléfono / WhatsApp" style={selectStyle} />
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={selectStyle} />
               <select value={topic} onChange={(e) => setTopic(e.target.value)} style={selectStyle}>
-                <option>Medicina estética</option>
+                <option>Estética facial</option>
                 <option>Odontología general</option>
                 <option>Implantología</option>
                 <option>Aún no lo sé</option>
@@ -682,99 +677,42 @@ const FAQS = [
   { q: "¿Cómo agendo mi primera evaluación?", a: "Puedes reservar directamente desde el botón \"Agenda online\" o escribirme por WhatsApp. En la primera cita conversamos, evalúo tu caso y te explico las alternativas con sus tiempos y valores." },
   { q: "¿Cuánto dura una consulta inicial?", a: "Entre 40 y 60 minutos. Es un espacio para revisar tu salud oral, entender qué te preocupa y armar juntos un plan realista, sin apuros ni presión." },
   { q: "¿Los tratamientos duelen?", a: "Trabajo con anestesia y protocolos pensados para que estés cómoda o cómodo en todo momento. La mayoría de los pacientes describe los procedimientos como mucho más llevaderos de lo que imaginaban." },
-  { q: "¿Los resultados se ven naturales?", a: "Ese es el objetivo. Tanto en implantología como en medicina estética diseño cada tratamiento respetando tus rasgos: la idea es que se note el cambio, no el procedimiento." },
+  { q: "¿Los resultados se ven naturales?", a: "Ese es el objetivo. Tanto en implantología como en estética facial diseño cada tratamiento respetando tus rasgos: la idea es que se note el cambio, no el procedimiento." },
   { q: "¿Cuánto demora un implante dental?", a: "Depende de cada caso. En general el proceso completo toma entre 3 y 6 meses, considerando la integración del implante al hueso antes de instalar la corona definitiva." },
   { q: "¿Qué formas de pago aceptan?", a: "Efectivo, transferencia y tarjetas de débito y crédito. También trabajamos con planes en cuotas para tratamientos de mayor extensión." },
 ];
 
 function FAQ() {
-  const [listOpen, setListOpen] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" style={{ background: "#f0ebe5", padding: "clamp(100px,15vh,200px) clamp(20px,5vw,72px)" }}>
-      <div className="mx-auto text-center" style={{ maxWidth: 1000 }}>
-        <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Preguntas frecuentes</p>
-        <h2 className="pc-serif mt-4" style={{ fontWeight: 300, fontSize: "clamp(30px,4.4vw,68px)" }}>Todo lo que necesitas saber antes de tu cita</h2>
-        <div className="mt-10 flex justify-center">
-          <button onClick={() => setListOpen((v) => !v)} className="inline-flex items-center rounded-full transition-colors hover:bg-[#322C28] hover:text-[#f0ebe5]"
-            style={{ gap: 14, padding: "16px 32px", border: "1px solid rgba(50,44,40,0.3)", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#322C28" }}>
-            <span>{listOpen ? "Ocultar preguntas" : "Ver preguntas"}</span>
-            <span style={{ fontSize: 15, lineHeight: 1, transition: "transform .6s cubic-bezier(.16,1,.3,1)", transform: listOpen ? "rotate(180deg)" : "none" }}>↓</span>
-          </button>
+    <section id="faq" style={{ background: "#727f89", padding: "clamp(70px,10vh,120px) clamp(20px,5vw,72px)" }}>
+      <div className="mx-auto grid lg:grid-cols-12 items-start" style={{ maxWidth: 1180, gap: "clamp(28px,4vw,72px)" }}>
+        <div className="lg:col-span-4">
+          <p style={{ color: "#E3D3B4", fontSize: "clamp(12px,0.95vw,14px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: 18 }}>Preguntas frecuentes</p>
+          <h2 className="pc-serif" style={{ margin: "0 0 20px", fontWeight: 300, fontSize: "clamp(30px,3.2vw,50px)", lineHeight: 1.05, letterSpacing: "-0.02em", color: "#F4F2EE" }}>
+            Todo lo que necesitas saber antes de tu <em style={{ fontStyle: "italic", color: "#E3D3B4" }}>cita</em>
+          </h2>
+          <p style={{ margin: "0 0 22px", fontSize: 14, lineHeight: 1.7, color: "rgba(244,242,238,0.75)" }}>¿Tienes otra pregunta? Escríbenos y te respondemos personalmente.</p>
+          <a href={waLink("Hola Dra. Paola, tengo una consulta.")} target="_blank" rel="noreferrer" className="inline-flex rounded-full transition-colors hover:bg-[#F4F2EE] hover:text-[#322C28]"
+            style={{ padding: "13px 24px", border: "1px solid rgba(244,242,238,0.4)", color: "#F4F2EE", fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+            Hacer una pregunta
+          </a>
         </div>
-        <div style={{ overflow: "hidden", maxHeight: listOpen ? 3000 : 0, opacity: listOpen ? 1 : 0, transition: "max-height .7s cubic-bezier(.16,1,.3,1), opacity .5s" }}>
-          <div className="mt-14 text-left">
-            {FAQS.map((f, i) => (
-              <div key={f.q} style={{ borderBottom: "1px solid rgba(50,44,40,0.16)" }}>
-                <button onClick={() => setOpen(open === i ? null : i)} className="w-full flex items-center justify-center gap-4 text-center" style={{ padding: "clamp(22px,3vh,30px) 0", fontWeight: 500, fontSize: "clamp(16px,1.4vw,21px)", color: "#322C28" }}>
-                  {f.q}
-                  <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 34, height: 34, border: "1px solid rgba(50,44,40,0.25)", color: "#B89B6A", transform: open === i ? "rotate(135deg)" : "none" }}>+</span>
-                </button>
-                {open === i && (
-                  <p className="text-center mx-auto pb-8" style={{ maxWidth: "70ch", color: "#5A5148", lineHeight: 1.8 }}>{f.a}</p>
-                )}
+        <div className="lg:col-span-7 lg:col-start-6" style={{ borderTop: "1px solid rgba(244,242,238,0.2)" }}>
+          {FAQS.map((f, i) => (
+            <div key={f.q} style={{ borderBottom: "1px solid rgba(244,242,238,0.2)" }}>
+              <button onClick={() => setOpen(open === i ? null : i)} className="w-full flex items-center justify-between gap-4 text-left transition-colors hover:text-[#E3D3B4]"
+                style={{ padding: "clamp(16px,2.2vh,22px) 0", fontWeight: 500, fontSize: "clamp(15px,1.2vw,18px)", lineHeight: 1.4, color: "#F4F2EE" }}>
+                {f.q}
+                <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 30, height: 30, border: "1px solid rgba(244,242,238,0.35)", color: "#E3D3B4", transform: open === i ? "rotate(135deg)" : "none" }}>+</span>
+              </button>
+              <div style={{ overflow: "hidden", maxHeight: open === i ? 400 : 0, opacity: open === i ? 1 : 0, transition: "max-height .6s cubic-bezier(.16,1,.3,1), opacity .5s" }}>
+                <p style={{ margin: "0 0 18px", maxWidth: "62ch", fontSize: "clamp(14px,1vw,15.5px)", lineHeight: 1.75, color: "rgba(244,242,238,0.85)" }}>{f.a}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer style={{ background: "#f0ebe5", borderTop: "1px solid rgba(50,44,40,0.12)", padding: "clamp(60px,9vh,110px) clamp(20px,5vw,72px) 36px" }}>
-      <div className="flex flex-wrap justify-between" style={{ gap: "clamp(36px,6vw,90px)" }}>
-        <div>
-          <img src="/logo-firma.png" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(110px,14vw,170px)", width: "auto", marginLeft: "-14px" }} />
-          <p className="mt-3 text-[13px]" style={{ color: "#8C8378" }}>Cirujana Dentista · Especialista en Implantología Bucomaxilofacial</p>
-          <div className="mt-6 flex gap-3">
-            <a href="https://www.instagram.com/dra.cardenasfica/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full text-[11px] uppercase" style={{ padding: "11px 20px", border: "1px solid rgba(50,44,40,0.18)", letterSpacing: "0.18em" }}>
-              <InstagramIcon className="h-3.5 w-3.5" /> Instagram
-            </a>
-          </div>
-        </div>
-        <div>
-          <h4 className="text-[10px] uppercase" style={{ fontWeight: 600, letterSpacing: "0.26em", color: "#B89B6A" }}>Navegación</h4>
-          <ul className="mt-5 space-y-3 text-sm" style={{ color: "#5A5148" }}>
-            <li><a href="#filosofia">Filosofía</a></li>
-            <li><a href="#tratamientos">Tratamientos</a></li>
-            <li><a href="#resultados">Antes y después</a></li>
-            <li><a href="#dra">Quién soy</a></li>
-            <li><a href="#testimonios">Reseñas</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-[10px] uppercase" style={{ fontWeight: 600, letterSpacing: "0.26em", color: "#B89B6A" }}>Consulta</h4>
-          <ul className="mt-5 space-y-3 text-sm" style={{ color: "#5A5148" }}>
-            <li>Viña del Mar, Chile</li>
-            <li>Lunes a viernes · 09:00 – 19:00</li>
-            <li><a href="#agenda">Agenda online</a></li>
-            <li><a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">+56 9 7125 2179</a></li>
-          </ul>
-        </div>
-      </div>
-      <div className="mt-16 pt-6 flex flex-col sm:flex-row gap-3 items-center justify-between text-[11px] uppercase" style={{ borderTop: "1px solid rgba(50,44,40,0.12)", letterSpacing: "0.16em", color: "#8C8378" }}>
-        <p>© {new Date().getFullYear()} Dra. Paola Cárdenas Fica</p>
-        <p style={{ opacity: 0.7 }}>Powered by Somaos</p>
-      </div>
-    </footer>
-  );
-}
-
-function WhatsAppButton() {
-  return (
-    <a
-      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Dra. Paola, tengo una consulta.")}`}
-      target="_blank" rel="noreferrer"
-      className="pc-wa-btn fixed z-[70] inline-flex items-center gap-2 rounded-full transition-transform hover:-translate-y-1 hover:scale-105"
-      style={{ right: "clamp(16px,2.4vw,34px)", bottom: "clamp(20px,4vh,40px)", background: "#25D366", color: "#fff", padding: "15px 22px" }}
-    >
-      <svg viewBox="0 0 24 24" className="h-[19px] w-[19px]" fill="currentColor">
-        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.2h.01c5.46 0 9.9-4.45 9.9-9.91S17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.11.11-1.79-.11a16 16 0 0 1-1.63-.6c-2.87-1.24-4.74-4.15-4.88-4.35-.14-.19-1.17-1.56-1.17-2.98s.72-2.1 1-2.4c.24-.24.53-.3.71-.3l.5.01c.16 0 .38-.06.6.46.24.57.79 1.98.86 2.12.07.14.12.31.02.5-.09.19-.14.31-.28.47-.14.17-.29.37-.42.5-.14.14-.29.29-.12.57.16.28.72 1.19 1.55 1.93 1.07.95 1.97 1.25 2.25 1.39.28.14.44.12.6-.07.16-.19.69-.8.88-1.08.19-.28.37-.23.62-.14.26.09 1.63.77 1.91.91.28.14.47.21.54.33.07.12.07.68-.17 1.35Z" />
-      </svg>
-      <span className="text-xs font-bold uppercase" style={{ letterSpacing: "0.14em" }}>WhatsApp</span>
-    </a>
   );
 }
