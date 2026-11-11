@@ -211,9 +211,11 @@ function SobreMi() {
           </div>
         </Reveal>
         <Reveal delay={120} className="lg:col-span-6 lg:col-start-7">
-          <div role="tablist" aria-label="Sobre la doctora" className="inline-flex rounded-full" style={{ gap: 6, padding: 5, border: "1px solid rgba(50,44,40,.14)", background: "#fff", marginBottom: "clamp(30px,4.5vh,48px)" }}>
-            {tabBtn(0, "Quién soy")}
-            {tabBtn(1, "Mi enfoque")}
+          <div className="flex justify-center" style={{ marginBottom: "clamp(30px,4.5vh,48px)" }}>
+            <div role="tablist" aria-label="Sobre la doctora" className="inline-flex rounded-full" style={{ gap: 6, padding: 5, border: "1px solid rgba(50,44,40,.14)", background: "#fff" }}>
+              {tabBtn(0, "Quién soy")}
+              {tabBtn(1, "Mi enfoque")}
+            </div>
           </div>
           <div className="grid" style={{ touchAction: "pan-y" }}
             onPointerDown={(e) => { x0.current = { x: e.clientX, y: e.clientY }; }}
@@ -249,16 +251,10 @@ function SobreMi() {
               </div>
             </div>
           </div>
-          <div className="flex items-center" style={{ gap: 18, marginTop: "clamp(28px,4vh,40px)" }}>
-            {[0, 1].map((d) => (
-              <button key={d} aria-label={d ? "Siguiente" : "Anterior"} disabled={tab === d} onClick={() => setTab(d)}
-                className="rounded-full inline-flex items-center justify-center transition-colors hover:bg-[#322C28] hover:text-[#f0ebe5] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#322C28]"
-                style={{ width: 44, height: 44, border: "1px solid rgba(50,44,40,.22)", color: "#322C28" }}>{d ? "→" : "←"}</button>
-            ))}
-            <span className="relative overflow-hidden" style={{ flex: 1, maxWidth: 120, height: 1, background: "rgba(50,44,40,.15)" }}>
-              <i className="absolute inset-y-0 left-0" style={{ width: "50%", background: "#B89B6A", transform: `translateX(${tab * 100}%)`, transition: "transform .7s cubic-bezier(.16,1,.3,1)" }} />
-            </span>
-            <span style={{ fontSize: 11, letterSpacing: ".22em", color: "#8C8378" }}><b style={{ color: "#322C28", fontWeight: 600 }}>0{tab + 1}</b> / 02</span>
+          <div className="flex justify-center" style={{ marginTop: "clamp(28px,4vh,40px)" }}>
+            <button aria-label={tab === 0 ? "Ver Mi enfoque" : "Ver Quién soy"} onClick={() => setTab(tab === 0 ? 1 : 0)}
+              className="rounded-full inline-flex items-center justify-center transition-colors hover:bg-[#322C28] hover:text-[#f0ebe5]"
+              style={{ width: 48, height: 48, border: "1px solid rgba(50,44,40,.22)", color: "#322C28", fontSize: 18 }}>{tab === 0 ? "→" : "←"}</button>
           </div>
         </Reveal>
       </div>
@@ -296,15 +292,43 @@ function Tratamientos() {
       </svg>
     </span>
   ));
-  const precioYBotones = (slug: string, resumen: string) => (
-    <div className="mt-5">
-      <span className="block" style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)" }}>PRECIO</span>
-      <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>{resumen}</span>
-      <div className="mt-4 flex items-center justify-between gap-2">
-        <a href="#agenda" onClick={(e) => e.stopPropagation()} className="rounded-full font-medium uppercase" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,13px)" }}>
+  const precioYBotones = (it: (typeof TRATAMIENTOS)[string]) => (
+    <div className="mt-4">
+      <span className="block" style={{ fontSize: 11, letterSpacing: "0.24em", color: "rgba(244,242,238,0.6)", marginBottom: 4 }}>{it.precios.length > 1 ? "VALORES" : "VALOR"}</span>
+      {it.precios.length === 0 ? (
+        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>Consultar</span>
+      ) : it.precios.length === 1 && !it.precios[0].antes ? (
+        <span className="block font-semibold" style={{ color: "#E3D3B4", fontSize: "clamp(16px,4.2vw,22px)" }}>
+          {it.precios[0].desde && <span style={{ fontWeight: 400, fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(244,242,238,.6)", marginRight: 6 }}>desde</span>}
+          {it.precios[0].price}
+        </span>
+      ) : (
+        <div>
+          {it.precios.map((p, k) => (
+            <div key={k} className="flex justify-between items-baseline gap-2" style={{ padding: "4px 0", borderTop: k ? "1px dashed rgba(244,242,238,.16)" : undefined }}>
+              <span style={{ fontSize: 12.5, lineHeight: 1.3, color: "rgba(244,242,238,.85)" }}>
+                {p.label}
+                {p.antes && (
+                  <span className="block" style={{ marginTop: 2 }}>
+                    <span className="inline-block rounded-full" style={{ marginRight: 6, padding: "1px 6px", background: "rgba(227,211,180,.22)", color: "#E3D3B4", fontSize: 8.5, fontWeight: 600, letterSpacing: ".16em", textTransform: "uppercase" }}>Oferta</span>
+                    <span style={{ fontSize: 10.5, color: "rgba(244,242,238,.5)", textDecoration: "line-through" }}>{p.antes}</span>
+                  </span>
+                )}
+              </span>
+              <span className="whitespace-nowrap font-semibold" style={{ fontSize: 13.5, color: "#E3D3B4" }}>
+                {p.desde && <span style={{ fontWeight: 400, fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(244,242,238,.6)", marginRight: 4 }}>desde</span>}
+                {p.price}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      {it.nota && <p style={{ marginTop: 6, fontSize: 11, lineHeight: 1.45, color: "rgba(244,242,238,.65)" }}>{it.nota}</p>}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <a href="#agenda" onClick={(e) => e.stopPropagation()} className="rounded-full font-medium uppercase" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,12px)" }}>
           Agendar
         </a>
-        <Link to={`/tratamientos/${slug}`} onClick={(e) => e.stopPropagation()} className="uppercase whitespace-nowrap" style={{ color: "#E3D3B4", letterSpacing: "0.16em", fontSize: "clamp(10px,2.6vw,12px)", fontWeight: 600 }}>
+        <Link to={`/tratamientos/${it.slug}`} onClick={(e) => e.stopPropagation()} className="uppercase whitespace-nowrap" style={{ color: "#E3D3B4", letterSpacing: "0.16em", fontSize: "clamp(10px,2.6vw,11px)", fontWeight: 600 }}>
           Más información →
         </Link>
       </div>
@@ -344,7 +368,7 @@ function Tratamientos() {
                     <div>
                       <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: it.name.length > 26 ? "clamp(18px,1.55vw,23px)" : "clamp(20px,1.9vw,28px)", lineHeight: 1.2 }}>{tc(it.name)}</h4>
                       <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(14px,1.2vw,16px)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.desc}</p>
-                      {precioYBotones(it.slug, it.resumen)}
+                      {precioYBotones(it)}
                     </div>
                   </article>
                 );
@@ -357,10 +381,10 @@ function Tratamientos() {
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{tc(it.name)}</h4>
                     <p className="mt-1.5" style={{ color: "rgba(244,242,238,0.75)", fontSize: "clamp(14px,1.15vw,16px)" }}>{it.sub}</p>
                   </div>
-                  <div className="absolute inset-0 flex flex-col justify-end p-7 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(114,127,137,0.93)", backdropFilter: "blur(6px)" }}>
+                  <div className="absolute inset-0 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity" style={{ padding: "clamp(18px,1.8vw,26px)", background: "rgba(114,127,137,0.95)", backdropFilter: "blur(6px)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{tc(it.name)}</h4>
-                    <p className="mt-3 leading-relaxed" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(15px,1.25vw,17px)", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.desc}</p>
-                    {precioYBotones(it.slug, it.resumen)}
+                    {it.precios.length < 4 && <p className="mt-2 leading-snug" style={{ color: "rgba(244,242,238,0.8)", fontSize: "clamp(13px,1vw,15px)", display: "-webkit-box", WebkitLineClamp: it.precios.length > 1 ? 2 : 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{it.desc}</p>}
+                    {precioYBotones(it)}
                   </div>
                 </article>
               );

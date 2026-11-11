@@ -27,7 +27,7 @@ export const TRATAMIENTOS: Record<string, Tratamiento> = {
         "price": "$250.000"
       }
     ],
-    "nota": "Valor por tratamiento realizado, independiente de las unidades necesarias.",
+    "nota": "Trabajamos con Dysport®. Valor por tratamiento realizado, independiente de las unidades necesarias.",
     "enPortada": true,
     "seoTitle": "Toxina Botulínica en Concón",
     "seoDesc": "Suaviza líneas de expresión con Dysport, manteniendo un rostro descansado y natural.",
