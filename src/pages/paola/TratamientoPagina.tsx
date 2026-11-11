@@ -90,7 +90,7 @@ export default function TratamientoPagina({ slug }: { slug: string }) {
           <Link to="/#tratamientos" className="inline-flex items-center gap-2" style={{ fontSize: 12, fontWeight: 500, letterSpacing: ".18em", textTransform: "uppercase", color: "#322C28" }}>
             <ArrowLeft className="h-3.5 w-3.5" /> Volver
           </Link>
-          <Link to="/" className="pc-serif hidden md:block whitespace-nowrap" style={{ color: "#322C28", fontWeight: 700, fontSize: 17, letterSpacing: "0.14em", textTransform: "uppercase" }}>Dra. Paola Cárdenas Fica</Link>
+          <Link to="/" aria-label="Dra. Paola Cárdenas Fica, inicio" className="hidden md:block"><img src="/paola-logo.svg" alt="Dra. Paola Cárdenas Fica" style={{ height: 38, width: "auto", display: "block" }} /></Link>
           <a href={wa} target="_blank" rel="noreferrer" className="rounded-full whitespace-nowrap" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", fontSize: 11, fontWeight: 500, letterSpacing: ".18em", textTransform: "uppercase" }}>{t.boton}</a>
         </header>
 

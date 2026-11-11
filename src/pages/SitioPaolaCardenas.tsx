@@ -21,7 +21,7 @@ function ToothImplantIcon({ className, style, strokeWidth = 1.4 }: IconProps) {
 
 const heroImg = "/paola-hero.png";
 const ctaImg = "/paola-cta.png";
-const portraitImg = "/paola-portrait.jpg";
+const portraitImg = "/paola-retrato.jpg";
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=dra+paola+cardenas+fica";
 
@@ -115,8 +115,8 @@ function Nav() {
       style={{ background: "#f0ebe5", borderBottom: "1px solid rgba(50,44,40,0.1)", color: "#322C28", transform: hidden ? "translateY(-115%)" : "translateY(0)" }}
     >
       <div className="flex items-center justify-between gap-3" style={{ padding: "18px clamp(20px,5vw,72px)" }}>
-        <a href="#top" className="pc-serif whitespace-nowrap" style={{ color: "#322C28", fontWeight: 700, fontSize: "clamp(13px,1.3vw,20px)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-          Dra. Paola Cárdenas Fica
+        <a href="#top" aria-label="Dra. Paola Cárdenas Fica, ir al inicio" className="inline-flex items-center shrink-0">
+          <img src="/paola-logo.svg" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(32px,2.8vw,42px)", width: "auto", display: "block" }} />
         </a>
         <nav className="hidden md:flex items-center" style={{ gap: "clamp(6px,1.1vw,20px)", fontSize: "clamp(10px,0.85vw,12px)", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
           {[["#filosofia", "Filosofía"], ["#tratamientos", "Tratamientos"], ["#dra", "Quién soy"]].map(([href, label]) => (

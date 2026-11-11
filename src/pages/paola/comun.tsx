@@ -221,8 +221,8 @@ export function Footer({ base = "" }: { base?: string }) {
       <div className="mx-auto" style={{ maxWidth: 1320, background: "#f0ebe5", border: "1px solid rgba(50,44,40,0.10)", borderRadius: 24, boxShadow: "0 24px 60px rgba(50,44,40,0.08)", padding: "clamp(26px,4vh,44px) clamp(22px,3.5vw,52px) 20px" }}>
         <div className="flex flex-wrap justify-between" style={{ gap: "clamp(24px,3vw,48px)" }}>
           <div style={{ maxWidth: 420 }}>
-            <img src="/logo-firma.png" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(90px,10vw,130px)", width: "auto", marginLeft: "-12px", mixBlendMode: "multiply" }} />
-            <p className="mt-1 text-[13px]" style={{ color: "#8C8378" }}>Cirujana Dentista · Especialista en Implantología Bucomaxilofacial</p>
+            <img src="/paola-logo.svg" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(48px,4.4vw,64px)", width: "auto", display: "block" }} />
+            <p className="mt-3 text-[13px]" style={{ color: "#8C8378" }}>Cirujana Dentista · Especialista en Implantología Bucomaxilofacial</p>
             <div className="mt-4 flex gap-3">
               <a href="https://www.instagram.com/dra.cardenasfica/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full text-[11px] uppercase" style={{ padding: "11px 20px", border: "1px solid rgba(50,44,40,0.18)", letterSpacing: "0.18em" }}>
                 <InstagramIcon className="h-3.5 w-3.5" /> Instagram
