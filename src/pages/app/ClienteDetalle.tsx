@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { BUSINESS_CONFIG } from "@/lib/business";
 import { cn } from "@/lib/utils";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import OdontologaV2 from "./odontologia/OdontologaView";
 
 export default function ClienteDetalle() {
   const { clientKey = "" } = useParams();
@@ -201,8 +202,10 @@ export default function ClienteDetalle() {
           submodulos={user.submodulos ?? []} />
       )}
       {user.tipoNegocio === "odontologa" && (
-        <OdontologaView ficha={ficha} onChange={onChange} setFicha={setFicha} notas={notas} setNotas={setNotas}
-          reservas={reservas} userId={user.id} clientKey={clientKey} registros={registros} />
+        <OdontologaV2 ficha={ficha} onChange={onChange} setFicha={setFicha} notas={notas} setNotas={setNotas}
+          reservas={reservas} userId={user.id} clientKey={clientKey} registros={registros} setRegistros={setRegistros}
+          profesional={user.name || user.businessName} Section={Section} Field={Field}
+          HistorialTab={HistorialTab} NotasTab={NotasTab} ArchivosTab={ArchivosTab} />
       )}
     </>
   );
@@ -210,11 +213,11 @@ export default function ClienteDetalle() {
 
 /* ---------------- Shared subcomponents ---------------- */
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="grid gap-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
 }
 
-function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+export function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="surface-card p-5">
       <div className="flex items-center justify-between mb-4">
@@ -240,7 +243,7 @@ function MetricCard({ label, value, hint }: { label: string; value: string; hint
   );
 }
 
-function NotasTab({ notas, setNotas, userId, clientKey, privado = false }: { notas: SesionNota[]; setNotas: (n: SesionNota[]) => void; userId: string; clientKey: string; privado?: boolean; }) {
+export function NotasTab({ notas, setNotas, userId, clientKey, privado = false }: { notas: SesionNota[]; setNotas: (n: SesionNota[]) => void; userId: string; clientKey: string; privado?: boolean; }) {
   return (
     <Section title={privado ? "Notas privadas" : "Notas"} action={
       <NotaDialog onSave={async (n) => {
@@ -272,7 +275,7 @@ function NotasTab({ notas, setNotas, userId, clientKey, privado = false }: { not
   );
 }
 
-function HistorialTab({ reservas }: { reservas: Reserva[] }) {
+export function HistorialTab({ reservas }: { reservas: Reserva[] }) {
   return (
     <div className="surface-card overflow-hidden">
       {reservas.length === 0 ? <EmptyState /> : (
@@ -592,72 +595,6 @@ function CosmetologaView({ ficha, setFicha, onChange, notas, setNotas, reservas,
 
 /* ---------------- ODONTOLOGA ---------------- */
 
-const PIEZAS = [11,12,13,14,15,16,17,18, 21,22,23,24,25,26,27,28, 31,32,33,34,35,36,37,38, 41,42,43,44,45,46,47,48];
-
-function OdontologaView({ ficha, onChange, setFicha, notas, setNotas, reservas, userId, clientKey, registros }: any) {
-  const dental: Record<string, "sano" | "caries" | "tratado"> = ficha.dental ?? {};
-  const cycle = (current?: string) => current === "sano" || !current ? "caries" : current === "caries" ? "tratado" : "sano";
-  const togglePieza = (n: number) => {
-    const next = { ...dental, [n]: cycle(dental[n]) };
-    setFicha((f: ClienteFicha | null) => f ? { ...f, dental: next } : f);
-  };
-  const colorFor = (s?: string) => s === "caries" ? "bg-destructive text-destructive-foreground" : s === "tratado" ? "bg-success text-success-foreground" : "bg-muted text-foreground";
-
-  return (
-    <Tabs defaultValue="resumen">
-      <TabsList>
-        <TabsTrigger value="resumen">Resumen</TabsTrigger>
-        <TabsTrigger value="dental">Ficha dental</TabsTrigger>
-        <TabsTrigger value="tratamientos">Tratamientos ({registros.length})</TabsTrigger>
-        <TabsTrigger value="historial">Historial</TabsTrigger>
-        <TabsTrigger value="notas">Notas</TabsTrigger>
-        <TabsTrigger value="archivos">Archivos</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="resumen" className="mt-4 space-y-4">
-        <Section title="Resumen clínico">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Email"><Input type="email" value={ficha.email ?? ""} onChange={e => onChange("email", e.target.value)} /></Field>
-            <Field label="Teléfono"><Input value={ficha.phone ?? ""} onChange={e => onChange("phone", e.target.value)} /></Field>
-            <Field label="RUT"><Input value={ficha.rut ?? ""} onChange={e => onChange("rut", e.target.value)} /></Field>
-            <Field label="Edad"><Input value={ficha.edad ?? ""} onChange={e => onChange("edad", e.target.value)} /></Field>
-            <div className="sm:col-span-2"><Field label="Próxima acción"><Input value={ficha.proximaAccion ?? ""} onChange={e => onChange("proximaAccion", e.target.value)} /></Field></div>
-            <div className="sm:col-span-2"><Field label="Diagnóstico general"><Textarea rows={3} value={ficha.diagnostico ?? ""} onChange={e => onChange("diagnostico", e.target.value)} /></Field></div>
-          </div>
-        </Section>
-      </TabsContent>
-
-      <TabsContent value="dental" className="mt-4">
-        <Section title="Ficha dental">
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">Click en una pieza para alternar: sano → caries → tratado.</p>
-            {[ [11,12,13,14,15,16,17,18], [21,22,23,24,25,26,27,28], [41,42,43,44,45,46,47,48], [31,32,33,34,35,36,37,38] ].map((row, ri) => (
-              <div key={ri} className="flex gap-1.5 justify-center">
-                {row.map(n => (
-                  <button key={n} onClick={() => togglePieza(n)}
-                    className={cn("size-9 rounded-md text-xs mono font-semibold transition-colors", colorFor(dental[n]))}>
-                    {n}
-                  </button>
-                ))}
-              </div>
-            ))}
-            <div className="flex items-center gap-3 pt-3 text-[11px] text-muted-foreground justify-center">
-              <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-muted" />Sano</span>
-              <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-destructive" />Caries</span>
-              <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-success" />Tratado</span>
-            </div>
-          </div>
-        </Section>
-      </TabsContent>
-
-      <TabsContent value="tratamientos" className="mt-4"><RegistrosLista registros={registros} /></TabsContent>
-      <TabsContent value="historial" className="mt-4"><HistorialTab reservas={reservas} /></TabsContent>
-      <TabsContent value="notas" className="mt-4"><NotasTab notas={notas} setNotas={setNotas} userId={userId} clientKey={clientKey} /></TabsContent>
-      <TabsContent value="archivos" className="mt-4"><ArchivosTab userId={userId} clientKey={clientKey} /></TabsContent>
-    </Tabs>
-  );
-}
-
 /* ---------------- Lista genérica de registros ---------------- */
 
 function RegistrosLista({ registros }: { registros: any[] }) {
@@ -688,7 +625,7 @@ function RegistrosLista({ registros }: { registros: any[] }) {
 
 /* ---------------- Archivos ---------------- */
 
-function ArchivosTab({ userId, clientKey }: { userId: string; clientKey: string }) {
+export function ArchivosTab({ userId, clientKey }: { userId: string; clientKey: string }) {
   const [files, setFiles] = useState<ClientFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);

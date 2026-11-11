@@ -160,7 +160,8 @@ export interface ClienteFicha {
   // Odontóloga
   diagnostico?: string;
   proximaAccion?: string;
-  dental?: Record<string, "sano" | "caries" | "tratado">;
+  // Odontóloga: formato v2 (odontograma, anamnesis, plan) o formato antiguo { pieza: estado }
+  dental?: Record<string, unknown>;
   // Recomendaciones (cosmetóloga)
   recomendaciones?: string[];
   createdAt: string;
