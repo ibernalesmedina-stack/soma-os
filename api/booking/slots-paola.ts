@@ -9,12 +9,12 @@ const SITE_URL = "https://drapaolacardenasfica.com";
 const DRA_EMAIL = "i.bernalesmedina+paolacardenas@gmail.com";
 const USER_ID = "758b6456-4b1d-48cd-8325-8ee3f20869f0";
 
-// Dra. Paola's booking hours: martes y jueves, bloques de 40 min entre 10:00 y 16:00
+// Dra. Paola's booking hours: martes y jueves, bloques de 30 min entre 10:00 y 16:00
 const SCHEDULE: Record<number, { start: number; end: number }> = {
   2: { start: 600, end: 960 }, // Tue 10:00–16:00
   4: { start: 600, end: 960 }, // Thu 10:00–16:00
 };
-const SLOT_DURATION = 40;
+const SLOT_DURATION = 30;
 
 function allSlots(date: string): string[] {
   const dow = new Date(date + "T12:00:00").getDay();

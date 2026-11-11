@@ -604,7 +604,7 @@ function BookingSection() {
           <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(34px,4.2vw,62px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
             Agenda tu evaluación <span style={{ color: "#B89B6A" }}>100% online</span>
           </h2>
-          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes y jueves · bloques de 40 minutos entre 10:00 y 16:00.</p>
+          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes y jueves · bloques de 30 minutos entre 10:00 y 16:00.</p>
         </div>
 
         <div className="mt-11 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
@@ -622,7 +622,7 @@ function BookingSection() {
               <p style={{ color: "#8C8378", fontSize: 14 }}>No hay horas disponibles para este día.</p>
             ) : (
               <select value={time} onChange={(e) => setTime(e.target.value)} style={selectStyle}>
-                <option value="">Bloques de 40 min · 10:00 a 16:00</option>
+                <option value="">Bloques de 30 min · 10:00 a 16:00</option>
                 {slots.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             )}
@@ -699,7 +699,7 @@ function Cierre() {
 
 const FAQS = [
   { q: "¿Cómo agendo mi primera evaluación?", a: "Puedes reservar directamente desde el botón \"Agenda online\" o escribirme por WhatsApp. En la primera cita conversamos, evalúo tu caso y te explico las alternativas con sus tiempos y valores." },
-  { q: "¿Cuánto dura una consulta inicial?", a: "Entre 40 y 60 minutos. Es un espacio para revisar tu salud oral, entender qué te preocupa y armar juntos un plan realista, sin apuros ni presión." },
+  { q: "¿Cuánto dura una consulta inicial?", a: "Alrededor de 30 minutos. Es un espacio para revisar tu salud oral, entender qué te preocupa y armar juntos un plan realista, sin apuros ni presión." },
   { q: "¿Los tratamientos duelen?", a: "Trabajo con anestesia y protocolos pensados para que estés cómoda o cómodo en todo momento. La mayoría de los pacientes describe los procedimientos como mucho más llevaderos de lo que imaginaban." },
   { q: "¿Los resultados se ven naturales?", a: "Ese es el objetivo. Tanto en implantología como en estética facial diseño cada tratamiento respetando tus rasgos: la idea es que se note el cambio, no el procedimiento." },
   { q: "¿Cuánto demora un implante dental?", a: "Depende de cada caso. En general el proceso completo toma entre 3 y 6 meses, considerando la integración del implante al hueso antes de instalar la corona definitiva." },
