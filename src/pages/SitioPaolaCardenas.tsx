@@ -350,8 +350,8 @@ function Tratamientos() {
                 );
               }
               return (
-                <article key={`${it.slug}-${i}`} onClick={ir} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89" }}>
-                  <img src={it.img} alt={tc(it.name)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <article key={`${it.slug}-${i}`} onClick={ir} className="group relative shrink-0 rounded-2xl overflow-hidden cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: it.imgBg ?? "#727f89" }}>
+                  <img src={it.img} alt={tc(it.name)} className={`absolute inset-0 w-full h-full ${it.imgFit === "contain" ? "object-contain" : "object-cover"} transition-transform duration-700 group-hover:scale-105`} style={it.imgFit === "contain" ? { objectPosition: "center 28%" } : undefined} />
                   <span className="absolute top-4 left-4" style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{num}</span>
                   <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(114,127,137,0.15) 52%, rgba(114,127,137,0.05) 100%)" }}>
                     <h4 style={{ color: "#F4F2EE", fontWeight: 600, fontSize: "clamp(22px,1.9vw,28px)" }}>{tc(it.name)}</h4>

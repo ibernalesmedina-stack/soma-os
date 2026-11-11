@@ -94,19 +94,21 @@ export default function TratamientoPagina({ slug }: { slug: string }) {
           <a href={wa} target="_blank" rel="noreferrer" className="rounded-full whitespace-nowrap" style={{ padding: "11px 20px", background: "#B89B6A", color: "#fff", fontSize: 11, fontWeight: 500, letterSpacing: ".18em", textTransform: "uppercase" }}>{t.boton}</a>
         </header>
 
-        <section className="relative overflow-hidden" style={{ background: "#727f89", color: "#F4F2EE", padding: "clamp(56px,11vh,120px) clamp(20px,5vw,72px) clamp(48px,8vh,96px)" }}>
-          {t.img && (
-            <>
-              <img src={t.img} alt="" className="absolute inset-y-0 right-0 h-full object-cover" style={{ width: "min(55%, 760px)", objectPosition: "center 30%" }} />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #727f89 0%, #727f89 45%, rgba(114,127,137,.6) 70%, rgba(114,127,137,.25) 100%)" }} />
-            </>
-          )}
-          <div className="relative mx-auto" style={{ maxWidth: 1180 }}>
-            <p style={{ fontSize: "clamp(12px,.95vw,14px)", fontWeight: 700, letterSpacing: ".26em", textTransform: "uppercase", color: "#E3D3B4", marginBottom: 22 }}>
-              <Link to="/#tratamientos">Tratamientos</Link> · {tc(t.cat)}
-            </p>
-            <h1 className="pc-serif" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(42px,6vw,92px)", lineHeight: 1, letterSpacing: "-.025em", maxWidth: "14ch" }}>{tc(t.name)}</h1>
-            <p className="pc-serif" style={{ margin: "20px 0 0", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(20px,1.8vw,28px)", color: "#E3D3B4" }}>{t.sub}</p>
+        <section style={{ background: "#727f89", color: "#F4F2EE", padding: "clamp(48px,9vh,100px) clamp(20px,5vw,72px)" }}>
+          <div className="mx-auto grid items-center" style={{ maxWidth: 1180, gap: "clamp(28px,4vw,64px)", gridTemplateColumns: t.img ? "repeat(auto-fit,minmax(min(100%,340px),1fr))" : "1fr" }}>
+            <div>
+              <p style={{ fontSize: "clamp(12px,.95vw,14px)", fontWeight: 700, letterSpacing: ".26em", textTransform: "uppercase", color: "#E3D3B4", marginBottom: 22 }}>
+                <Link to="/#tratamientos">Tratamientos</Link> · {tc(t.cat)}
+              </p>
+              <h1 className="pc-serif" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(42px,5.4vw,84px)", lineHeight: 1, letterSpacing: "-.025em" }}>{tc(t.name)}</h1>
+              <p className="pc-serif" style={{ margin: "20px 0 0", fontStyle: "italic", fontWeight: 300, fontSize: "clamp(20px,1.8vw,28px)", color: "#E3D3B4" }}>{t.sub}</p>
+            </div>
+            {t.img && (
+              <div className="flex justify-center md:justify-end">
+                <img src={t.img} alt={tc(t.name)}
+                  style={{ display: "block", width: "auto", height: "auto", maxWidth: "100%", maxHeight: "clamp(320px,56vh,520px)", borderRadius: 18, boxShadow: "0 28px 60px rgba(0,0,0,.18)", background: t.imgBg }} />
+              </div>
+            )}
           </div>
         </section>
 
