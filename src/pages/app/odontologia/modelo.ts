@@ -48,7 +48,7 @@ export function normalizarDental(raw: unknown): DentalV2 {
   // formato antiguo: pieza -> "sano" | "caries" | "tratado"
   for (const [k, v] of Object.entries(r)) {
     if (v === "caries") base.piezas[k] = { estado: "caries" };
-    else if (v === "tratado") base.piezas[k] = { estado: "obturacion" };
+    else if (v === "tratado") base.piezas[k] = { caras: { O: "obturacion" } };
   }
   return base;
 }
