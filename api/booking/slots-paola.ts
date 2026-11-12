@@ -6,7 +6,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 const SITE_URL = "https://drapaolacardenasfica.com";
-const DRA_EMAIL = "i.bernalesmedina+paolacardenas@gmail.com";
+const DRA_EMAIL = "p.cardenasfica@gmail.com";
 const USER_ID = "758b6456-4b1d-48cd-8325-8ee3f20869f0";
 
 // Dra. Paola's booking hours: martes y jueves, bloques de 30 min entre 10:00 y 16:00
