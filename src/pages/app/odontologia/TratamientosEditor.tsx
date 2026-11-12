@@ -16,6 +16,9 @@ import {
 } from "@/lib/tratamientos";
 import { CATEGORIAS, TRATAMIENTOS } from "@/pages/paola/datos";
 
+// Cuenta de la Dra. Paola Cárdenas (sus tratamientos se pueden importar desde su sitio)
+const PAOLA_USER_ID = "758b6456-4b1d-48cd-8325-8ee3f20869f0";
+
 const selectCls = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
 type Trat = { s: Servicio; texto: string; meta: MetaTratamiento };
@@ -77,7 +80,7 @@ export default function TratamientosEditor({ items, userId, refetch }: { items: 
           <p className="text-xs text-muted-foreground mt-1">Lo que edites aquí (nombres, valores, ofertas y qué se muestra) se actualiza en tu sitio web al guardar.</p>
         </div>
         <div className="flex gap-2 shrink-0">
-          {trats.length === 0 && (
+          {trats.length === 0 && userId === PAOLA_USER_ID && (
             <Button variant="outline" onClick={importar} disabled={importando}>
               {importando ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Download className="h-4 w-4 mr-1.5" />}Importar tratamientos del sitio
             </Button>
@@ -88,7 +91,7 @@ export default function TratamientosEditor({ items, userId, refetch }: { items: 
 
       {trats.length === 0 ? (
         <div className="surface-card p-10 text-center text-sm text-muted-foreground">
-          Aún no tienes tratamientos configurados. Usa <strong>Importar tratamientos del sitio</strong> para cargar los que hoy aparecen en tu página, y luego edítalos.
+          {userId === PAOLA_USER_ID ? <>Aún no tienes tratamientos configurados. Usa <strong>Importar tratamientos del sitio</strong> para cargar los que hoy aparecen en tu página, y luego edítalos.</> : <>Aún no tienes tratamientos. Crea el primero con <strong>Nuevo tratamiento</strong>: nombre, categoría y valores.</>}
         </div>
       ) : cats.map((cat) => {
         const lista = trats.filter((t) => t.meta.cat === cat);

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { leerTratamiento } from "@/lib/tratamientos";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { formatCLP } from "@/lib/format";
@@ -245,7 +246,7 @@ export default function Sitio() {
               {servicios.map((s) => (
                 <div key={s.id} style={{ background: card, borderRadius: 20, padding: 24, display: "flex", flexDirection: "column", gap: 12, border: `1px solid ${accent}` }}>
                   <h3 style={{ fontSize: 22, fontWeight: 400, letterSpacing: "-0.01em", margin: 0 }}>{s.name}</h3>
-                  {s.description && <p style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.75, margin: 0, flex: 1 }}>{s.description}</p>}
+                  {leerTratamiento(s.description).texto && <p style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.75, margin: 0, flex: 1 }}>{leerTratamiento(s.description).texto}</p>}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 16, borderTop: `1px solid ${accent}` }}>
                     <span style={{ fontSize: 24, fontWeight: 600 }}>{formatCLP(s.price)}</span>
                     <span style={{ fontSize: 12, fontFamily: "monospace", opacity: 0.55, display: "flex", alignItems: "center", gap: 4 }}>
