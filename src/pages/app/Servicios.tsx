@@ -14,6 +14,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { formatCLP } from "@/lib/format";
 import { Clock, Globe, MapPin, MonitorSmartphone, Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { leerTratamiento } from "@/lib/tratamientos";
+import TratamientosEditor from "./odontologia/TratamientosEditor";
 import { toast } from "@/hooks/use-toast";
 
 const MODALITY_CONFIG = {
@@ -36,8 +38,11 @@ export default function Servicios() {
     toast({ title: "Servicio eliminado" });
   };
 
-  const active  = items.filter(s => s.active);
-  const paused  = items.filter(s => !s.active);
+  const esOdonto = user?.tipoNegocio === "odontologa";
+  // En odontología, los tratamientos del sitio se editan aparte; aquí quedan los demás servicios
+  const otros   = esOdonto ? items.filter(s => !leerTratamiento(s.description).meta) : items;
+  const active  = otros.filter(s => s.active);
+  const paused  = otros.filter(s => !s.active);
 
   return (
     <>
@@ -47,7 +52,12 @@ export default function Servicios() {
         actions={<Button onClick={onNew}><Plus className="h-4 w-4 mr-1.5" />Nuevo servicio</Button>}
       />
 
-      {items.length === 0 ? (
+      {esOdonto && user && (
+        <div className="mb-8"><TratamientosEditor items={items} userId={user.id} refetch={refetch} /></div>
+      )}
+      {esOdonto && <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Otros servicios de agenda</h2>}
+
+      {otros.length === 0 ? (
         <div className="surface-card p-16 text-center">
           <div className="size-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
             <Star className="h-6 w-6 text-muted-foreground" />
@@ -121,7 +131,7 @@ function ServicioCard({ s, onEdit, onDelete }: { s: Servicio; onEdit: (s: Servic
         </div>
       </div>
 
-      {s.description && <p className="text-sm text-muted-foreground flex-1 line-clamp-2">{s.description}</p>}
+      {s.description && <p className="text-sm text-muted-foreground flex-1 line-clamp-2">{leerTratamiento(s.description).texto}</p>}
 
       <div className="pt-3 border-t space-y-1">
         <div className="flex items-center justify-between">
@@ -144,7 +154,7 @@ function ServicioForm({ initial, onSave }: {
   onSave: (s: Omit<Servicio, "id" | "user_id">) => void;
 }) {
   const [name, setName]           = useState(initial?.name ?? "");
-  const [description, setDesc]    = useState(initial?.description ?? "");
+  const [description, setDesc]    = useState(leerTratamiento(initial?.description).texto);
   const [price, setPrice]         = useState(initial?.price ?? 0);
   const [priceOnline, setPriceO]  = useState(initial?.priceOnline ?? 0);
   const [durationMin, setDur]     = useState(initial?.durationMin ?? 60);

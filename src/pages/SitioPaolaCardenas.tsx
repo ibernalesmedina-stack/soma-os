@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Check, ExternalLink, Eye, ScanFace } from "lucide-react";
-import { TRATAMIENTOS, CATEGORIAS } from "./paola/datos";
+import { Check, ExternalLink, Eye, ScanFace, Sparkles } from "lucide-react";
+import { TRATAMIENTOS } from "./paola/datos";
+import { useTratamientos } from "./paola/vivos";
 import { SITE_STYLES, Footer, WhatsAppButton, WHATSAPP_NUMBER, useMeta, waLink, tc } from "./paola/comun";
 import TratamientoPagina from "./paola/TratamientoPagina";
 import PrivacidadPaola from "./paola/PrivacidadPaola";
@@ -281,6 +282,8 @@ function useIsMobile(breakpoint = 768) {
 
 function Tratamientos() {
   const isMobile = useIsMobile();
+  const { tratamientos: TRATS, categorias: CATS } = useTratamientos();
+  const conPagina = (slug: string) => !!TRATAMIENTOS[slug];
   const navigate = useNavigate();
   const titulo = Array.from({ length: 6 }, (_, k) => (
     <span key={k} className="inline-flex items-center" style={{ gap: "clamp(28px,3.4vw,60px)", paddingRight: "clamp(28px,3.4vw,60px)" }}>
@@ -328,9 +331,11 @@ function Tratamientos() {
         <a href="#agenda" onClick={(e) => e.stopPropagation()} className="rounded-full font-medium uppercase" style={{ padding: "9px clamp(12px,3.5vw,20px)", background: "#B89B6A", color: "#fff", letterSpacing: "0.14em", fontSize: "clamp(10px,2.6vw,12px)" }}>
           Agendar
         </a>
-        <Link to={`/tratamientos/${it.slug}`} onClick={(e) => e.stopPropagation()} className="uppercase whitespace-nowrap" style={{ color: "#E3D3B4", letterSpacing: "0.16em", fontSize: "clamp(10px,2.6vw,11px)", fontWeight: 600 }}>
+{TRATAMIENTOS[it.slug] && (
+                <Link to={`/tratamientos/${it.slug}`} onClick={(e) => e.stopPropagation()} className="uppercase whitespace-nowrap" style={{ color: "#E3D3B4", letterSpacing: "0.16em", fontSize: "clamp(10px,2.6vw,11px)", fontWeight: 600 }}>
           Más información →
         </Link>
+        )}
       </div>
     </div>
   );
@@ -341,8 +346,8 @@ function Tratamientos() {
           <span aria-hidden="true" className="pc-title-marquee flex" style={{ width: "max-content" }}>{titulo}{titulo}</span>
         </h2>
       </div>
-      {CATEGORIAS.map((cat, ci) => {
-        const items = cat.slugs.map((s) => TRATAMIENTOS[s]);
+      {CATS.map((cat, ci) => {
+        const items = cat.slugs.map((s) => TRATS[s]).filter(Boolean);
         const moves = items.length > 3 || isMobile;
         return (
         <div key={cat.title} style={{ marginTop: "clamp(44px,6.5vh,84px)" }}>
@@ -353,10 +358,10 @@ function Tratamientos() {
           <div className={`mt-10 px-6 ${moves ? "overflow-hidden" : "overflow-x-auto"}`}>
           <div className={`flex ${moves ? "pc-treat-marquee" : "justify-center"}`} style={{ gap: "clamp(16px,1.6vw,26px)", scrollbarWidth: "none", width: moves ? "max-content" : undefined }}>
             {(moves ? [...items, ...items] : items).map((it, i) => {
-              const ir = () => navigate(`/tratamientos/${it.slug}`);
+              const ir = () => { if (conPagina(it.slug)) navigate(`/tratamientos/${it.slug}`); };
               const num = String((i % items.length) + 1).padStart(2, "0");
               if (!it.img) {
-                const Icono = ICONO_TARJETA[it.slug];
+                const Icono = ICONO_TARJETA[it.slug] ?? (it.cat === "Implantología" ? undefined : Sparkles);
                 return (
                   <article key={`${it.slug}-${i}`} onClick={ir} className="relative shrink-0 rounded-2xl overflow-hidden flex flex-col cursor-pointer" style={{ width: "clamp(260px,24vw,380px)", aspectRatio: "3/4", background: "#727f89", padding: "clamp(20px,2.2vw,28px)" }}>
                     <span style={{ fontSize: 13, letterSpacing: "0.22em", color: "rgba(244,242,238,0.7)" }}>{num}</span>

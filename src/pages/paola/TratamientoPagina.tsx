@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { TRATAMIENTOS, CATEGORIAS, type Tratamiento } from "./datos";
+import { TRATAMIENTOS, type Tratamiento } from "./datos";
+import { useTratamientos } from "./vivos";
 import { SITE_STYLES, CONTENIDO_STYLES, Contenido, Footer, WhatsAppButton, useMeta, waLink, tc } from "./comun";
 
 const PAGE_STYLES = `
@@ -42,7 +43,9 @@ function Precios({ t }: { t: Tratamiento }) {
 }
 
 export default function TratamientoPagina({ slug }: { slug: string }) {
-  const t = TRATAMIENTOS[slug];
+  const { tratamientos: VIVOS, categorias: CATS } = useTratamientos();
+  // Valores y textos cortos desde el panel; contenido largo, fotos y SEO desde datos.ts
+  const t = TRATAMIENTOS[slug] ? (VIVOS[slug] ?? TRATAMIENTOS[slug]) : undefined;
   useMeta({
     title: t ? `${t.seoTitle} | Dra. Paola Cárdenas Fica` : "Tratamiento no encontrado | Dra. Paola Cárdenas Fica",
     description: t?.seoDesc ?? "",
@@ -64,9 +67,9 @@ export default function TratamientoPagina({ slug }: { slug: string }) {
   const wa = waLink(`Hola Dra. Paola, quiero agendar una cita para ${tc(t.name)}.`);
   const lbl = t.precios.length > 1 ? "Valores" : "Valor";
   const notas = t.notaValor.length ? t.notaValor : t.nota ? [t.nota] : !t.precios.length ? ["Valor según evaluación clínica."] : [];
-  const cat = CATEGORIAS.find((c) => c.title === t.cat);
+  const cat = CATS.find((c) => c.title === t.cat);
   const rel = t.relacionados.filter((s) => TRATAMIENTOS[s]);
-  const otros = [...rel, ...(cat?.slugs ?? []).filter((s) => s !== t.slug && !rel.includes(s))];
+  const otros = [...rel, ...(cat?.slugs ?? []).filter((s) => s !== t.slug && !rel.includes(s) && TRATAMIENTOS[s])];
   const ld = {
     "@context": "https://schema.org",
     "@graph": [
@@ -143,7 +146,7 @@ export default function TratamientoPagina({ slug }: { slug: string }) {
                 {otros.map((s, i) => (
                   <Link key={s} to={`/tratamientos/${s}`} className="rounded-full transition-colors hover:bg-[#322C28] hover:text-[#f0ebe5]"
                     style={{ padding: "12px 20px", border: `1px solid ${i < rel.length ? "#B89B6A" : "rgba(50,44,40,.22)"}`, fontSize: 13, color: i < rel.length ? "#8C7B62" : "#322C28", fontWeight: i < rel.length ? 500 : 400 }}>
-                    {tc(TRATAMIENTOS[s].name)}
+                    {tc((VIVOS[s] ?? TRATAMIENTOS[s]).name)}
                   </Link>
                 ))}
               </div>
