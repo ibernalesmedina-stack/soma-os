@@ -15,11 +15,22 @@ export default function ResetPassword() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [ready, setReady] = useState(false);
+  const [vencido, setVencido] = useState(false);
 
   useEffect(() => {
+    let marca: string | null = null;
+    try { marca = sessionStorage.getItem("soma_recovery"); } catch { /* sin storage */ }
+    if (marca === "expired" || /error_code=otp_expired|error=access_denied/.test(window.location.hash)) {
+      setVencido(true);
+      return;
+    }
     // Supabase embeds the token in the URL hash — onAuthStateChange picks it up
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") setReady(true);
+    });
+    // El evento puede haber ocurrido antes de montar esta página: si ya hay sesión de recuperación, seguir
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session && marca === "1") setReady(true);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -32,6 +43,7 @@ export default function ResetPassword() {
     const { error: err } = await supabase.auth.updateUser({ password });
     setSubmitting(false);
     if (err) return setError(err.message);
+    try { sessionStorage.removeItem("soma_recovery"); } catch { /* sin storage */ }
     setDone(true);
     setTimeout(() => navigate("/login"), 3000);
   };
@@ -42,6 +54,17 @@ export default function ResetPassword() {
         <div className="text-center space-y-4">
           <CheckCircle2 className="h-12 w-12 text-primary mx-auto" />
           <p className="text-sm text-muted-foreground">Redirigiendo al inicio de sesión…</p>
+        </div>
+      </AuthShell>
+    );
+  }
+
+  if (vencido) {
+    return (
+      <AuthShell title="El enlace venció" subtitle="Los enlaces para cambiar la contraseña se pueden usar una sola vez y duran poco tiempo.">
+        <div className="space-y-3 text-center">
+          <p className="text-sm text-muted-foreground">Pide uno nuevo y ábrelo apenas te llegue.</p>
+          <Button className="w-full" onClick={() => { try { sessionStorage.removeItem("soma_recovery"); } catch { /* sin storage */ } navigate("/login"); }}>Volver al inicio de sesión</Button>
         </div>
       </AuthShell>
     );
