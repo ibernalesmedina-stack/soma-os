@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Check, ExternalLink, Eye, ScanFace, Sparkles } from "lucide-react";
+import { Check, ExternalLink, Eye, Instagram, ScanFace, Sparkles } from "lucide-react";
 import { TRATAMIENTOS } from "./paola/datos";
 import { useTratamientos } from "./paola/vivos";
 import { SITE_STYLES, Footer, WhatsAppButton, WHATSAPP_NUMBER, useMeta, waLink, tc } from "./paola/comun";
@@ -82,6 +82,7 @@ function Inicio() {
         <Cierre />
         <Testimonios />
         <FAQ />
+        <InstagramFeed />
         <Footer />
         <WhatsAppButton />
       </main>
@@ -710,6 +711,43 @@ const FAQS = [
   { q: "¿Cuánto demora un implante dental?", a: "Depende de cada caso. En general el proceso completo toma entre 3 y 6 meses, considerando la integración del implante al hueso antes de instalar la corona definitiva." },
   { q: "¿Qué formas de pago aceptan?", a: "Efectivo, transferencia y tarjetas de débito y crédito. También trabajamos con planes en cuotas para tratamientos de mayor extensión." },
 ];
+
+// Feed de Instagram (Behold). El script se carga una sola vez.
+const BEHOLD_FEED_ID = "WxgEqr5bitmTmTfty9Xr";
+const INSTAGRAM_URL = "https://www.instagram.com/dra.cardenasfica/";
+
+function InstagramFeed() {
+  useEffect(() => {
+    const w = window as unknown as { __bhldScript?: boolean };
+    if (w.__bhldScript) return;
+    w.__bhldScript = true;
+    const s = document.createElement("script");
+    s.type = "module";
+    s.src = "https://w.behold.so/widget.js";
+    document.head.append(s);
+  }, []);
+  return (
+    <section id="instagram" style={{ background: "#F4F2EE", padding: "clamp(70px,10vh,120px) clamp(20px,5vw,72px)" }}>
+      <div className="mx-auto" style={{ maxWidth: 1180 }}>
+        <div className="flex flex-wrap items-end justify-between" style={{ gap: 24, marginBottom: "clamp(28px,4vh,44px)" }}>
+          <div>
+            <p style={{ color: "#B89B6A", fontSize: "clamp(12px,0.95vw,14px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: 14 }}>Instagram</p>
+            <h2 className="pc-serif" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(30px,3.2vw,50px)", lineHeight: 1.05, letterSpacing: "-0.02em", color: "#322C28" }}>
+              Sígueme en <em style={{ fontStyle: "italic", color: "#B89B6A" }}>@dra.cardenasfica</em>
+            </h2>
+          </div>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full transition-colors hover:bg-[#322C28] hover:text-[#F4F2EE]"
+            style={{ padding: "13px 24px", border: "1px solid rgba(50,44,40,0.25)", color: "#322C28", fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+            <Instagram className="h-3.5 w-3.5" /> Ver perfil
+          </a>
+        </div>
+        <div style={{ borderRadius: 20, overflow: "hidden" }}>
+          <behold-widget feed-id={BEHOLD_FEED_ID}></behold-widget>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
