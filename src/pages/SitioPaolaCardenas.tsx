@@ -208,8 +208,8 @@ function SobreMi() {
       <span id="filosofia" className="absolute top-0" />
       <div className="mx-auto grid lg:grid-cols-12 items-center" style={{ maxWidth: 1280, gap: "clamp(28px,4vw,72px)" }}>
         <Reveal className="lg:col-span-5">
-          <div className="rounded-[18px] overflow-hidden" style={{ aspectRatio: "4/5", boxShadow: "0 30px 70px rgba(50,44,40,.12)" }}>
-            <img src={portraitImg} alt="Dra. Paola Cárdenas Fica" className="w-full h-full object-cover" loading="lazy" />
+          <div className="rounded-[18px] overflow-hidden" style={{ aspectRatio: "1066/1600", boxShadow: "0 30px 70px rgba(50,44,40,.12)" }}>
+            <img src={portraitImg} alt="Dra. Paola Cárdenas Fica" className="w-full h-full object-cover" style={{ objectPosition: "center top" }} loading="lazy" />
           </div>
         </Reveal>
         <Reveal delay={120} className="lg:col-span-6 lg:col-start-7">
