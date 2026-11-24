@@ -7,6 +7,7 @@ import { getIntegration } from "@/lib/storage";
 import { formatCLP, formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
+import DashboardOdontologa from "./odontologia/DashboardOdontologa";
 
 function GoogleCalendarBanner({ userId }: { userId: string }) {
   const [status, setStatus] = useState<"loading" | "disconnected" | "connected">("loading");
@@ -69,6 +70,12 @@ function SkeletonRow() {
 }
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  if (user?.tipoNegocio === "odontologa") return <><GoogleCalendarBanner userId={user.id} /><DashboardOdontologa /></>;
+  return <DashboardGeneral />;
+}
+
+function DashboardGeneral() {
   const { user } = useAuth();
   const { data: reservas, loading: loadingR } = useReservas();
   const { data: pagos, loading: loadingP } = usePagos();
