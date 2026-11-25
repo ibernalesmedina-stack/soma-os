@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Check, ExternalLink, Eye, Instagram, ScanFace, Sparkles } from "lucide-react";
+import { Check, CreditCard, ExternalLink, Eye, Instagram, ScanFace, Sparkles } from "lucide-react";
 import { TRATAMIENTOS } from "./paola/datos";
 import { useTratamientos } from "./paola/vivos";
 import { SITE_STYLES, Footer, WhatsAppButton, WHATSAPP_NUMBER, useMeta, waLink, tc } from "./paola/comun";
@@ -23,6 +23,8 @@ function ToothImplantIcon({ className, style, strokeWidth = 1.4 }: IconProps) {
 const heroImg = "/paola-hero.png";
 const ctaImg = "/paola-cta.png";
 const portraitImg = "/paola-retrato.jpg";
+
+const PAGO_ABONO_URL = "https://mpago.la/1xwCBKg"; // Mercado Pago: abono al reservar
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=dra+paola+cardenas+fica";
 
@@ -650,6 +652,15 @@ function BookingSection() {
           </AccordionStep>
 
           {step === "form" && (
+            <div className="mt-6 mx-auto flex items-start gap-3 rounded-2xl" style={{ maxWidth: 620, background: "#f7f3ee", border: "1px solid rgba(184,155,106,0.35)", padding: "14px 18px" }}>
+              <CreditCard className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#B89B6A" }} />
+              <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "#5A5148" }}>
+                Para confirmar tu hora se solicita un <strong style={{ color: "#322C28", fontWeight: 600 }}>abono</strong> mediante Mercado Pago. Al enviar tu reserva verás el botón para pagarlo.
+              </p>
+            </div>
+          )}
+
+          {step === "form" && (
             <div className="pt-7 flex justify-center">
               <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all pc-cta-pulse whitespace-nowrap"
                 style={{ padding: "18px clamp(28px,7vw,54px)", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: "clamp(12px,3.2vw,14px)", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
@@ -664,7 +675,15 @@ function BookingSection() {
                 <Check className="h-7 w-7" style={{ color: "#B89B6A" }} />
               </div>
               <p className="font-semibold pc-serif text-xl">¡Reserva enviada!</p>
-              <p className="text-sm" style={{ color: "#5A5148" }}>Te enviamos los detalles a <strong>{email}</strong>. Confirma tu hora desde el correo.</p>
+              <p className="text-sm" style={{ color: "#5A5148" }}>Te enviamos los detalles a <strong>{email}</strong>.</p>
+              <p className="text-sm mx-auto" style={{ color: "#322C28", maxWidth: "44ch" }}>Para dejar tu hora confirmada, paga el abono con Mercado Pago:</p>
+              <div className="pt-2 flex justify-center">
+                <a href={PAGO_ABONO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full pc-cta-pulse whitespace-nowrap"
+                  style={{ padding: "18px clamp(28px,7vw,48px)", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: "clamp(12px,3.2vw,14px)", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                  <CreditCard className="h-4 w-4" /> Pagar abono
+                </a>
+              </div>
+              <p className="text-xs" style={{ color: "#8C8378" }}>Se abre Mercado Pago en una pestaña nueva · pago seguro</p>
             </div>
           )}
 
