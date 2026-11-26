@@ -245,7 +245,7 @@ export function Footer({ base = "" }: { base?: string }) {
               <li>Martes · 9:00 – 14:00</li>
               <li>Jueves · 15:00 – 19:00</li>
               <li>Sábado · 9:00 – 13:00</li>
-              <li><a href={`${base}#agenda`}>Agenda online</a></li>
+              <li><a href={`${base}#agenda`}>Agendar hora</a></li>
               <li><a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">+56 9 7125 2179</a></li>
             </ul>
           </div>

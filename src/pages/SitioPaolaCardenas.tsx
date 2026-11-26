@@ -158,7 +158,7 @@ function Hero() {
             Ver tratamientos
           </a>
           <a href="#agenda" className="pc-cta-pulse rounded-full" style={{ padding: "17px 32px", background: "#B89B6A", color: "#fff", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
-            Agenda online
+            Agendar hora
           </a>
         </div>
       </div>
@@ -731,7 +731,7 @@ function BookingSection() {
         <div className="text-center">
           <p style={{ color: "#B89B6A", fontSize: "clamp(14px,1.15vw,18px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase" }}>Reserva</p>
           <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(34px,4.2vw,62px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
-            Agenda tu evaluación <span style={{ color: "#B89B6A" }}>100% online</span>
+            Agenda tu evaluación <span style={{ color: "#B89B6A" }}>presencial</span>
           </h2>
           <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes 9:00 a 14:00 · Jueves 15:00 a 19:00 · Sábado 9:00 a 13:00<br />Bloques de 45 minutos · desde el día siguiente.</p>
         </div>
@@ -854,10 +854,10 @@ function Cierre() {
         <div className="mt-10 flex flex-wrap gap-4 justify-center">
           <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Dra. Paola, me gustaría agendar una evaluación presencial.")}`} target="_blank" rel="noreferrer"
             className="rounded-full transition-all hover:-translate-y-1" style={{ padding: "20px 38px", border: "1px solid rgba(244,242,238,0.6)", background: "rgba(244,242,238,0.08)", color: "#F4F2EE", fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
-            Agenda presencial
+            Escríbenos por WhatsApp
           </a>
           <a href="#agenda" className="pc-cta-pulse rounded-full" style={{ padding: "20px 38px", background: "#B89B6A", color: "#fff", fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
-            Agenda online
+            Agendar hora
           </a>
         </div>
       </div>
@@ -866,7 +866,7 @@ function Cierre() {
 }
 
 const FAQS = [
-  { q: "¿Cómo agendo mi primera evaluación?", a: "Puedes reservar directamente desde el botón \"Agenda online\" o escribirme por WhatsApp. En la primera cita conversamos, evalúo tu caso y te explico las alternativas con sus tiempos y valores." },
+  { q: "¿Cómo agendo mi primera evaluación?", a: "Puedes reservar directamente desde el botón \"Agendar hora\" o escribirme por WhatsApp. En la primera cita conversamos, evalúo tu caso y te explico las alternativas con sus tiempos y valores." },
   { q: "¿Cuánto dura una consulta inicial?", a: "Alrededor de 45 minutos. Es un espacio para revisar tu salud oral, entender qué te preocupa y armar juntos un plan realista, sin apuros ni presión." },
   { q: "¿Los tratamientos duelen?", a: "Trabajo con anestesia y protocolos pensados para que estés cómoda o cómodo en todo momento. La mayoría de los pacientes describe los procedimientos como mucho más llevaderos de lo que imaginaban." },
   { q: "¿Los resultados se ven naturales?", a: "Ese es el objetivo. Tanto en implantología como en estética facial diseño cada tratamiento respetando tus rasgos: la idea es que se note el cambio, no el procedimiento." },

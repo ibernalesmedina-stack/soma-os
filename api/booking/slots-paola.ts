@@ -125,6 +125,7 @@ async function crearEventoCalendario(d: DatosReserva, pagado: boolean) {
       body: JSON.stringify({
         summary: `${d.serviceName} · ${d.name}`,
         description: `Paciente: ${d.name}\nRUT: ${d.rut || "-"}\nEmail: ${d.email || "-"}\nTeléfono: ${d.phone || "-"}${pagado ? `\nAbono pagado: $${ABONO.toLocaleString("es-CL")} (Mercado Pago)` : ""}`,
+        location: "Edificio Soho, Av. Bosques de Montemar 30, Concón",
         start: { dateTime: `${d.date}T${d.hour}:00`, timeZone: "America/Santiago" },
         end: { dateTime: `${d.date}T${endH}:${endM}:00`, timeZone: "America/Santiago" },
       }),
@@ -179,7 +180,7 @@ async function enviarCorreos(d: DatosReserva, pagado: boolean) {
     <div class="card">
       <div class="row"><span class="label">Motivo</span><span class="value">${d.serviceName}</span></div>
       <div class="row"><span class="label">Fecha y hora</span><span class="value" style="text-transform:capitalize;">${fechaFormateada}</span></div>
-      <div class="row"><span class="label">Modalidad</span><span class="value">🖥️ Online</span></div>
+      <div class="row"><span class="label">Lugar</span><span class="value">📍 Presencial · Edificio Soho, Av. Bosques de Montemar 30, Concón</span></div>
       ${pagado ? `<div class="row"><span class="label">Abono pagado</span><span class="value">${abonoTxt} · Mercado Pago</span></div>` : ""}
     </div>
     ${boton}
@@ -389,7 +390,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const reservaId = crypto.randomUUID();
     const clientKey = (rut || name).toLowerCase().replace(/[^a-z0-9]/g, "-");
-    const serviceName = `Evaluación online${topic ? " — " + topic : ""}`;
+    const serviceName = `Evaluación presencial${topic ? " — " + topic : ""}`;
     const conAbono = !!MP_TOKEN;
 
     const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/reservas`, {
@@ -398,7 +399,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body: JSON.stringify({
         id: reservaId, user_id: USER_ID, client_id: clientKey, client_name: name,
         date: isoDate, service_id: "evaluacion", service_name: conAbono ? serviceName + MARCA_ESPERA : serviceName,
-        status: "pendiente", amount: 0, tipo_atencion: "online", es_control: false,
+        status: "pendiente", amount: 0, tipo_atencion: "presencial", es_control: false,
       }),
     });
 
