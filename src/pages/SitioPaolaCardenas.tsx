@@ -150,8 +150,8 @@ function Hero() {
       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(114,127,137,0.34) 100%)" }} />
       <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(36px,7vh,80px)" }}>
         <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
-        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(44px,6.2vw,100px)", lineHeight: 0.96, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
-          No solo<br />restauramos sonrisas.<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>Devolvemos confianza.</em>
+        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(40px,5.6vw,92px)", lineHeight: 0.98, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
+          Cuidamos tu sonrisa,<br />realzamos tu belleza<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>y devolvemos tu confianza.</em>
         </h1>
         <div className="mt-7 flex flex-wrap gap-3.5">
           <a href="#tratamientos" className="rounded-full transition-all hover:-translate-y-1" style={{ padding: "17px 32px", border: "1px solid rgba(244,242,238,0.6)", background: "rgba(244,242,238,0.08)", color: "#F4F2EE", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
