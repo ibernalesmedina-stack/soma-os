@@ -227,7 +227,7 @@ export function Footer({ base = "" }: { base?: string }) {
         <div className="flex flex-wrap justify-between" style={{ gap: "clamp(24px,3vw,48px)" }}>
           <div style={{ maxWidth: 420 }}>
             <img src="/paola-logo.svg" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(48px,4.4vw,64px)", width: "auto", display: "block" }} />
-            <p className="mt-3 text-[13px]" style={{ color: "#8C8378" }}>Cirujana Dentista · Especialista en Implantología Bucomaxilofacial</p>
+            <p className="mt-3 text-[13px]" style={{ color: "#8C8378" }}>Implantología · Odontología · Armonización Facial</p>
             <div className="mt-4 flex gap-3">
               <a href="https://www.instagram.com/dra.cardenasfica/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full text-[11px] uppercase" style={{ padding: "11px 20px", border: "1px solid rgba(50,44,40,0.18)", letterSpacing: "0.18em" }}>
                 <InstagramIcon className="h-3.5 w-3.5" /> Instagram
