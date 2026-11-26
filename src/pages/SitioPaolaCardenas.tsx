@@ -428,34 +428,67 @@ function Tratamientos() {
   );
 }
 
+const PASOS_DIAGNOSTICO = [
+  { n: "01", t: "Evaluamos", d: "Revisamos tu rostro y tu sonrisa con calma, en detalle." },
+  { n: "02", t: "Conversamos", d: "Sobre lo que quieres lograr y lo que esperas del resultado." },
+  { n: "03", t: "Planificamos", d: "Cada paso a seguir, para que sepas con claridad cómo llegaremos a tu objetivo." },
+];
+
 function CitaDiagnostico() {
+  const etiqueta = { fontSize: 10.5, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase" as const, color: "#8C8378" };
   return (
-    <section id="diagnostico" style={{ background: "#f0ebe5", padding: "clamp(60px,9vh,120px) clamp(20px,5vw,72px) 0" }}>
+    <section id="diagnostico" className="relative overflow-hidden" style={{ background: "#727f89", color: "#F4F2EE", padding: "clamp(72px,11vh,140px) clamp(20px,5vw,72px)" }}>
+      {/* mismo patrón PCF del hero, muy suave */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "url('/hero-patron-pcf.webp')", backgroundRepeat: "repeat", backgroundSize: "1000px auto", opacity: 0.1 }} />
       <Reveal>
-        <div className="mx-auto grid lg:grid-cols-12 items-center" style={{ maxWidth: 1180, gap: "clamp(28px,4vw,64px)", background: "#727f89", color: "#F4F2EE", borderRadius: 20, padding: "clamp(36px,5vw,80px) clamp(26px,5vw,80px)" }}>
+        <div className="relative mx-auto grid lg:grid-cols-12 items-center" style={{ maxWidth: 1320, gap: "clamp(40px,6vw,96px)" }}>
           <div className="lg:col-span-7">
-            <p style={{ fontSize: "clamp(12px,0.95vw,14px)", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", color: "#E3D3B4", marginBottom: 22 }}>El primer paso</p>
-            <h2 className="pc-serif" style={{ margin: "0 0 26px", fontWeight: 300, fontSize: "clamp(38px,4.6vw,72px)", lineHeight: 1, letterSpacing: "-0.025em" }}>
+            <p style={{ fontSize: "clamp(12px,0.95vw,14px)", fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase", color: "#E3D3B4", marginBottom: 20 }}>El primer paso</p>
+            <h2 className="pc-serif" style={{ margin: "0 0 22px", fontWeight: 300, fontSize: "clamp(46px,6vw,96px)", lineHeight: 0.95, letterSpacing: "-0.03em" }}>
               Cita <em style={{ fontStyle: "italic", color: "#E3D3B4" }}>diagnóstico</em>
             </h2>
-            <p style={{ margin: "0 0 18px", maxWidth: "52ch", fontSize: 15, lineHeight: 1.8, color: "rgba(244,242,238,0.85)" }}>Es el momento más importante de tu tratamiento. Evaluamos tu rostro y tu sonrisa, conversamos sobre lo que quieres lograr y lo que esperas del resultado.</p>
-            <p style={{ margin: 0, maxWidth: "52ch", fontSize: 15, lineHeight: 1.8, color: "rgba(244,242,238,0.85)" }}>A partir de esa conversación planificamos cada paso a seguir, para que sepas con claridad cómo llegaremos a tu objetivo.</p>
+            <p className="pc-serif" style={{ margin: "0 0 clamp(30px,4vh,44px)", maxWidth: "44ch", fontSize: "clamp(20px,1.7vw,26px)", lineHeight: 1.4, fontStyle: "italic", color: "rgba(244,242,238,0.92)" }}>
+              Es el momento más importante de tu tratamiento.
+            </p>
+            <ol className="grid sm:grid-cols-3" style={{ gap: "clamp(18px,2vw,30px)", listStyle: "none", padding: 0, margin: 0 }}>
+              {PASOS_DIAGNOSTICO.map((p) => (
+                <li key={p.n} style={{ borderTop: "1px solid rgba(244,242,238,0.3)", paddingTop: 18 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", color: "#E3D3B4" }}>{p.n}</span>
+                  <p className="pc-serif" style={{ margin: "8px 0 6px", fontSize: "clamp(22px,1.8vw,28px)", lineHeight: 1.1 }}>{p.t}</p>
+                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(244,242,238,0.8)" }}>{p.d}</p>
+                </li>
+              ))}
+            </ol>
           </div>
+
           <div className="lg:col-span-5">
-            <div style={{ border: "1px solid rgba(244,242,238,0.25)", borderRadius: 16, padding: "clamp(24px,2.4vw,36px)" }}>
-              <div className="flex justify-between items-baseline gap-4" style={{ paddingBottom: 16, borderBottom: "1px solid rgba(244,242,238,0.18)" }}>
-                <span style={{ fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(244,242,238,0.7)" }}>Modalidad</span>
-                <span style={{ fontSize: 15 }}>Presencial</span>
+            <div className="mx-auto" style={{ maxWidth: 460, background: "#f0ebe5", color: "#322C28", borderRadius: 24, padding: "clamp(28px,3vw,44px)", boxShadow: "0 30px 70px rgba(30,26,22,0.28)" }}>
+              <div className="flex items-center justify-between gap-4">
+                <span style={etiqueta}>Valor de la cita</span>
+                <span className="rounded-full" style={{ padding: "6px 14px", border: "1px solid rgba(184,155,106,0.5)", color: "#8a7350", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" }}>Presencial</span>
               </div>
-              <div className="flex justify-between items-baseline gap-4" style={{ padding: "16px 0 20px" }}>
-                <span style={{ fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(244,242,238,0.7)" }}>Valor</span>
-                <span style={{ fontWeight: 600, fontSize: "clamp(26px,2.4vw,34px)", lineHeight: 1, color: "#E3D3B4" }}>$20.000</span>
+              <p style={{ margin: "14px 0 6px", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(46px,4.4vw,62px)", lineHeight: 1, fontWeight: 600, letterSpacing: "-0.03em" }}>$20.000</p>
+              <p style={{ margin: 0, fontSize: 13.5, color: "#8C8378" }}>Evaluación de 45 minutos</p>
+
+              <div style={{ margin: "26px 0", borderTop: "1px solid rgba(50,44,40,0.12)" }} />
+
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "grid", gap: 12 }}>
+                {[
+                  ["Dónde", "Edificio Soho · Concón"],
+                  ["Cuándo", "Martes, jueves y sábado"],
+                ].map(([k, v]) => (
+                  <li key={k} className="flex justify-between gap-4" style={{ fontSize: 14.5 }}>
+                    <span style={{ color: "#8C8378" }}>{k}</span><span style={{ fontWeight: 500, textAlign: "right" }}>{v}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex gap-3 items-start" style={{ padding: "16px 18px", borderRadius: 16, background: "rgba(184,155,106,0.14)", marginBottom: 26 }}>
+                <Sparkles className="h-4 w-4 shrink-0" style={{ color: "#B89B6A", marginTop: 3 }} />
+                <span style={{ fontSize: 14, lineHeight: 1.6, color: "#5A5148" }}>Si te realizas el tratamiento <strong style={{ fontWeight: 600, color: "#322C28" }}>el mismo día</strong>, el valor de la cita se descuenta del total.</span>
               </div>
-              <div className="flex gap-3 items-start" style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(240,235,229,0.14)", marginBottom: 24 }}>
-                <span style={{ color: "#E3D3B4", fontSize: 14, lineHeight: 1.4 }}>✦</span>
-                <span style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(244,242,238,0.92)" }}>Si te realizas el tratamiento <strong style={{ fontWeight: 600, color: "#fff" }}>el mismo día</strong>, el valor de la cita se descuenta del total.</span>
-              </div>
-              <a href="#agenda" className="block text-center rounded-full" style={{ padding: "16px 22px", background: "#B89B6A", color: "#fff", fontSize: 11, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase" }}>Agendar cita</a>
+
+              <a href="#agenda" className="pc-cta-pulse block text-center rounded-full" style={{ padding: "18px 22px", background: "#B89B6A", color: "#fff", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Agendar mi cita</a>
             </div>
           </div>
         </div>
