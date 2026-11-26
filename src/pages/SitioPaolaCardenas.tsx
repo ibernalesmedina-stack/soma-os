@@ -24,7 +24,8 @@ const heroImg = "/paola-hero.png";
 const ctaImg = "/paola-cta.png";
 const portraitImg = "/paola-retrato.jpg";
 
-const PAGO_ABONO_URL = "https://mpago.la/1xwCBKg"; // Mercado Pago: abono al reservar
+const PAGO_ABONO_URL = "https://mpago.la/1xwCBKg"; // Mercado Pago: link fijo (respaldo si el cobro en línea no está activo)
+const ABONO_TXT = "$20.000";
 
 const GOOGLE_REVIEWS_URL = "https://www.google.com/search?q=dra+paola+cardenas+fica";
 
@@ -560,6 +561,26 @@ function AccordionStep({
   );
 }
 
+function fechaLegible(iso: string) {
+  const d = new Date(`${iso}T12:00:00`);
+  return d.toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" });
+}
+
+function EstadoReserva({ titulo, texto, ok, accion }: { titulo: string; texto: React.ReactNode; ok?: boolean; accion?: { label: string; onClick: () => void } }) {
+  return (
+    <div className="pt-7 text-center space-y-3">
+      <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center" style={{ background: ok ? "rgba(184,155,106,0.15)" : "rgba(114,127,137,0.12)" }}>
+        {ok ? <Check className="h-7 w-7" style={{ color: "#B89B6A" }} /> : <CreditCard className="h-6 w-6" style={{ color: "#727f89" }} />}
+      </div>
+      <p className="font-semibold pc-serif text-xl">{titulo}</p>
+      <p className="text-sm mx-auto" style={{ color: "#5A5148", maxWidth: "52ch", lineHeight: 1.7 }}>{texto}</p>
+      {accion && (
+        <button onClick={accion.onClick} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#727f89", color: "#fff" }}>{accion.label}</button>
+      )}
+    </div>
+  );
+}
+
 function BookingSection() {
   const days = bookingDays();
   const [openStep, setOpenStep] = useState<"day" | "hour" | "contact" | null>(null);
@@ -570,10 +591,36 @@ function BookingSection() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [topic, setTopic] = useState("Estética facial");
-  const [step, setStep] = useState<"form" | "success" | "error">("form");
+  const [step, setStep] = useState<"form" | "success" | "error" | "verificando" | "pagado" | "pago-pendiente" | "pago-fallido" | "sin-hora">("form");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [reservaPagada, setReservaPagada] = useState<{ fecha?: string; hora?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoaded, setSlotsLoaded] = useState(false);
+  const [recarga, setRecarga] = useState(0);
+
+  // Vuelta desde Mercado Pago: ?pago=ok|pendiente|error&payment_id=...
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const pago = q.get("pago");
+    if (!pago) return;
+    const paymentId = q.get("payment_id") || q.get("collection_id");
+    window.history.replaceState(null, "", window.location.pathname + "#agenda");
+    setTimeout(() => document.getElementById("agenda")?.scrollIntoView({ behavior: "smooth" }), 300);
+    if (!paymentId || paymentId === "null") { setStep(pago === "ok" ? "pago-pendiente" : "pago-fallido"); return; }
+    setStep("verificando");
+    fetch(`/api/booking/slots-paola?action=pago&payment_id=${encodeURIComponent(paymentId)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        setReservaPagada({ fecha: d.fecha, hora: d.hora });
+        if (d.estado === "confirmada") setStep("pagado");
+        else if (d.estado === "sin-hora") setStep("sin-hora");
+        else if (d.estado === "rechazado" || d.estado === "monto-incorrecto") setStep("pago-fallido");
+        else if (d.estado === "pendiente" || pago !== "error") setStep("pago-pendiente");
+        else setStep("pago-fallido");
+      })
+      .catch(() => setStep(pago === "error" ? "pago-fallido" : "pago-pendiente"));
+  }, []);
 
   useEffect(() => {
     if (!date) { setSlots([]); setSlotsLoaded(false); return; }
@@ -582,7 +629,7 @@ function BookingSection() {
       .then((r) => r.json())
       .then((d) => { setSlots(d.slots || []); setSlotsLoaded(true); })
       .catch(() => { setSlots([]); setSlotsLoaded(true); });
-  }, [date]);
+  }, [date, recarga]);
 
   const handleConfirm = async () => {
     if (!name || !rut || !phone || !email || !date || !time) return;
@@ -593,8 +640,17 @@ function BookingSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, rut, email, phone, date, hour: time, topic }),
       });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.pagoUrl) {
+        // La hora queda retenida; se confirma solo cuando Mercado Pago aprueba el abono
+        window.location.href = d.pagoUrl;
+        return;
+      }
+      if (res.status === 409) { setTime(""); setOpenStep("hour"); setRecarga((n) => n + 1); }
+      setErrorMsg(res.ok ? "" : d.message || "");
       setStep(res.ok ? "success" : "error");
     } catch {
+      setErrorMsg("");
       setStep("error");
     }
     setSubmitting(false);
@@ -652,21 +708,46 @@ function BookingSection() {
           </AccordionStep>
 
           {step === "form" && (
-            <div className="mt-6 mx-auto flex items-start gap-3 rounded-2xl" style={{ maxWidth: 620, background: "#f7f3ee", border: "1px solid rgba(184,155,106,0.35)", padding: "14px 18px" }}>
+            <div className="mt-6 mx-auto flex items-start gap-3 rounded-2xl" style={{ maxWidth: 640, background: "#f7f3ee", border: "1px solid rgba(184,155,106,0.35)", padding: "14px 18px" }}>
               <CreditCard className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#B89B6A" }} />
               <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "#5A5148" }}>
-                Para confirmar tu hora se solicita un <strong style={{ color: "#322C28", fontWeight: 600 }}>abono</strong> mediante Mercado Pago. Al enviar tu reserva verás el botón para pagarlo.
+                Para reservar se paga un <strong style={{ color: "#322C28", fontWeight: 600 }}>abono de {ABONO_TXT}</strong> con Mercado Pago, que se descuenta del valor total del tratamiento si lo realizas el mismo día. Tu hora queda reservada cuando el pago es aprobado.
               </p>
             </div>
           )}
 
           {step === "form" && (
             <div className="pt-7 flex justify-center">
-              <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all pc-cta-pulse whitespace-nowrap"
+              <button onClick={handleConfirm} disabled={!ready || submitting} className="rounded-full transition-all pc-cta-pulse whitespace-nowrap inline-flex items-center gap-2"
                 style={{ padding: "18px clamp(28px,7vw,54px)", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: "clamp(12px,3.2vw,14px)", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
-                {submitting ? "Confirmando…" : "Confirmar reserva"}
+                {submitting ? "Conectando con Mercado Pago…" : <><CreditCard className="h-4 w-4" /> Reservar y pagar abono</>}
               </button>
             </div>
+          )}
+
+          {step === "verificando" && (
+            <EstadoReserva titulo="Verificando tu pago…" texto="Esto toma solo unos segundos." />
+          )}
+
+          {step === "pagado" && (
+            <EstadoReserva ok titulo="¡Tu hora está reservada!"
+              texto={<>Recibimos tu abono de <strong>{ABONO_TXT}</strong>{reservaPagada.fecha ? <> para el <strong>{fechaLegible(reservaPagada.fecha)}</strong> a las <strong>{reservaPagada.hora} h</strong></> : null}. Te enviamos la confirmación por correo. Recuerda que el abono se descuenta del total si realizas el tratamiento el mismo día.</>} />
+          )}
+
+          {step === "pago-pendiente" && (
+            <EstadoReserva titulo="Tu pago está en proceso"
+              texto="Mercado Pago aún está procesando el abono. Apenas se apruebe, tu hora quedará reservada y te llegará la confirmación por correo." />
+          )}
+
+          {step === "pago-fallido" && (
+            <EstadoReserva titulo="El pago no se completó"
+              texto="Tu hora no quedó reservada porque el abono no se pagó. Puedes intentarlo de nuevo."
+              accion={{ label: "Volver a intentar", onClick: () => { setStep("form"); setRecarga((n) => n + 1); } }} />
+          )}
+
+          {step === "sin-hora" && (
+            <EstadoReserva titulo="Recibimos tu abono"
+              texto="La hora que elegiste se ocupó mientras pagabas. Te contactaremos a la brevedad para reagendar sin costo adicional." />
           )}
 
           {step === "success" && (
@@ -676,7 +757,7 @@ function BookingSection() {
               </div>
               <p className="font-semibold pc-serif text-xl">¡Reserva enviada!</p>
               <p className="text-sm" style={{ color: "#5A5148" }}>Te enviamos los detalles a <strong>{email}</strong>.</p>
-              <p className="text-sm mx-auto" style={{ color: "#322C28", maxWidth: "44ch" }}>Para dejar tu hora confirmada, paga el abono con Mercado Pago:</p>
+              <p className="text-sm mx-auto" style={{ color: "#322C28", maxWidth: "44ch" }}>Para dejar tu hora confirmada, paga el abono de {ABONO_TXT} con Mercado Pago:</p>
               <div className="pt-2 flex justify-center">
                 <a href={PAGO_ABONO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full pc-cta-pulse whitespace-nowrap"
                   style={{ padding: "18px clamp(28px,7vw,48px)", background: "#B89B6A", color: "#fff", boxShadow: "0 16px 36px rgba(184,155,106,0.4)", fontSize: "clamp(12px,3.2vw,14px)", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
@@ -689,8 +770,8 @@ function BookingSection() {
 
           {step === "error" && (
             <div className="pt-7 text-center space-y-3">
-              <p className="text-sm" style={{ color: "#5A5148" }}>Hubo un problema al confirmar la reserva. Inténtalo de nuevo o escríbenos por WhatsApp.</p>
-              <button onClick={handleConfirm} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#727f89", color: "#fff" }}>Reintentar</button>
+              <p className="text-sm" style={{ color: "#5A5148" }}>{errorMsg || "Hubo un problema al confirmar la reserva. Inténtalo de nuevo o escríbenos por WhatsApp."}</p>
+              <button onClick={() => setStep("form")} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#727f89", color: "#fff" }}>Volver</button>
             </div>
           )}
         </div>
