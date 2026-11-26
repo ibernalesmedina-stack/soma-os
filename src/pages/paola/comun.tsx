@@ -24,6 +24,11 @@ export function tc(texto: string) {
 export const SITE_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
+  /* Hero: deja espacio al video de la derecha para que el texto no quede debajo */
+  @media (min-width: 768px) {
+    .pc-hero-texto { right: calc(clamp(20px,5vw,72px) + min((78vh - 200px) * 9 / 16, 293px) + 40px) !important; }
+  }
+
   .pc-site {
     --pc-bg: #f0ebe5;
     --pc-bg-alt: #f0ebe5;
