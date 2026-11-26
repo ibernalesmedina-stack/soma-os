@@ -865,11 +865,11 @@ function BookingSection() {
 
 function Cierre() {
   return (
-    <section id="cierre" className="relative overflow-hidden" style={{ height: "clamp(560px,96vh,980px)", background: "#727f89" }}>
+    <section id="cierre" className="relative overflow-hidden" style={{ height: "clamp(460px,76vh,780px)", background: "#727f89" }}>
       <img src={ctaImg} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "52% 40%", filter: "grayscale(0.18) brightness(0.86)" }} />
       <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(114,127,137,0.55), rgba(114,127,137,0.8))" }} />
       <div className="relative h-full flex flex-col items-center justify-center text-center px-6">
-        <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(38px,6.4vw,110px)", maxWidth: "16ch", color: "#F4F2EE" }}>
+        <h2 className="pc-serif" style={{ fontWeight: 300, fontSize: "clamp(38px,6.4vw,110px)", lineHeight: 1, letterSpacing: "-0.02em", maxWidth: "16ch", color: "#F4F2EE" }}>
           La confianza comienza con una <em style={{ fontStyle: "italic", color: "#E3D3B4" }}>conversación.</em>
         </h2>
         <div className="mt-10 flex flex-wrap gap-4 justify-center">
