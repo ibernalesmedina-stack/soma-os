@@ -242,7 +242,9 @@ export function Footer({ base = "" }: { base?: string }) {
           <div>
             <h4 style={label}>Consulta</h4>
             <ul className="mt-4 space-y-2 text-sm" style={{ color: "#5A5148" }}>
-              <li>Martes y jueves · 10:00 – 16:00</li>
+              <li>Martes · 9:00 – 14:00</li>
+              <li>Jueves · 15:00 – 19:00</li>
+              <li>Sábado · 9:00 – 13:00</li>
               <li><a href={`${base}#agenda`}>Agenda online</a></li>
               <li><a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">+56 9 7125 2179</a></li>
             </ul>

@@ -19,12 +19,17 @@ const ABONO = 20000;
 const MARCA_ESPERA = " · esperando abono";
 const MINUTOS_PARA_PAGAR = 30;
 
-// Dra. Paola's booking hours: martes y jueves, bloques de 30 min entre 10:00 y 16:00
+// Horario de la Dra. Paola, bloques de 45 min (debe coincidir con HORARIO en SitioPaolaCardenas.tsx)
 const SCHEDULE: Record<number, { start: number; end: number }> = {
-  2: { start: 600, end: 960 }, // Tue 10:00–16:00
-  4: { start: 600, end: 960 }, // Thu 10:00–16:00
+  2: { start: 540, end: 840 },  // martes 9:00–14:00
+  4: { start: 900, end: 1140 }, // jueves 15:00–19:00
+  6: { start: 540, end: 780 },  // sábado 9:00–13:00
 };
-const SLOT_DURATION = 30;
+const SLOT_DURATION = 45;
+
+/** Fecha de hoy en Santiago ("2026-11-25"). No se agenda para el mismo día. */
+const hoySantiago = () =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 
 function allSlots(date: string): string[] {
   const dow = new Date(date + "T12:00:00").getDay();
@@ -354,11 +359,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       for (const b of bloqueos) occupied.push({ start: new Date(b.start), end: new Date(b.end) });
     }
 
-    const now = Date.now();
+    if (date <= hoySantiago()) return res.json({ slots: [] });
     const available = candidates.filter((slot) => {
       const slotStart = aUTC(date, slot);
       const slotEnd = new Date(slotStart.getTime() + SLOT_DURATION * 60_000);
-      if (slotStart.getTime() - now < 24 * 60 * 60 * 1000) return false;
       return !occupied.some((o) => slotStart < o.end && slotEnd > o.start);
     });
 
@@ -373,8 +377,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!allSlots(date).includes(hour)) return res.status(400).json({ error: "Horario no válido" });
 
     const inicio = aUTC(date, hour);
-    if (inicio.getTime() - Date.now() < 24 * 60 * 60 * 1000) {
-      return res.status(400).json({ error: "Las reservas deben realizarse con al menos 24 horas de anticipación." });
+    if (date <= hoySantiago()) {
+      return res.status(400).json({ error: "fecha", message: "Las reservas deben hacerse a partir del día siguiente." });
     }
 
     const isoDate = inicio.toISOString();

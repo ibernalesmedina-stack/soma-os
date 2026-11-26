@@ -518,18 +518,25 @@ function Testimonios() {
   );
 }
 
-function bookingDays(): { id: string; label: string }[] {
-  const out: { id: string; label: string }[] = [];
+// Horario de atención (debe coincidir con api/booking/slots-paola.ts)
+const HORARIO: Record<number, string> = { 2: "9:00 a 14:00", 4: "15:00 a 19:00", 6: "9:00 a 13:00" };
+const MESES_RESERVA = 6; // cuántos meses hacia adelante se pueden elegir
+
+type DiaReserva = { id: string; label: string; mes: string };
+
+function bookingDays(): DiaReserva[] {
+  const out: DiaReserva[] = [];
   const names = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-  const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const cap = (t: string) => t.replace(/^./, (c) => c.toUpperCase());
   const d = new Date();
-  d.setDate(d.getDate() + 1);
-  while (out.length < 6) {
-    if (d.getDay() === 2 || d.getDay() === 4) {
-      out.push({
-        id: d.toISOString().slice(0, 10),
-        label: names[d.getDay()].replace(/^./, (c) => c.toUpperCase()) + " " + d.getDate() + " " + months[d.getMonth()],
-      });
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + 1); // no se agenda para el mismo día
+  const limite = new Date(d.getFullYear(), d.getMonth() + MESES_RESERVA, 0, 23, 59);
+  while (d <= limite) {
+    if (HORARIO[d.getDay()]) {
+      const id = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      out.push({ id, label: `${cap(names[d.getDay()])} ${d.getDate()} de ${meses[d.getMonth()]}`, mes: `${cap(meses[d.getMonth()])} ${d.getFullYear()}` });
     }
     d.setDate(d.getDate() + 1);
   }
@@ -668,14 +675,18 @@ function BookingSection() {
           <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(34px,4.2vw,62px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
             Agenda tu evaluación <span style={{ color: "#B89B6A" }}>100% online</span>
           </h2>
-          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes y jueves · bloques de 30 minutos entre 10:00 y 16:00.</p>
+          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes 9:00 a 14:00 · Jueves 15:00 a 19:00 · Sábado 9:00 a 13:00<br />Bloques de 45 minutos · desde el día siguiente.</p>
         </div>
 
         <div className="mt-11 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
           <AccordionStep num="01" title="Día de la evaluación" valueLabel={dayLabel} open={openStep === "day"} onToggle={() => setOpenStep(openStep === "day" ? null : "day")}>
             <select value={date} onChange={(e) => { setDate(e.target.value); setTime(""); }} style={selectStyle}>
-              <option value="">Selecciona un día · martes y jueves</option>
-              {days.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+              <option value="">Selecciona un día · martes, jueves o sábado</option>
+              {[...new Set(days.map((d) => d.mes))].map((mes) => (
+                <optgroup key={mes} label={mes}>
+                  {days.filter((d) => d.mes === mes).map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+                </optgroup>
+              ))}
             </select>
           </AccordionStep>
 
@@ -686,7 +697,7 @@ function BookingSection() {
               <p style={{ color: "#8C8378", fontSize: 14 }}>No hay horas disponibles para este día.</p>
             ) : (
               <select value={time} onChange={(e) => setTime(e.target.value)} style={selectStyle}>
-                <option value="">Bloques de 30 min · 10:00 a 16:00</option>
+                <option value="">Bloques de 45 min · {HORARIO[new Date(`${date}T12:00:00`).getDay()] ?? ""}</option>
                 {slots.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             )}
@@ -805,7 +816,7 @@ function Cierre() {
 
 const FAQS = [
   { q: "¿Cómo agendo mi primera evaluación?", a: "Puedes reservar directamente desde el botón \"Agenda online\" o escribirme por WhatsApp. En la primera cita conversamos, evalúo tu caso y te explico las alternativas con sus tiempos y valores." },
-  { q: "¿Cuánto dura una consulta inicial?", a: "Alrededor de 30 minutos. Es un espacio para revisar tu salud oral, entender qué te preocupa y armar juntos un plan realista, sin apuros ni presión." },
+  { q: "¿Cuánto dura una consulta inicial?", a: "Alrededor de 45 minutos. Es un espacio para revisar tu salud oral, entender qué te preocupa y armar juntos un plan realista, sin apuros ni presión." },
   { q: "¿Los tratamientos duelen?", a: "Trabajo con anestesia y protocolos pensados para que estés cómoda o cómodo en todo momento. La mayoría de los pacientes describe los procedimientos como mucho más llevaderos de lo que imaginaban." },
   { q: "¿Los resultados se ven naturales?", a: "Ese es el objetivo. Tanto en implantología como en estética facial diseño cada tratamiento respetando tus rasgos: la idea es que se note el cambio, no el procedimiento." },
   { q: "¿Cuánto demora un implante dental?", a: "Depende de cada caso. En general el proceso completo toma entre 3 y 6 meses, considerando la integración del implante al hueso antes de instalar la corona definitiva." },
