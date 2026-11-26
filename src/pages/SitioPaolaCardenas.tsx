@@ -124,7 +124,7 @@ function Nav() {
     >
       <div className="flex items-center justify-between gap-3" style={{ padding: "18px clamp(20px,5vw,72px)" }}>
         <a href="#top" aria-label="Dra. Paola Cárdenas Fica, ir al inicio" className="inline-flex items-center shrink-0">
-          <img src="/paola-logo.svg" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(32px,2.8vw,42px)", width: "auto", display: "block" }} />
+          <img src="/paola-logo.svg" alt="Dra. Paola Cárdenas Fica" style={{ height: "clamp(44px,3.9vw,60px)", width: "auto", display: "block" }} />
         </a>
         <nav className="hidden md:flex items-center" style={{ gap: "clamp(6px,1.1vw,20px)", fontSize: "clamp(10px,0.85vw,12px)", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase" }}>
           {[["#filosofia", "Filosofía"], ["#tratamientos", "Tratamientos"], ["#dra", "Quién soy"]].map(([href, label]) => (
@@ -151,10 +151,12 @@ function Nav() {
 function Hero() {
   return (
     <section id="top" className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #727f89 0%, #66727c 55%, #5d6872 100%)" }}>
+      {/* patrón PCF del footer, en trazos claros sobre el azul grisáceo */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "url('/hero-patron-pcf.webp')", backgroundRepeat: "repeat", backgroundSize: "clamp(820px,90vw,1300px) auto", opacity: 0.16 }} />
       {/* luz suave detrás del video */}
       <div aria-hidden="true" className="absolute pointer-events-none" style={{ right: "-10%", top: "10%", width: "60%", height: "90%", background: "radial-gradient(closest-side, rgba(227,211,180,0.22), transparent)" }} />
       <div className="relative mx-auto grid md:grid-cols-[1.1fr_0.9fr] items-center"
-        style={{ maxWidth: 1320, minHeight: "min(100vh, 920px)", gap: "clamp(36px,5vw,80px)", padding: "calc(clamp(74px,6vw,84px) + clamp(36px,6vh,72px)) clamp(20px,5vw,72px) clamp(48px,8vh,96px)" }}>
+        style={{ maxWidth: 1320, minHeight: "min(100vh, 920px)", gap: "clamp(36px,5vw,80px)", padding: "calc(clamp(84px,7.4vw,98px) + clamp(36px,6vh,72px)) clamp(20px,5vw,72px) clamp(48px,8vh,96px)" }}>
         <div>
           <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
           <h1 className="pc-serif mt-4" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(40px,4.6vw,78px)", lineHeight: 1, letterSpacing: "-0.03em" }}>
