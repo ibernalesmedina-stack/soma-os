@@ -26,7 +26,7 @@ export const SITE_STYLES = `
 
   /* Hero en celular: el video no tan alto, para que se vea junto al texto */
   @media (max-width: 767px) {
-    .pc-hero-video { height: auto !important; width: min(86vw, 380px); }
+    .pc-hero-video { height: auto !important; width: 100%; max-width: 380px; }
   }
 
   .pc-site {

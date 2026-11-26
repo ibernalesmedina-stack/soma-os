@@ -150,13 +150,13 @@ function Nav() {
 // En celular se apilan: primero el texto y debajo el video.
 function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #727f89 0%, #66727c 55%, #5d6872 100%)" }}>
+    <section id="top" className="relative overflow-hidden" style={{ background: "#727f89", padding: "calc(clamp(84px,7.4vw,98px) + clamp(18px,3vh,36px)) clamp(14px,4.5vw,80px) clamp(28px,5vh,60px)" }}>
       {/* patrón PCF del footer, en trazos claros sobre el azul grisáceo */}
-      <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "url('/hero-patron-pcf.webp')", backgroundRepeat: "repeat", backgroundSize: "clamp(820px,90vw,1300px) auto", opacity: 0.16 }} />
-      {/* luz suave detrás del video */}
-      <div aria-hidden="true" className="absolute pointer-events-none" style={{ right: "-10%", top: "10%", width: "60%", height: "90%", background: "radial-gradient(closest-side, rgba(227,211,180,0.22), transparent)" }} />
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "url('/hero-patron-pcf.webp')", backgroundRepeat: "repeat", backgroundSize: "1000px auto", opacity: 0.22 }} />
+      {/* recuadro liso (sin letras) con el texto y el video, como el panel del footer */}
       <div className="relative mx-auto grid md:grid-cols-[1.1fr_0.9fr] items-center"
-        style={{ maxWidth: 1320, minHeight: "min(100vh, 920px)", gap: "clamp(36px,5vw,80px)", padding: "calc(clamp(84px,7.4vw,98px) + clamp(36px,6vh,72px)) clamp(20px,5vw,72px) clamp(48px,8vh,96px)" }}>
+        style={{ maxWidth: 1320, gap: "clamp(32px,4.5vw,72px)", padding: "clamp(30px,5vw,72px) clamp(22px,4.5vw,72px)",
+          background: "#727f89", border: "1px solid rgba(244,242,238,0.18)", borderRadius: 24, boxShadow: "0 24px 60px rgba(30,26,22,0.22)" }}>
         <div>
           <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
           <h1 className="pc-serif mt-4" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(40px,4.6vw,78px)", lineHeight: 1, letterSpacing: "-0.03em" }}>
@@ -173,7 +173,7 @@ function Hero() {
         </div>
         <div className="flex justify-center">
           <div style={{
-            height: "min(72vh, 640px)", maxWidth: "100%", aspectRatio: "4 / 5", borderRadius: 28, overflow: "hidden",
+            height: "min(64vh, 580px)", maxWidth: "100%", aspectRatio: "4 / 5", borderRadius: 20, overflow: "hidden",
             border: "1px solid rgba(244,242,238,0.4)", boxShadow: "0 40px 80px rgba(30,26,22,0.35)", background: "#5d6872",
           }} className="pc-hero-video">
             <video autoPlay muted loop playsInline preload="auto" poster={heroPoster} aria-hidden="true" className="w-full h-full object-cover">
