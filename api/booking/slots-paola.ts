@@ -7,7 +7,8 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 // Access token de Mercado Pago de la Dra. Paola (Vercel → Environment Variables).
 // Si no está configurado, la reserva funciona como antes (sin cobro del abono en línea).
-const MP_TOKEN = process.env.MP_ACCESS_TOKEN_PAOLA;
+const MP_TOKEN_CRUDO = process.env.MP_ACCESS_TOKEN_PAOLA;
+const MP_TOKEN = MP_TOKEN_CRUDO?.trim();
 const SITE_URL = "https://www.drapaolacardenasfica.com";
 const DRA_EMAIL = "p.cardenasfica@gmail.com";
 const USER_ID = "758b6456-4b1d-48cd-8325-8ee3f20869f0";
@@ -444,7 +445,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!ordRes.ok || !orden.checkout_url) {
         console.error("Mercado Pago order failed:", ordRes.status, orden);
         await sbPatch(`reservas?id=eq.${reservaId}`, { status: "cancelada" });
-        return res.status(502).json({ error: "pago", message: "No pudimos iniciar el pago. Inténtalo de nuevo o escríbenos por WhatsApp." });
+        // Detalle sin datos sensibles, para diagnosticar (código de Mercado Pago y cuenta vendedora)
+        const detalle = {
+          http: ordRes.status,
+          codigo: orden?.errors?.[0]?.code ?? orden?.error ?? orden?.code,
+          mensaje: orden?.errors?.[0]?.message ?? orden?.message,
+          cuenta: MP_TOKEN.split("-").pop(),
+          espacios: MP_TOKEN_CRUDO !== MP_TOKEN,
+        };
+        return res.status(502).json({ error: "pago", message: "No pudimos iniciar el pago. Inténtalo de nuevo o escríbenos por WhatsApp.", detalle });
       }
       return res.json({ ok: true, reservaId, pagoUrl: orden.checkout_url });
     }
