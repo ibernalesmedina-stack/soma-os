@@ -787,7 +787,6 @@ function BookingSection() {
           <h2 className="mt-3" style={{ fontFamily: "'Instrument Sans',sans-serif", fontWeight: 600, fontSize: "clamp(34px,4.2vw,62px)", lineHeight: 1.06, letterSpacing: "-0.015em" }}>
             Agenda tu evaluación <span style={{ color: "#B89B6A" }}>presencial</span>
           </h2>
-          <p className="mx-auto mt-4" style={{ maxWidth: "46ch", color: "#5A5148", fontFamily: "'Instrument Sans',sans-serif", fontSize: "clamp(14px,1.05vw,16px)", lineHeight: 1.75 }}>Martes 9:00 a 14:00 · Jueves 15:00 a 19:00 · Sábado 9:00 a 13:00<br />Bloques de 45 minutos · desde el día siguiente.</p>
         </div>
 
         <div className="mt-11 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
