@@ -15,14 +15,14 @@ function paolaMeta(pathname: string): Meta | undefined {
     return {
       title: "Dra. Paola Cárdenas Fica · Implantología, Odontología y Estética Facial",
       description: "Cirujana Dentista especialista en Implantología Bucomaxilofacial. Implantes, odontología general y estética facial en Edificio Soho, Concón. Agenda tu evaluación.",
-      image: `${PAOLA}/paola-hero.png`,
+      image: `${PAOLA}/paola-hero-poster.jpg`,
     };
   }
   if (/^\/politica-de-privacidad\/?$/.test(pathname)) {
     return {
       title: "Política de privacidad | Dra. Paola Cárdenas Fica",
       description: "Cómo recopilamos, usamos y protegemos tus datos personales en el sitio de la Dra. Paola Cárdenas Fica.",
-      image: `${PAOLA}/paola-hero.png`,
+      image: `${PAOLA}/paola-hero-poster.jpg`,
     };
   }
   const m = pathname.match(/^\/tratamientos\/([a-z0-9-]+)\/?$/);
@@ -31,7 +31,7 @@ function paolaMeta(pathname: string): Meta | undefined {
   return {
     title: `${t.seoTitle} | Dra. Paola Cárdenas Fica`,
     description: t.seoDesc,
-    image: `${PAOLA}${t.img ?? "/paola-hero.png"}`,
+    image: `${PAOLA}${t.img ?? "/paola-hero-poster.jpg"}`,
   };
 }
 

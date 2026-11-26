@@ -20,9 +20,9 @@ function ToothImplantIcon({ className, style, strokeWidth = 1.4 }: IconProps) {
   );
 }
 
-const heroImg = "/paola-hero.jpg";
-const heroVideo = "/paola-hero-video-h264.mp4";
-const heroPoster = "/paola-hero-video-poster.jpg";
+const heroVideo = "/paola-hero.mp4";        // fondo del hero (imagen + video en un solo archivo)
+const heroVideoMovil = "/paola-hero-movil.mp4"; // versión liviana para celular
+const heroPoster = "/paola-hero-poster.jpg";  // primer cuadro, se ve mientras carga
 const ctaImg = "/paola-cta.png";
 const portraitImg = "/paola-retrato.jpg";
 
@@ -70,7 +70,7 @@ function Inicio() {
     title: "Dra. Paola Cárdenas Fica · Implantología, Odontología y Estética Facial",
     description: "Cirujana Dentista especialista en Implantología Bucomaxilofacial. Implantes, odontología general y estética facial en Edificio Soho, Concón. Agenda tu evaluación.",
     path: "/",
-    image: heroImg,
+    image: heroPoster,
   });
   useScrollToHash();
   return (
@@ -145,36 +145,17 @@ function Nav() {
   );
 }
 
-/** Video vertical sobre el hero (solo en pantallas medianas y grandes, para no gastar datos en celular) */
-function HeroVideo() {
-  const [mostrar, setMostrar] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const actualizar = () => setMostrar(mq.matches);
-    actualizar();
-    mq.addEventListener("change", actualizar);
-    return () => mq.removeEventListener("change", actualizar);
-  }, []);
-  if (!mostrar) return null;
-  return (
-    <div className="absolute pc-hero-video" style={{
-      right: "clamp(20px,5vw,72px)", bottom: "clamp(36px,7vh,80px)",
-      height: "min(calc(78vh - 200px), 520px)", aspectRatio: "9 / 16", borderRadius: 24, overflow: "hidden",
-      border: "1px solid rgba(244,242,238,0.45)", boxShadow: "0 30px 70px rgba(30,26,22,0.35)", background: "#727f89",
-    }}>
-      <video src={heroVideo} poster={heroPoster} autoPlay muted loop playsInline preload="auto" aria-hidden="true"
-        className="w-full h-full object-cover" />
-    </div>
-  );
-}
-
+// En computador el alto del hero sigue la proporción del video (16:9) + el menú, para que el recuadro del video se vea completo
 function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden" style={{ minHeight: "520px", height: "78vh", background: "#727f89" }}>
-      <img src={heroImg} alt="Consulta de la Dra. Paola Cárdenas Fica" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "50% 50%", filter: "grayscale(0.2) brightness(0.82) sepia(0.08)" }} />
+    <section id="top" className="relative overflow-hidden h-[78vh] md:h-[clamp(520px,calc(56vw+80px),100vh)]" style={{ minHeight: "520px", background: "#727f89" }}>
+      <video autoPlay muted loop playsInline preload="auto" poster={heroPoster} aria-hidden="true"
+        className="absolute left-0 right-0 bottom-0 w-full object-cover object-[84%_50%] md:object-center" style={{ top: 76, height: "calc(100% - 76px)" }}>
+        <source src={heroVideoMovil} type="video/mp4" media="(max-width: 767px)" />
+        <source src={heroVideo} type="video/mp4" />
+      </video>
       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(114,127,137,0.34) 100%)" }} />
-      <HeroVideo />
-      <div className="absolute pc-hero-texto" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(36px,7vh,80px)" }}>
+      <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(36px,7vh,80px)" }}>
         <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
         <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(40px,5.6vw,92px)", lineHeight: 0.98, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
           Cuidamos tu sonrisa,<br />realzamos tu belleza<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>y devolvemos tu confianza.</em>
