@@ -20,9 +20,10 @@ function ToothImplantIcon({ className, style, strokeWidth = 1.4 }: IconProps) {
   );
 }
 
-const heroVideo = "/paola-hero.mp4";        // fondo del hero (imagen + video en un solo archivo)
-const heroVideoMovil = "/paola-hero-movil.mp4"; // versión liviana para celular
-const heroPoster = "/paola-hero-poster.jpg";  // primer cuadro, se ve mientras carga
+const heroVideo = "/paola-hero-web.mp4";     // video del hero (768×960, a partir de paola-hero.mp4)
+const heroVideoMovil = "/paola-hero-movil.mp4"; // versión liviana para celular (512×640)
+const heroPoster = "/paola-hero-poster.jpg";   // primer cuadro, se ve mientras carga y al compartir el link
+const ogImage = heroPoster;
 const ctaImg = "/paola-cta.png";
 const portraitImg = "/paola-retrato.jpg";
 
@@ -70,7 +71,7 @@ function Inicio() {
     title: "Dra. Paola Cárdenas Fica · Implantología, Odontología y Estética Facial",
     description: "Cirujana Dentista especialista en Implantología Bucomaxilofacial. Implantes, odontología general y estética facial en Edificio Soho, Concón. Agenda tu evaluación.",
     path: "/",
-    image: heroPoster,
+    image: ogImage,
   });
   useScrollToHash();
   return (
@@ -145,28 +146,39 @@ function Nav() {
   );
 }
 
-// En computador el alto del hero sigue la proporción del video (16:9) + el menú, para que el recuadro del video se vea completo
+// Hero en dos columnas: texto sobre fondo de color (izquierda) y video vertical redondeado (derecha).
+// En celular se apilan: primero el texto y debajo el video.
 function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden h-[78vh] md:h-[clamp(520px,calc(56vw+80px),100vh)]" style={{ minHeight: "520px", background: "#727f89" }}>
-      <video autoPlay muted loop playsInline preload="auto" poster={heroPoster} aria-hidden="true"
-        className="absolute left-0 right-0 bottom-0 w-full object-cover object-[84%_50%] md:object-center" style={{ top: 76, height: "calc(100% - 76px)" }}>
-        <source src={heroVideoMovil} type="video/mp4" media="(max-width: 767px)" />
-        <source src={heroVideo} type="video/mp4" />
-      </video>
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(114,127,137,0.88) 0%, rgba(50,44,40,0.45) 44%, rgba(50,44,40,0.14) 72%, rgba(114,127,137,0.34) 100%)" }} />
-      <div className="absolute" style={{ left: "clamp(20px,5vw,72px)", right: "clamp(20px,5vw,72px)", bottom: "clamp(36px,7vh,80px)" }}>
-        <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
-        <h1 className="pc-serif mt-3" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(40px,5.6vw,92px)", lineHeight: 0.98, letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(114,127,137,0.4)" }}>
-          Cuidamos tu sonrisa,<br />realzamos tu belleza<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>y devolvemos tu confianza.</em>
-        </h1>
-        <div className="mt-7 flex flex-wrap gap-3.5">
-          <a href="#tratamientos" className="rounded-full transition-all hover:-translate-y-1" style={{ padding: "17px 32px", border: "1px solid rgba(244,242,238,0.6)", background: "rgba(244,242,238,0.08)", color: "#F4F2EE", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
-            Ver tratamientos
-          </a>
-          <a href="#agenda" className="pc-cta-pulse rounded-full" style={{ padding: "17px 32px", background: "#B89B6A", color: "#fff", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
-            Agendar hora
-          </a>
+    <section id="top" className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #727f89 0%, #66727c 55%, #5d6872 100%)" }}>
+      {/* luz suave detrás del video */}
+      <div aria-hidden="true" className="absolute pointer-events-none" style={{ right: "-10%", top: "10%", width: "60%", height: "90%", background: "radial-gradient(closest-side, rgba(227,211,180,0.22), transparent)" }} />
+      <div className="relative mx-auto grid md:grid-cols-[1.1fr_0.9fr] items-center"
+        style={{ maxWidth: 1320, minHeight: "min(100vh, 920px)", gap: "clamp(36px,5vw,80px)", padding: "calc(clamp(74px,6vw,84px) + clamp(36px,6vh,72px)) clamp(20px,5vw,72px) clamp(48px,8vh,96px)" }}>
+        <div>
+          <p style={{ color: "#E3D3B4", fontSize: "clamp(11px,0.95vw,14px)", letterSpacing: "0.32em", textTransform: "uppercase" }}>Implantología · Odontología · Estética facial</p>
+          <h1 className="pc-serif mt-4" style={{ color: "#F4F2EE", fontWeight: 300, fontSize: "clamp(40px,4.6vw,78px)", lineHeight: 1, letterSpacing: "-0.03em" }}>
+            Cuidamos tu sonrisa,<br />realzamos tu belleza<br /><em style={{ color: "#E3D3B4", fontStyle: "italic" }}>y devolvemos tu confianza.</em>
+          </h1>
+          <div className="mt-8 flex flex-wrap gap-3.5">
+            <a href="#tratamientos" className="rounded-full transition-all hover:-translate-y-1" style={{ padding: "17px 32px", border: "1px solid rgba(244,242,238,0.6)", background: "rgba(244,242,238,0.08)", color: "#F4F2EE", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+              Ver tratamientos
+            </a>
+            <a href="#agenda" className="pc-cta-pulse rounded-full" style={{ padding: "17px 32px", background: "#B89B6A", color: "#fff", fontSize: "13px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+              Agendar hora
+            </a>
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <div style={{
+            height: "min(72vh, 640px)", maxWidth: "100%", aspectRatio: "4 / 5", borderRadius: 28, overflow: "hidden",
+            border: "1px solid rgba(244,242,238,0.4)", boxShadow: "0 40px 80px rgba(30,26,22,0.35)", background: "#5d6872",
+          }} className="pc-hero-video">
+            <video autoPlay muted loop playsInline preload="auto" poster={heroPoster} aria-hidden="true" className="w-full h-full object-cover">
+              <source src={heroVideoMovil} type="video/mp4" media="(max-width: 767px)" />
+              <source src={heroVideo} type="video/mp4" />
+            </video>
+          </div>
         </div>
       </div>
     </section>

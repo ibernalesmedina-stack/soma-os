@@ -24,6 +24,11 @@ export function tc(texto: string) {
 export const SITE_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
+  /* Hero en celular: el video no tan alto, para que se vea junto al texto */
+  @media (max-width: 767px) {
+    .pc-hero-video { height: auto !important; width: min(86vw, 380px); }
+  }
+
   .pc-site {
     --pc-bg: #f0ebe5;
     --pc-bg-alt: #f0ebe5;
