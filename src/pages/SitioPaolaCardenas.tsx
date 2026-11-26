@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Check, CreditCard, ExternalLink, Eye, Instagram, ScanFace, Sparkles } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, CreditCard, ExternalLink, Eye, Instagram, ScanFace, Sparkles } from "lucide-react";
 import { TRATAMIENTOS } from "./paola/datos";
 import { useTratamientos } from "./paola/vivos";
 import { SITE_STYLES, Footer, WhatsAppButton, WHATSAPP_NUMBER, useMeta, waLink, tc } from "./paola/comun";
@@ -561,7 +561,7 @@ function AccordionStep({
           <span className="rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ width: 30, height: 30, border: "1px solid rgba(50,44,40,0.25)", fontSize: 14, color: "#322C28", transform: open ? "rotate(180deg)" : "none" }}>↓</span>
         </span>
       </button>
-      <div style={{ overflow: "hidden", maxHeight: open ? 400 : 0, opacity: open ? 1 : 0, transition: "max-height .55s cubic-bezier(.16,1,.3,1), opacity .4s" }}>
+      <div style={{ overflow: "hidden", maxHeight: open ? 760 : 0, opacity: open ? 1 : 0, transition: "max-height .55s cubic-bezier(.16,1,.3,1), opacity .4s" }}>
         <div style={{ padding: "4px 4px 24px" }}>{children}</div>
       </div>
     </div>
@@ -584,6 +584,64 @@ function EstadoReserva({ titulo, texto, ok, accion }: { titulo: string; texto: R
       {accion && (
         <button onClick={accion.onClick} className="rounded-full text-sm" style={{ padding: "12px 28px", background: "#727f89", color: "#fff" }}>{accion.label}</button>
       )}
+    </div>
+  );
+}
+
+/** Calendario mensual: solo se pueden elegir los días con atención (martes, jueves y sábado) */
+function CalendarioReserva({ dias, value, onChange }: { dias: DiaReserva[]; value: string; onChange: (id: string) => void }) {
+  const disponibles = new Set(dias.map((d) => d.id));
+  const meses = [...new Set(dias.map((d) => d.id.slice(0, 7)))]; // "2026-12"
+  const [idx, setIdx] = useState(() => Math.max(0, meses.indexOf((value || dias[0]?.id || "").slice(0, 7))));
+  const mesActual = meses[idx];
+  if (!mesActual) return null;
+  const [anio, mes] = mesActual.split("-").map(Number);
+  const primero = new Date(anio, mes - 1, 1);
+  const enMes = new Date(anio, mes, 0).getDate();
+  const offset = (primero.getDay() + 6) % 7; // semana parte el lunes
+  const celdas: (number | null)[] = [...Array(offset).fill(null), ...Array.from({ length: enMes }, (_, i) => i + 1)];
+  while (celdas.length % 7) celdas.push(null);
+  const nombreMes = primero.toLocaleDateString("es-CL", { month: "long", year: "numeric" }).replace(/^./, (c) => c.toUpperCase());
+  const flecha = (activo: boolean) => ({
+    width: 38, height: 38, borderRadius: 999, border: "1px solid rgba(50,44,40,0.16)", display: "grid", placeItems: "center",
+    color: activo ? "#322C28" : "rgba(50,44,40,0.25)", cursor: activo ? "pointer" : "default", background: "#fff",
+  } as React.CSSProperties);
+
+  return (
+    <div className="mx-auto" style={{ maxWidth: 440 }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+        <button type="button" aria-label="Mes anterior" disabled={idx === 0} onClick={() => setIdx((i) => i - 1)} style={flecha(idx > 0)}><ChevronLeft className="h-4 w-4" /></button>
+        <p className="pc-serif" style={{ fontSize: 22, color: "#322C28" }}>{nombreMes}</p>
+        <button type="button" aria-label="Mes siguiente" disabled={idx === meses.length - 1} onClick={() => setIdx((i) => i + 1)} style={flecha(idx < meses.length - 1)}><ChevronRight className="h-4 w-4" /></button>
+      </div>
+      <div className="grid grid-cols-7 text-center" style={{ gap: 6 }}>
+        {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => (
+          <div key={i} style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", color: "#8C8378", paddingBottom: 6 }}>{d}</div>
+        ))}
+        {celdas.map((dia, i) => {
+          if (!dia) return <div key={i} />;
+          const id = `${mesActual}-${String(dia).padStart(2, "0")}`;
+          const ok = disponibles.has(id);
+          const sel = id === value;
+          return (
+            <button key={i} type="button" disabled={!ok} onClick={() => onChange(id)} aria-pressed={sel}
+              className={ok && !sel ? "transition-colors hover:bg-[#B89B6A]/15" : ""}
+              style={{
+                aspectRatio: "1", borderRadius: 999, fontSize: 15, fontWeight: ok ? 600 : 400,
+                color: sel ? "#fff" : ok ? "#322C28" : "rgba(50,44,40,0.22)",
+                background: sel ? "#B89B6A" : ok ? "#f0ebe5" : "transparent",
+                border: ok && !sel ? "1px solid rgba(184,155,106,0.45)" : "1px solid transparent",
+                boxShadow: sel ? "0 8px 20px rgba(184,155,106,0.35)" : "none",
+                cursor: ok ? "pointer" : "default",
+              }}>
+              {dia}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-center" style={{ marginTop: 14, fontSize: 12.5, color: "#8C8378" }}>
+        Atención martes, jueves y sábado · elige uno de los días marcados
+      </p>
     </div>
   );
 }
@@ -680,14 +738,7 @@ function BookingSection() {
 
         <div className="mt-11 rounded-3xl" style={{ background: "#fff", border: "1px solid rgba(50,44,40,0.14)", padding: "clamp(18px,2.2vw,32px) clamp(20px,2.6vw,40px)" }}>
           <AccordionStep num="01" title="Día de la evaluación" valueLabel={dayLabel} open={openStep === "day"} onToggle={() => setOpenStep(openStep === "day" ? null : "day")}>
-            <select value={date} onChange={(e) => { setDate(e.target.value); setTime(""); }} style={selectStyle}>
-              <option value="">Selecciona un día · martes, jueves o sábado</option>
-              {[...new Set(days.map((d) => d.mes))].map((mes) => (
-                <optgroup key={mes} label={mes}>
-                  {days.filter((d) => d.mes === mes).map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-                </optgroup>
-              ))}
-            </select>
+            <CalendarioReserva dias={days} value={date} onChange={(d) => { setDate(d); setTime(""); setOpenStep("hour"); }} />
           </AccordionStep>
 
           <AccordionStep num="02" title="Hora" valueLabel={time ? `${time} h` : undefined} open={openStep === "hour"} onToggle={() => setOpenStep(openStep === "hour" ? null : "hour")}>
