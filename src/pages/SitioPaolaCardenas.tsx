@@ -604,12 +604,12 @@ function BookingSection() {
     const q = new URLSearchParams(window.location.search);
     const pago = q.get("pago");
     if (!pago) return;
-    const paymentId = q.get("payment_id") || q.get("collection_id");
+    const paymentId = q.get("order_id");
     window.history.replaceState(null, "", window.location.pathname + "#agenda");
     setTimeout(() => document.getElementById("agenda")?.scrollIntoView({ behavior: "smooth" }), 300);
     if (!paymentId || paymentId === "null") { setStep(pago === "ok" ? "pago-pendiente" : "pago-fallido"); return; }
     setStep("verificando");
-    fetch(`/api/booking/slots-paola?action=pago&payment_id=${encodeURIComponent(paymentId)}`)
+    fetch(`/api/booking/slots-paola?action=pago&order_id=${encodeURIComponent(paymentId)}`)
       .then((r) => r.json())
       .then((d) => {
         setReservaPagada({ fecha: d.fecha, hora: d.hora });

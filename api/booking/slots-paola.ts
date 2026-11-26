@@ -218,40 +218,60 @@ async function enviarCorreos(d: DatosReserva, pagado: boolean) {
   return emailStatus;
 }
 
+/** Fecha ("2026-11-26") y hora ("10:30") en Santiago a partir de un ISO en UTC */
+function enSantiago(iso: string): { date: string; hour: string } {
+  const d = new Date(iso);
+  const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const hour = new Intl.DateTimeFormat("en-GB", { timeZone: "America/Santiago", hour: "2-digit", minute: "2-digit", hour12: false }).format(d);
+  return { date, hour };
+}
+
+/** Arma los datos de la reserva desde la base (reserva + ficha de la paciente) */
+async function datosDeReserva(reservaId: string): Promise<(DatosReserva & { status: string; isoDate: string }) | null> {
+  const [r] = await sbGet(`reservas?id=eq.${reservaId}&user_id=eq.${USER_ID}&select=id,status,date,client_id,client_name,service_name`);
+  if (!r) return null;
+  const [f] = await sbGet(`fichas_clientes?user_id=eq.${USER_ID}&client_key=eq.${encodeURIComponent(r.client_id)}&select=email,phone,rut`);
+  const { date, hour } = enSantiago(r.date);
+  return {
+    reservaId, status: r.status, isoDate: r.date, name: r.client_name,
+    email: f?.email ?? undefined, phone: f?.phone ?? undefined, rut: f?.rut ?? undefined,
+    date, hour, serviceName: String(r.service_name ?? "").replace(MARCA_ESPERA, ""),
+  };
+}
+
 /**
- * Verifica un pago en Mercado Pago y, si está aprobado, confirma la reserva asociada.
+ * Verifica una orden de Mercado Pago (API de Orders) y, si está pagada, confirma la reserva asociada.
  * Es idempotente: el webhook y la vuelta de la clienta al sitio pueden llamarla ambas.
  */
-async function confirmarPago(paymentId: string): Promise<{ estado: string; reservaId?: string; fecha?: string; hora?: string }> {
-  const r = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, {
+async function confirmarPago(orderId: string): Promise<{ estado: string; reservaId?: string; fecha?: string; hora?: string }> {
+  const r = await fetch(`https://api.mercadopago.com/v1/orders/${encodeURIComponent(orderId)}`, {
     headers: { Authorization: `Bearer ${MP_TOKEN}` },
   });
   if (!r.ok) return { estado: "desconocido" };
-  const pago = await r.json();
-  const reservaId: string | undefined = pago.external_reference;
-  const meta = pago.metadata ?? {};
-  if (!reservaId || !meta.date || !meta.hour) return { estado: "desconocido" };
-  const base = { reservaId, fecha: meta.date as string, hora: meta.hour as string };
+  const orden = await r.json();
+  const reservaId: string | undefined = orden.external_reference;
+  if (!reservaId) return { estado: "desconocido" };
+  const datos = await datosDeReserva(reservaId);
+  if (!datos) return { estado: "desconocido" };
+  const base = { reservaId, fecha: datos.date, hora: datos.hour };
 
-  if (pago.status !== "approved") {
-    return { ...base, estado: pago.status === "pending" || pago.status === "in_process" ? "pendiente" : "rechazado" };
+  const pagada = orden.status === "processed" && ["accredited", "partially_refunded"].includes(orden.status_detail);
+  if (!pagada) {
+    if (orden.status === "failed" || orden.status === "canceled" || orden.status === "refunded") return { ...base, estado: "rechazado" };
+    return { ...base, estado: "pendiente" };
   }
-  if (Number(pago.transaction_amount) < ABONO) return { ...base, estado: "monto-incorrecto" };
+  const pagado = Number(orden.total_paid_amount ?? orden.total_amount);
+  if (!(pagado >= ABONO)) return { ...base, estado: "monto-incorrecto" };
 
-  const datos: DatosReserva = {
-    reservaId, name: meta.name, email: meta.email, phone: meta.phone, rut: meta.rut,
-    date: meta.date, hour: meta.hour, serviceName: meta.service_name,
-  };
   const confirmar = { status: "confirmada", amount: ABONO, service_name: datos.serviceName };
 
   // Caso normal: la hora seguía retenida esperando el pago
   let filas = await sbPatch(`reservas?id=eq.${reservaId}&status=eq.pendiente`, confirmar);
 
   if (!filas.length) {
-    const [actual] = await sbGet(`reservas?id=eq.${reservaId}&select=id,status,date`);
-    if (actual?.status === "confirmada") return { ...base, estado: "confirmada" };
+    if (datos.status === "confirmada") return { ...base, estado: "confirmada" };
     // La retención venció antes de que llegara el pago: se recupera la hora si sigue libre
-    if (actual?.status === "cancelada" && !(await horaOcupada(actual.date, reservaId))) {
+    if (datos.status === "cancelada" && !(await horaOcupada(datos.isoDate, reservaId))) {
       filas = await sbPatch(`reservas?id=eq.${reservaId}&status=eq.cancelada`, confirmar);
     }
     if (!filas.length) {
@@ -263,7 +283,7 @@ async function confirmarPago(paymentId: string): Promise<{ estado: string; reser
           body: JSON.stringify({
             from: "Dra. Paola Cárdenas Fica <noreply@somaos.app>", to: [DRA_EMAIL],
             subject: `Abono pagado sin hora disponible: ${datos.name}`,
-            html: `<p>${datos.name} pagó el abono (${paymentId}) para el ${datos.date} ${datos.hour}, pero esa hora ya no estaba disponible. Contáctala para reagendar: ${datos.email || "-"} / ${datos.phone || "-"}.</p>`,
+            html: `<p>${datos.name} pagó el abono (orden ${orderId}) para el ${datos.date} ${datos.hour}, pero esa hora ya no estaba disponible. Contáctala para reagendar: ${datos.email || "-"} / ${datos.phone || "-"}.</p>`,
           }),
         }).catch(() => {});
       }
@@ -285,10 +305,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // ── Pago del abono: webhook de Mercado Pago y verificación al volver al sitio ──
   if (req.query.action === "pago") {
     if (!MP_TOKEN) return res.status(200).json({ estado: "desconocido" });
+    // Webhook: { type: "order", action: "order.processed", data: { id: "ORD..." } } (y data.id en la URL)
     const tipo = (req.body?.type ?? req.query.type ?? req.query.topic) as string | undefined;
-    if (tipo && tipo !== "payment") return res.status(200).json({ ok: true });
-    const id = String(req.query.payment_id ?? req.query["data.id"] ?? req.body?.data?.id ?? req.query.id ?? "");
-    if (!/^\d+$/.test(id)) return res.status(200).json({ estado: "desconocido" });
+    if (tipo && !["order", "orders_v2"].includes(tipo)) return res.status(200).json({ ok: true });
+    const id = String(req.query.order_id ?? req.query["data.id"] ?? req.body?.data?.id ?? "");
+    if (!/^[A-Za-z0-9_-]{4,64}$/.test(id)) return res.status(200).json({ estado: "desconocido" });
     try {
       return res.status(200).json(await confirmarPago(id));
     } catch (e) {
@@ -389,40 +410,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const datos: DatosReserva = { reservaId, name, email, phone, rut, date, hour, serviceName };
 
-    // Con Mercado Pago: la hora queda retenida y solo se confirma cuando el abono se aprueba
+    // Con Mercado Pago (API de Orders, Checkout Pro): la hora queda retenida y solo se confirma cuando el abono se aprueba
     if (conAbono) {
-      const vence = new Date(Date.now() + MINUTOS_PARA_PAGAR * 60_000).toISOString().replace("Z", "+00:00");
-      const prefRes = await fetch("https://api.mercadopago.com/checkout/preferences", {
+      const [nombre, ...apellidos] = String(name).trim().split(/\s+/);
+      const ordRes = await fetch("https://api.mercadopago.com/v1/orders", {
         method: "POST",
-        headers: { Authorization: `Bearer ${MP_TOKEN}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${MP_TOKEN}`, "Content-Type": "application/json", "X-Idempotency-Key": reservaId },
         body: JSON.stringify({
-          items: [{
-            id: "abono-evaluacion", title: `Abono reserva · ${serviceName}`,
-            description: "Se descuenta del valor total del tratamiento si se realiza el mismo día",
-            quantity: 1, unit_price: ABONO, currency_id: "CLP",
-          }],
-          payer: { name, email: email || undefined },
+          type: "online",
+          processing_mode: "manual",
+          total_amount: String(ABONO),
           external_reference: reservaId,
-          metadata: { reserva_id: reservaId, name, email, phone, rut, date, hour, service_name: serviceName },
-          back_urls: {
-            success: `${SITE_URL}/?pago=ok`,
-            pending: `${SITE_URL}/?pago=pendiente`,
-            failure: `${SITE_URL}/?pago=error`,
+          expiration_time: `PT${MINUTOS_PARA_PAGAR}M`,
+          description: `Abono reserva · ${serviceName}`,
+          payer: { email: email || undefined, first_name: nombre, last_name: apellidos.join(" ") || undefined },
+          items: [{
+            external_code: "abono-evaluacion", title: `Abono reserva · ${serviceName}`,
+            description: "Se descuenta del valor total del tratamiento si se realiza el mismo día",
+            quantity: 1, unit_price: String(ABONO),
+          }],
+          config: {
+            statement_descriptor: "DRA PAOLA CARDENAS",
+            online: {
+              success_url: `${SITE_URL}/?pago=ok`,
+              pending_url: `${SITE_URL}/?pago=pendiente`,
+              failure_url: `${SITE_URL}/?pago=error`,
+              auto_return: "approved",
+            },
           },
-          auto_return: "approved",
-          notification_url: `${SITE_URL}/api/booking/slots-paola?action=pago`,
-          statement_descriptor: "DRA PAOLA CARDENAS",
-          expires: true,
-          expiration_date_to: vence,
         }),
       });
-      const pref = await prefRes.json().catch(() => ({}));
-      if (!prefRes.ok || !pref.init_point) {
-        console.error("Mercado Pago preference failed:", pref);
+      const orden = await ordRes.json().catch(() => ({}));
+      if (!ordRes.ok || !orden.checkout_url) {
+        console.error("Mercado Pago order failed:", ordRes.status, orden);
         await sbPatch(`reservas?id=eq.${reservaId}`, { status: "cancelada" });
         return res.status(502).json({ error: "pago", message: "No pudimos iniciar el pago. Inténtalo de nuevo o escríbenos por WhatsApp." });
       }
-      return res.json({ ok: true, reservaId, pagoUrl: pref.init_point });
+      return res.json({ ok: true, reservaId, pagoUrl: orden.checkout_url });
     }
 
     // Sin Mercado Pago configurado: flujo anterior (confirmación por email)
